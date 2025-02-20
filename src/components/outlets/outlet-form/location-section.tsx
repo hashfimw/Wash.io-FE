@@ -1,0 +1,139 @@
+// src/components/outlets/outlet-form/location-section.tsx
+import { UseFormReturn } from "react-hook-form";
+import { OutletFormValues } from "./schema";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import dynamic from "next/dynamic";
+import { SearchableAddress } from "@/components/address/SearchableAddress";
+
+// Dynamic import untuk LocationPicker
+const LocationPicker = dynamic(
+  () =>
+    import("@/components/map/locationPicker").then((mod) => mod.LocationPicker),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[300px] w-full flex items-center justify-center border rounded-md">
+        Loading map...
+      </div>
+    ),
+  }
+);
+
+interface LocationSectionProps {
+  form: UseFormReturn<OutletFormValues>;
+}
+
+export function LocationSection({ form }: LocationSectionProps) {
+  return (
+    <div className="space-y-4">
+      {/* Map Picker */}
+      <div>
+        <FormLabel>Select Location</FormLabel>
+        <LocationPicker
+          form={form}
+          latitude={form.watch("latitude")}
+          longitude={form.watch("longitude")}
+        />
+      </div>
+
+      <SearchableAddress form={form} />
+
+      {/* Province and Regency */}
+      <div className="grid grid-cols-2 gap-4">
+        <FormField
+          control={form.control}
+          name="province"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Province</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Province" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="regency"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Regency</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Regency" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      {/* District and Village */}
+      <div className="grid grid-cols-2 gap-4">
+        <FormField
+          control={form.control}
+          name="district"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>District</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="District" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="village"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Village</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Village" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      {/* Coordinates */}
+      <div className="grid grid-cols-2 gap-4">
+        <FormField
+          control={form.control}
+          name="latitude"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Latitude</FormLabel>
+              <FormControl>
+                <Input {...field} readOnly />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="longitude"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Longitude</FormLabel>
+              <FormControl>
+                <Input {...field} readOnly />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+    </div>
+  );
+}
