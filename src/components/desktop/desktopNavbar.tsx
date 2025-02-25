@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function DesktopNavbar() {
   const [navbarColor, setNavbarColor] = useState("#E7FAFE");
@@ -29,26 +30,20 @@ export default function DesktopNavbar() {
       }`}
       style={{ backgroundColor: navbarColor }}
     >
-      <Link href={"/"} className="text-xl font-bold">
-        Wash<span className="text-orange-500">io</span>
-      </Link>
-      <nav className="space-x-6">
-        <a href="#" className="hover:text-orange-500">
-          Home
-        </a>
-        <a href="#" className="hover:text-orange-500">
-          Services
-        </a>
-        <a href="#" className="hover:text-orange-500">
-          Locations
-        </a>
-        <a href="#" className="hover:text-orange-500">
-          About
-        </a>
-        <a href="#" className="hover:text-orange-500">
-          Contact
-        </a>
-      </nav>
+      <div className="flex flex-row">
+        <Link href={"/"} className="w-[36px] h-[36px] relative bottom-2">
+          <Image
+            src={"/washio.png"}
+            alt="washio-logo"
+            layout="fill"
+            className="object-cover"
+          />
+        </Link>
+        <Link href={"/"} className="text-xl font-semibold">
+          ash<span className="text-orange-500">io</span>
+        </Link>
+      </div>
+
       <Button className="bg-orange-500 hover:bg-orange-600 text-white text-sm">
         Sign In
       </Button>
