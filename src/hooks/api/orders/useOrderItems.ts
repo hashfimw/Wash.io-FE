@@ -7,19 +7,31 @@ import { ProcessOrderFormValues } from "@/components/orders/process-order/Proces
 export function useOrderItems(form: UseFormReturn<ProcessOrderFormValues>) {
   const [inputType, setInputType] = useState<"select" | "custom">("select");
 
-  // Use fieldArray to properly manage dynamic fields
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "orderItems",
   });
 
+  // Fungsi untuk normalisasi string
+  const normalizeString = (str: string) => {
+    return str
+      .toLowerCase() // Ubah ke lowercase
+      .trim() // Hilangkan spasi di awal dan akhir
+      .replace(/\s+/g, " ") // Hilangkan multiple spaces
+      .replace(/[^a-z0-9\s]/g, ""); // Hilangkan karakter khusus
+  };
+
   // Check for duplicate items
   const isDuplicateItem = (itemName: string, currentIndex: number) => {
+    if (!itemName) return false;
+
+    const normalizedNewItem = normalizeString(itemName);
     const items = form.getValues("orderItems");
+
     return items.some(
       (item, index) =>
         index !== currentIndex &&
-        item.orderItemName.toLowerCase() === itemName.toLowerCase()
+        normalizeString(item.orderItemName) === normalizedNewItem
     );
   };
 
@@ -47,7 +59,7 @@ export function useOrderItems(form: UseFormReturn<ProcessOrderFormValues>) {
     if (value && isDuplicateItem(value, index)) {
       toast({
         title: "Duplicate Item",
-        description: "This item is already added to the order",
+        description: "This item has already been added to the order",
         variant: "destructive",
       });
       return;
@@ -57,15 +69,17 @@ export function useOrderItems(form: UseFormReturn<ProcessOrderFormValues>) {
 
   // Handle input change
   const handleInputChange = (value: string, index: number) => {
-    if (isDuplicateItem(value, index)) {
+    const normalizedValue = value.trim();
+
+    if (isDuplicateItem(normalizedValue, index)) {
       form.setError(`orderItems.${index}.orderItemName`, {
         type: "manual",
-        message: "This item is already added",
+        message: "This item has already been added",
       });
     } else {
       form.clearErrors(`orderItems.${index}.orderItemName`);
     }
-    form.setValue(`orderItems.${index}.orderItemName`, value);
+    form.setValue(`orderItems.${index}.orderItemName`, normalizedValue);
   };
 
   return {

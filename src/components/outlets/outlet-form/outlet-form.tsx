@@ -1,5 +1,5 @@
 // src/components/outlets/outlet-form/outlet-form.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { OutletFormValues, outletFormSchema } from "./schema";
@@ -33,8 +33,28 @@ export function OutletForm({
   const [loading, setLoading] = useState(false);
   const { createOutlet, updateOutlet } = useOutlets();
 
-  const defaultValues: OutletFormValues = outlet
-    ? {
+  // Create form with empty default values first
+  const form = useForm<OutletFormValues>({
+    resolver: zodResolver(outletFormSchema),
+    defaultValues: {
+      outletName: "",
+      addressLine: "",
+      province: "",
+      regency: "",
+      district: "",
+      village: "",
+      latitude: "",
+      longitude: "",
+    },
+  });
+
+  // Set form values when outlet changes or form is opened
+  useEffect(() => {
+    if (outlet && open) {
+      console.log("Setting form values for outlet:", outlet);
+
+      // Use reset instead of defaultValues to update the form when outlet changes
+      form.reset({
         outletName: outlet.outletName,
         addressLine: outlet.outletAddress.addressLine,
         province: outlet.outletAddress.province,
@@ -43,8 +63,10 @@ export function OutletForm({
         village: outlet.outletAddress.village,
         latitude: outlet.outletAddress.latitude || "",
         longitude: outlet.outletAddress.longitude || "",
-      }
-    : {
+      });
+    } else if (!outlet && open) {
+      // Reset form when creating a new outlet
+      form.reset({
         outletName: "",
         addressLine: "",
         province: "",
@@ -53,12 +75,9 @@ export function OutletForm({
         village: "",
         latitude: "",
         longitude: "",
-      };
-
-  const form = useForm<OutletFormValues>({
-    resolver: zodResolver(outletFormSchema),
-    defaultValues,
-  });
+      });
+    }
+  }, [outlet, open, form]);
 
   const onSubmit = async (values: OutletFormValues) => {
     try {

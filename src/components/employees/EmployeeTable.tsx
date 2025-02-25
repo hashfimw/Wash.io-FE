@@ -22,9 +22,8 @@ import {
 import { useEmployees } from "@/hooks/api/employees/useEmployee";
 import { useEmployeeTable } from "@/hooks/api/employees/useEmployeeTable";
 import { EmployeeTableFilters } from "./employee-form/employee-table-filters";
-import { EmployeeTablePagination } from "./employee-form/employee-table-pagination";
 import { EmployeeDeleteAlert } from "./employee-form/employee-delete-alert";
-import { OutletTablePagination } from "../outlets/outlet-table-pagination";
+import { TablePagination } from "../shared/usePagination";
 
 interface EmployeeTableProps {
   onEdit: (employee: Employee) => void;
@@ -41,17 +40,17 @@ export function EmployeeTable({ onEdit }: EmployeeTableProps) {
     loading,
     error,
     searchQuery,
-    setSearchQuery,
     currentPage,
     setCurrentPage,
     totalPages,
     sortBy,
     setSortBy,
-    resetFilters,
+    onResetFilters,
     selectedRole,
-    setSelectedRole,
+    onSearchChange,
+    onOutletChange,
+    onRoleChange,
     selectedOutlet,
-    setSelectedOutlet,
   } = useEmployeeTable();
 
   const handleDelete = async () => {
@@ -83,12 +82,12 @@ export function EmployeeTable({ onEdit }: EmployeeTableProps) {
     <div className="space-y-4 bg-putih">
       <EmployeeTableFilters
         searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
+        onSearchChange={onSearchChange}
         selectedRole={selectedRole}
-        onRoleChange={setSelectedRole}
+        onRoleChange={onRoleChange}
         selectedOutlet={selectedOutlet}
-        onOutletChange={setSelectedOutlet}
-        onResetFilters={resetFilters}
+        onOutletChange={onOutletChange}
+        onResetFilters={onResetFilters}
       />
 
       <div className="rounded-md border">
@@ -127,8 +126,10 @@ export function EmployeeTable({ onEdit }: EmployeeTableProps) {
                 </TableCell>
                 <TableCell>{employee.email}</TableCell>
                 <TableCell>
-                  {employee.role.charAt(0) +
-                    employee.role.slice(1).toLowerCase()}
+                  {employee.role
+                    .toLowerCase()
+                    .replace(/_/g, " ")
+                    .replace(/^\w|\s\w/g, (c) => c.toUpperCase())}
                 </TableCell>
                 <TableCell>
                   {employee.Employee?.workShift
@@ -171,7 +172,7 @@ export function EmployeeTable({ onEdit }: EmployeeTableProps) {
       </div>
 
       <div className="flex justify-end">
-        <OutletTablePagination
+        <TablePagination
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={setCurrentPage}

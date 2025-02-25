@@ -25,8 +25,6 @@ export const usePendingOrders = () => {
       const filtered = response.data.data.filter(
         (order) => order.orderStatus === "ARRIVED_AT_OUTLET"
       );
-
-      setPendingOrders(filtered);
       return filtered;
     } catch (err) {
       setError("Failed to fetch pending orders");

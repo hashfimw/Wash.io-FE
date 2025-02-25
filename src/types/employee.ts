@@ -68,7 +68,16 @@ export interface ReassignEmployeesInput {
   assignments: AssignEmployeeInput[];
 }
 
-export interface EmployeeSortField {
-  field: keyof (Employee & User);
+export type EmployeeSortField =
+  | "fullName"
+  | "email"
+  | "role"
+  | "outlet"
+  | "workShift"
+  | "station"
+  | "employmentStatus";
+
+export interface SortConfig {
+  field: EmployeeSortField;
   direction: "asc" | "desc";
 }

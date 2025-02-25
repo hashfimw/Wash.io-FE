@@ -1,5 +1,5 @@
 // src/components/outlets/outlet-form/location-section.tsx
-import { UseFormReturn } from "react-hook-form";
+import { UseFormReturn, useWatch } from "react-hook-form";
 import { OutletFormValues } from "./schema";
 import {
   FormField,
@@ -11,6 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import dynamic from "next/dynamic";
 import { SearchableAddress } from "@/components/address/SearchableAddress";
+import { useEffect } from "react";
 
 // Dynamic import untuk LocationPicker
 const LocationPicker = dynamic(
@@ -31,16 +32,36 @@ interface LocationSectionProps {
 }
 
 export function LocationSection({ form }: LocationSectionProps) {
+  // Gunakan useWatch untuk memantau perubahan pada field latitude & longitude
+  const latitude = useWatch({ control: form.control, name: "latitude" });
+  const longitude = useWatch({ control: form.control, name: "longitude" });
+
+  // Debugging
+  useEffect(() => {
+    console.log("Current form values:", form.getValues());
+  }, [form]);
+
   return (
     <div className="space-y-4">
+      {/* Address Line */}
+      <FormField
+        control={form.control}
+        name="addressLine"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Address Line</FormLabel>
+            <FormControl>
+              <Input {...field} placeholder="Full address" />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
       {/* Map Picker */}
       <div>
         <FormLabel>Select Location</FormLabel>
-        <LocationPicker
-          form={form}
-          latitude={form.watch("latitude")}
-          longitude={form.watch("longitude")}
-        />
+        <LocationPicker form={form} latitude={latitude} longitude={longitude} />
       </div>
 
       <SearchableAddress form={form} />

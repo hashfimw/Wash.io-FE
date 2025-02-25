@@ -105,6 +105,7 @@ export interface OrderItem {
 export interface ApiResponse<T> {
   success: boolean;
   data: {
+    meta: any;
     data: T;
   };
 }
@@ -116,4 +117,26 @@ export interface ProcessOrderRequest {
     orderItemName: string;
     qty: number;
   }[];
+}
+
+export interface OrderParams {
+  page?: number;
+  limit?: number;
+  outletId?: number;
+  orderStatus?: OrderStatus | "all status";
+  search?: string;
+  sortOrder?: "asc" | "desc";
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface OrderResponse {
+  filter(arg0: (order: { orderStatus: string }) => boolean): unknown;
+  data: Order[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalRecords: number;
+  };
 }

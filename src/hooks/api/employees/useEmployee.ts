@@ -25,13 +25,45 @@ export const useEmployees = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getEmployees = async () => {
+  const getEmployees = async (
+    params: {
+      page?: number;
+      limit?: number;
+      sortBy?: string;
+      sortOrder?: "asc" | "desc";
+      search?: string;
+      role?: string;
+      outletName?: string;
+    } = {}
+  ) => {
     try {
       setLoading(true);
-      const response = await api.get<ApiResponse<Employee[]>>("/adm-employees");
-      console.log("Raw API Response:", response); // Debug
-      return response.data;
+
+      // Build query parameters
+      const queryParams = new URLSearchParams();
+      if (params.page) queryParams.append("page", params.page.toString());
+      if (params.limit) queryParams.append("limit", params.limit.toString());
+      if (params.sortBy) queryParams.append("sortBy", params.sortBy);
+      if (params.sortOrder) queryParams.append("sortOrder", params.sortOrder);
+      if (params.search) queryParams.append("search", params.search);
+      if (params.role) queryParams.append("role", params.role);
+      if (params.outletName)
+        queryParams.append("outletName", params.outletName);
+
+      const url = `/adm-employees${
+        queryParams.toString() ? `?${queryParams.toString()}` : ""
+      }`;
+      console.log("Fetching employees from:", url);
+
+      const response = await api.get<ApiResponse<Employee[]>>(url);
+      console.log("Employee data:", response.data);
+
+      return {
+        employees: response.data.data,
+        meta: response.data.meta,
+      };
     } catch (err) {
+      console.error("Error fetching employees:", err);
       setError("Failed to fetch employees");
       throw err;
     } finally {

@@ -2,106 +2,131 @@
 import { useEffect, useState } from "react";
 import { useOutlets } from "./useOutlets";
 import { Outlet, OutletSortField, SortConfig } from "@/types/outlet";
+import { useDebounce } from "@/hooks/useDebounce";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 interface UseOutletTableProps {
   pageSize?: number;
 }
-
 export function useOutletTable({ pageSize = 10 }: UseOutletTableProps = {}) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // States
+  const [outlets, setOutlets] = useState<Outlet[]>([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [searchQuery, setSearchQuery] = useState(
+    searchParams.get("search") || ""
+  );
+  const [currentPage, setCurrentPage] = useState(
+    Number(searchParams.get("page")) || 1
+  );
   const [sortBy, setSortBy] = useState<SortConfig>({
-    field: "outletName",
-    direction: "asc",
+    field: (searchParams.get("sortBy") as OutletSortField) || "outletName",
+    direction: (searchParams.get("sortBy") as "asc" | "desc") || "asc",
   });
 
-  const [outlets, setOutlets] = useState<Outlet[]>([]);
+  // Hooks
   const { loading, error, getOutlets } = useOutlets();
+  const debouncedSearch = useDebounce(searchQuery, 500);
+
+  // Update URL dengan parameter baru
+  const updateUrl = (newParams: Record<string, string | null>) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (value === null || value === "") {
+        params.delete(key);
+      } else {
+        params.set(key, value);
+      }
+    });
+
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  // Fetch data
+  // src/hooks/api/outlets/useOutletTable.ts
+  const fetchOutlets = async () => {
+    try {
+      const response = await getOutlets({
+        page: currentPage,
+        limit: pageSize,
+        search: debouncedSearch,
+        sortBy: sortBy.field,
+        sortList: sortBy.direction,
+      });
+
+      setOutlets(response.data);
+
+      // Set total pages dari response.meta.total
+      if (response.meta) {
+        setTotalPages(response.meta.total);
+      }
+    } catch (error) {
+      console.error("Error fetching outlets:", error);
+    }
+  };
+
+  // Effect untuk update URL saat parameter berubah
+  useEffect(() => {
+    updateUrl({
+      page: currentPage.toString(),
+      search: debouncedSearch || null,
+      sortBy: sortBy.field,
+      sortOrder: sortBy.direction,
+    });
+  }, [currentPage, debouncedSearch, sortBy]);
+
+  // Effect untuk fetch data saat URL berubah
+  useEffect(() => {
+    fetchOutlets();
+  }, [searchParams]);
 
   useEffect(() => {
-    const fetchOutlets = async () => {
-      try {
-        const response = await getOutlets();
-        setOutlets(response.data);
-      } catch (error) {
-        console.error("Error fetching outlets:", error);
-      }
-    };
-
-    fetchOutlets();
-  }, []);
-
-  const filteredOutlets = outlets.filter(
-    (outlet) =>
-      outlet.outletName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      outlet.outletAddress.addressLine
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase())
-  );
-
-  const sortedOutlets = [...filteredOutlets].sort((a, b) => {
-    let aValue: string;
-    let bValue: string;
-
-    // Menentukan nilai yang akan dibandingkan berdasarkan field sorting
-    switch (sortBy.field) {
-      case "outletName":
-        aValue = a.outletName;
-        bValue = b.outletName;
-        break;
-      case "addressLine":
-        aValue = a.outletAddress.addressLine;
-        bValue = b.outletAddress.addressLine;
-        break;
-      case "province":
-        aValue = a.outletAddress.province;
-        bValue = b.outletAddress.province;
-        break;
-      case "district":
-        aValue = a.outletAddress.district;
-        bValue = b.outletAddress.district;
-        break;
-      case "regency":
-        aValue = a.outletAddress.regency;
-        bValue = b.outletAddress.regency;
-        break;
-      case "village":
-        aValue = a.outletAddress.village;
-        bValue = b.outletAddress.village;
-        break;
-      default:
-        aValue = a.outletName;
-        bValue = b.outletName;
+    // Cek jika ada query params
+    if (searchParams.toString()) {
+      // Bersihkan URL ke path awal
+      router.push(pathname);
     }
+  }, []);
+  // Handler untuk search
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+  };
 
-    return sortBy.direction === "asc"
-      ? aValue.localeCompare(bValue)
-      : bValue.localeCompare(aValue);
-  });
+  // Handler untuk sort
+  const handleSortChange = (field: OutletSortField) => {
+    setSortBy((prev) => ({
+      field,
+      direction:
+        prev.field === field && prev.direction === "asc" ? "desc" : "asc",
+    }));
+    setCurrentPage(1);
+  };
 
-  const totalPages = Math.ceil(sortedOutlets.length / pageSize);
-  const paginatedOutlets = sortedOutlets.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
-
+  // Reset semua filter
   const resetFilters = () => {
     setSearchQuery("");
     setCurrentPage(1);
     setSortBy({ field: "outletName", direction: "asc" });
+    router.push(pathname);
   };
 
   return {
-    outlets: paginatedOutlets,
+    outlets,
     loading,
     error,
     searchQuery,
-    setSearchQuery,
+    onSearchChange: handleSearchChange,
     currentPage,
     setCurrentPage,
     totalPages,
     sortBy,
-    setSortBy,
+    onSortChange: handleSortChange,
     resetFilters,
+    refresh: fetchOutlets,
   };
 }

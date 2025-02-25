@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Badge } from "@/components/ui/badge";
-import { OutletTablePagination } from "../outlets/outlet-table-pagination";
+import { TablePagination } from "../shared/usePagination";
 import { User } from "@/types/user";
 
 interface UserTableProps {
@@ -129,7 +129,7 @@ export function UserTable({
       {/* Pagination - only show if there are users */}
       {!isEmptyUsers && (
         <div className="flex justify-end">
-          <OutletTablePagination
+          <TablePagination
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={onPageChange}

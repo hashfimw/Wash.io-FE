@@ -1,10 +1,23 @@
-// src/components/shared/Sidebar.tsx
 "use client";
 import { Button } from "@/components/ui/button";
-import { Menu, ChevronDown, ChevronRight, Store } from "lucide-react";
+import {
+  Store,
+  ChevronDown,
+  ChevronRight,
+  BriefcaseBusiness,
+  UsersRound,
+  ShoppingBag,
+  GitPullRequest,
+  ChartColumn,
+  TableOfContents,
+  Shirt,
+  ShoppingBasket,
+  ClipboardCheck,
+  FileChartColumnIncreasing,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 interface SidebarProps {
   role: "SUPER_ADMIN" | "OUTLET_ADMIN";
@@ -18,58 +31,131 @@ interface MenuItem {
   isExpanded?: boolean;
 }
 
+// Define menu configurations
+const MENU_CONFIG = {
+  SUPER_ADMIN: [
+    {
+      title: "Overview",
+      path: "/super-admin/dashboard",
+      icon: <FileChartColumnIncreasing size={20} />,
+    },
+    {
+      title: "Outlets",
+      path: "/super-admin/outlets",
+      icon: <Store size={20} />,
+    },
+    {
+      title: "Employees",
+      path: "/super-admin/employees",
+      icon: <BriefcaseBusiness size={20} />,
+    },
+    {
+      title: "Customers",
+      path: "/super-admin/customers",
+      icon: <UsersRound size={20} />,
+    },
+    {
+      title: "Orders",
+      path: "",
+      icon: <TableOfContents size={20} />,
+      submenu: [
+        {
+          title: "List Orders & Tracking",
+          path: "/super-admin/orders",
+          icon: <ShoppingBag size={20} />,
+        },
+        {
+          title: "Process Orders",
+          path: "/super-admin/orders/process",
+          icon: <ShoppingBasket size={20} />,
+        },
+      ],
+    },
+    {
+      title: "Bypass Requests",
+      path: "/super-admin/bypass",
+      icon: <GitPullRequest size={20} />,
+    },
+    {
+      title: "Reports",
+      path: "/super-admin/reports",
+      icon: <ChartColumn size={20} />,
+    },
+    {
+      title: "Laundry Item",
+      path: "/super-admin/laundry-item",
+      icon: <Shirt size={20} />,
+    },
+    {
+      title: "Attendances",
+      path: "/super-admin/attendances",
+      icon: <ClipboardCheck size={20} />,
+    },
+  ],
+  OUTLET_ADMIN: [
+    {
+      title: "Overview",
+      path: "/outlet-admin/dashboard",
+      icon: <FileChartColumnIncreasing size={20} />,
+    },
+    {
+      title: "Orders",
+      path: "",
+      icon: <TableOfContents size={20} />,
+      submenu: [
+        {
+          title: "List Orders & Tracking",
+          path: "/outlet-admin/orders",
+          icon: <ShoppingBag size={20} />,
+        },
+        {
+          title: "Process Orders",
+          path: "/outlet-admin/orders/process",
+          icon: <ShoppingBasket size={20} />,
+        },
+      ],
+    },
+    {
+      title: "Bypass Requests",
+      path: "/outlet-admin/bypass",
+      icon: <GitPullRequest size={20} />,
+    },
+    {
+      title: "Reports",
+      path: "/outlet-admin/reports",
+      icon: <ChartColumn size={20} />,
+    },
+    {
+      title: "Attendances",
+      path: "/outlet-admin/attendances",
+      icon: <ClipboardCheck size={20} />,
+    },
+  ],
+};
+
 export const SidebarContent = ({ role }: SidebarProps) => {
   const pathname = usePathname();
-  const [menuItems, setMenuItems] = useState<MenuItem[]>(
-    role === "SUPER_ADMIN"
-      ? [
-          { title: "Overview", path: "/super-admin/dashboard" },
-          {
-            title: "Outlets",
-            path: "/super-admin/outlets",
-            icon: <Store size={18} />,
-          },
-          { title: "Employees", path: "/super-admin/employees" },
-          { title: "Customers", path: "/super-admin/customers" },
-          {
-            title: "Orders",
-            path: "",
-            isExpanded: false,
-            submenu: [
-              { title: "List Orders & Tracking", path: "/super-admin/orders" },
-              { title: "Process Orders", path: "/super-admin/orders/process" },
-            ],
-          },
-          { title: "Bypass Requests", path: "/super-admin/bypass" },
-          { title: "Reports", path: "/super-admin/reports" },
-          { title: "Laundry Item", path: "/super-admin/laundry-item" },
-        ]
-      : [
-          { title: "Overview", path: "/outlet-admin/dashboard" },
-          {
-            title: "Orders",
-            path: "/outlet-admin/orders",
-            isExpanded: false,
-            submenu: [
-              { title: "All Orders", path: "/outlet-admin/orders" },
-              { title: "Manage Orders", path: "/outlet-admin/orders/manage" },
-              { title: "Order Items", path: "/outlet-admin/orders/items" },
-            ],
-          },
-          { title: "Bypass Requests", path: "/outlet-admin/bypass" },
-          { title: "Reports", path: "/outlet-admin/reports" },
-          { title: "Customers", path: "/outlet-admin/customers" },
-        ]
-  );
+
+  // Use useMemo to prevent unnecessary re-renders
+  const initialMenuItems = useMemo(() => {
+    const items = MENU_CONFIG[role] || [];
+    return items.map((item) => ({
+      ...item,
+      isExpanded: item.submenu ? false : undefined,
+    }));
+  }, [role]);
+
+  const [menuItems, setMenuItems] = useState<MenuItem[]>(initialMenuItems);
 
   const toggleSubmenu = (index: number) => {
-    const updatedMenuItems = [...menuItems];
-    updatedMenuItems[index].isExpanded = !updatedMenuItems[index].isExpanded;
-    setMenuItems(updatedMenuItems);
+    setMenuItems((prev) =>
+      prev.map((item, i) =>
+        i === index ? { ...item, isExpanded: !item.isExpanded } : item
+      )
+    );
   };
 
   const isActive = (path: string) => {
-    // Jika path kosong, jangan anggap sebagai active
     if (!path) return false;
     return pathname === path || pathname.startsWith(`${path}/`);
   };
@@ -83,7 +169,7 @@ export const SidebarContent = ({ role }: SidebarProps) => {
       </div>
       <nav className="space-y-1">
         {menuItems.map((item, index) => (
-          <div key={item.path}>
+          <div key={item.path || index}>
             {item.submenu ? (
               <div className="space-y-1">
                 <Button
@@ -91,7 +177,10 @@ export const SidebarContent = ({ role }: SidebarProps) => {
                   className="w-full justify-between"
                   onClick={() => toggleSubmenu(index)}
                 >
-                  <span>{item.title}</span>
+                  <span className="flex items-center">
+                    {item.icon && <span className="mr-2">{item.icon}</span>}
+                    {item.title}
+                  </span>
                   {item.isExpanded ? (
                     <ChevronDown size={16} />
                   ) : (
@@ -110,7 +199,12 @@ export const SidebarContent = ({ role }: SidebarProps) => {
                         }
                         className="w-full justify-start pl-6 text-sm"
                       >
-                        <Link href={subItem.path}>{subItem.title}</Link>
+                        <Link href={subItem.path}>
+                          {subItem.icon && (
+                            <span className="mr-2">{subItem.icon}</span>
+                          )}
+                          {subItem.title}
+                        </Link>
                       </Button>
                     ))}
                   </div>
@@ -122,7 +216,10 @@ export const SidebarContent = ({ role }: SidebarProps) => {
                 variant={isActive(item.path) ? "secondary" : "ghost"}
                 className="w-full justify-start"
               >
-                <Link href={item.path}>{item.title}</Link>
+                <Link href={item.path}>
+                  {item.icon && <span className="mr-2">{item.icon}</span>}
+                  {item.title}
+                </Link>
               </Button>
             )}
           </div>
@@ -134,11 +231,8 @@ export const SidebarContent = ({ role }: SidebarProps) => {
 
 export const Sidebar = ({ role }: SidebarProps) => {
   return (
-    <>
-      {/* Desktop Sidebar */}
-      <aside className="hidden h-screen w-64 border-r lg:block rounded-r-2xl bg-birmud shadow-xl">
-        <SidebarContent role={role} />
-      </aside>
-    </>
+    <aside className="hidden h-[100%] w-64 border-r lg:block rounded-r-2xl bg-birmud shadow-xl">
+      <SidebarContent role={role} />
+    </aside>
   );
 };

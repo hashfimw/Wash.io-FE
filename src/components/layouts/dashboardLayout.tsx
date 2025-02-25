@@ -24,7 +24,7 @@ export function DashboardLayout({
   return (
     <div className="flex min-h-screen bg-putih">
       {/* Desktop Sidebar */}
-      <div className="hidden lg:block bg-birtu">
+      <div className="hidden lg:block rounded-br-2xl bg-birtu">
         <Sidebar role={role} />
       </div>
 

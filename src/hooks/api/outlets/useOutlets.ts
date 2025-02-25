@@ -4,6 +4,8 @@ import {
   Outlet,
   CreateOutletInput,
   UpdateOutletInput,
+  OutletParams,
+  OutletResponse,
   ApiResponse,
 } from "@/types/outlet";
 import { set } from "zod";
@@ -20,18 +22,43 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+interface ApiResponseType {
+  message: string;
+  data: Outlet[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalRecords: number;
+  };
+}
 export const useOutlets = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [outlets, setOutlets] = useState<Outlet[]>([]);
 
-  const getOutlets = async (): Promise<ApiResponse<Outlet[]>> => {
+  const getOutlets = async (
+    params: OutletParams = {}
+  ): Promise<ApiResponseType> => {
     try {
       setLoading(true);
-      const response = await api.get<ApiResponse<Outlet[]>>("/adm-outlets");
-      setOutlets(response.data.data);
+
+      // Build query parameters
+      const queryParams = new URLSearchParams();
+      if (params.page) queryParams.append("page", params.page.toString());
+      if (params.limit) queryParams.append("limit", params.limit.toString());
+      if (params.search) queryParams.append("search", params.search);
+      if (params.sortBy) queryParams.append("sortBy", params.sortBy);
+      if (params.sortList) queryParams.append("sortList", params.sortList);
+
+      const url = `/adm-outlets${
+        queryParams.toString() ? `?${queryParams.toString()}` : ""
+      }`;
+
+      const response = await api.get<ApiResponseType>(url);
       return response.data;
     } catch (err) {
+      console.error("Failed to fetch outlets:", err);
       setError("Failed to fetch outlets");
       throw err;
     } finally {
@@ -91,11 +118,26 @@ export const useOutlets = () => {
     }
   };
 
+  const getOutletById = async (id: number): Promise<Outlet | null> => {
+    try {
+      setLoading(true);
+      const response = await api.get<ApiResponse<Outlet>>(`adm-outlets/${id}`);
+      return response.data.data;
+    } catch (err) {
+      console.error(`Failed to fetch outlet with ID ${id}:`, err);
+      setError(`Failed to fetch outlet details`);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     outlets,
     loading,
     error,
     getOutlets,
+    getOutletById,
     createOutlet,
     updateOutlet,
     deleteOutlet,

@@ -7,17 +7,17 @@ import {
 } from "@/components/ui/pagination";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-interface OutletTablePaginationProps {
+interface TablePaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
 }
 
-export function OutletTablePagination({
+export function TablePagination({
   currentPage,
   totalPages,
   onPageChange,
-}: OutletTablePaginationProps) {
+}: TablePaginationProps) {
   return (
     <Pagination>
       <PaginationContent>

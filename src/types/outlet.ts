@@ -42,7 +42,27 @@ export interface Outlet {
 }
 
 export interface ApiResponse<T> {
+  meta: any;
   success: boolean;
   data: T;
   message: string;
+}
+
+export interface OutletParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: string;
+  sortList?: "asc" | "desc";
+}
+
+export interface OutletResponse {
+  message: string;
+  data: Outlet[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalRecords: number;
+  };
 }

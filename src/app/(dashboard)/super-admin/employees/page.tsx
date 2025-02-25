@@ -60,7 +60,7 @@ export default function EmployeesPage() {
       </div>
 
       {/* Main Content */}
-      <div className="bg-putbir rounded-lg shadow-sm">
+      <div className=" rounded-lg shadow-sm">
         <div className="p-4 sm:p-6">
           <EmployeeTable onEdit={handleEdit} />
         </div>

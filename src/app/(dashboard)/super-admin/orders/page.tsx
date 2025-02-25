@@ -1,50 +1,79 @@
-// src/app/(dashboard)/super-admin/orders/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { OrderTable } from "@/components/orders/OrderTable";
+import { OrderFilters } from "@/components/orders/OrderFilters";
 import { useOrders } from "@/hooks/api/orders/useOrders";
 import { useOutlets } from "@/hooks/api/outlets/useOutlets";
-import { Order, OrderTrackingResponse } from "@/types/order";
+import { Order, OrderStatus, OrderTrackingResponse } from "@/types/order";
 import { useBreadcrumb } from "@/context/BreadcrumbContext";
 import { OrderTrackingDialog } from "@/components/orders/order-tracking/OrderTrackigDialog";
 
 export default function SuperAdminOrdersPage() {
+  // State untuk pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+
+  // State untuk filter
   const [orders, setOrders] = useState<Order[]>([]);
-  const [selectedOutletId, setSelectedOutletId] = useState<number | undefined>(
-    undefined
-  );
+  const [selectedOutletId, setSelectedOutletId] = useState<number | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<OrderStatus | "">("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [trackingData, setTrackingData] =
     useState<OrderTrackingResponse | null>(null);
   const [isTrackingOpen, setIsTrackingOpen] = useState(false);
+  const [dateRange, setDateRange] = useState<{
+    startDate: Date;
+    endDate: Date;
+  } | null>(null);
 
   const { getAllOrders, trackOrder, loading, error } = useOrders();
   const { outlets, getOutlets } = useOutlets();
   const { setBreadcrumbItems } = useBreadcrumb();
 
-  // Fetch outlets when component mounts
+  // Fetch outlets ketika komponen mount
   useEffect(() => {
     getOutlets();
   }, []);
 
-  // Fetch orders when selectedOutletId changes
-
+  // Fetch orders ketika filter atau halaman berubah
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await getAllOrders(selectedOutletId);
-        setOrders(response.data.data);
-        console.log("response Data", response);
+        const response = await getAllOrders({
+          outletId: selectedOutletId || undefined,
+          orderStatus: selectedStatus || undefined,
+          search: searchQuery || undefined,
+          startDate: dateRange?.startDate.toISOString(),
+          endDate: dateRange?.endDate.toISOString(),
+          page: currentPage,
+          limit: 10,
+          sortOrder: "desc",
+        });
+
+        if (response.data && Array.isArray(response.data.data)) {
+          setOrders(response.data.data);
+          // Set total pages dari meta
+          setTotalPages(response.data.meta.total);
+        } else {
+          setOrders([]);
+          console.error("Invalid orders data structure:", response);
+        }
       } catch (error) {
         console.error("Error fetching orders:", error);
       }
     };
 
     fetchOrders();
-  }, [selectedOutletId]);
+  }, [
+    selectedOutletId,
+    selectedStatus,
+    searchQuery,
+    dateRange,
+    currentPage, // Tambahkan currentPage sebagai dependency
+  ]);
 
-  console.log("Orders Data", orders);
-
+  // Set breadcrumb
   useEffect(() => {
     setBreadcrumbItems([
       { label: "Super Admin", href: "/super-admin/dashboard" },
@@ -52,8 +81,35 @@ export default function SuperAdminOrdersPage() {
     ]);
   }, [setBreadcrumbItems]);
 
-  const handleOutletChange = (outletId: number | undefined) => {
+  // Handlers untuk filter
+  const handleOutletChange = (outletId: number | null) => {
     setSelectedOutletId(outletId);
+    // Reset ke halaman pertama saat filter berubah
+    setCurrentPage(1);
+  };
+
+  const handleStatusChange = (status: OrderStatus | "") => {
+    setSelectedStatus(status);
+    // Reset ke halaman pertama saat filter berubah
+    setCurrentPage(1);
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+    // Reset ke halaman pertama saat filter berubah
+    setCurrentPage(1);
+  };
+
+  const handleDateRangeChange = (
+    range: { startDate: Date; endDate: Date } | null
+  ) => {
+    setDateRange(range);
+    // Reset ke halaman pertama saat filter berubah
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
   const handleTrackOrder = async (orderId: number) => {
@@ -78,14 +134,26 @@ export default function SuperAdminOrdersPage() {
 
       <div className="bg-white rounded-lg shadow-sm">
         <div className="p-4 sm:p-6">
+          {/* Filter section */}
+          <div className="mb-6">
+            <OrderFilters
+              onStatusChange={handleStatusChange}
+              onOutletChange={handleOutletChange}
+              onDateRangeChange={handleDateRangeChange}
+            />
+          </div>
+
+          {/* Table section */}
           <OrderTable
             orders={orders}
             loading={loading}
             error={error}
             isAdmin={true}
-            outlets={outlets}
-            onOutletChange={handleOutletChange}
             onTrackOrder={handleTrackOrder}
+            // Tambahkan props pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
           />
         </div>
       </div>

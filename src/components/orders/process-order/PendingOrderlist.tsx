@@ -21,7 +21,7 @@ export function PendingOrdersList() {
     try {
       setIsLoading(true);
       const pendingOrders = await getPendingOrders();
-      setOrders(pendingOrders);
+      setOrders(pendingOrders as Order[]);
     } catch (error) {
       console.error("Failed to fetch pending orders", error);
     } finally {

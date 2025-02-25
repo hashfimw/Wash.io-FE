@@ -1,4 +1,5 @@
-// src/components/shared/Header.tsx
+"use client";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -13,6 +14,7 @@ import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { SidebarContent } from "./Sidebar";
+import { useAuth } from "@/hooks/api/auth/useAdminAuth";
 
 interface HeaderProps {
   user: {
@@ -28,6 +30,12 @@ interface HeaderProps {
 }
 
 export const Header = ({ user, breadcrumbItems, role }: HeaderProps) => {
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+  };
+
   return (
     <div className="border-b bg-birtu rounded-r-2xl">
       <div className="flex h-16 items-center px-4 gap-4">
@@ -68,7 +76,12 @@ export const Header = ({ user, breadcrumbItems, role }: HeaderProps) => {
             <DropdownMenuSeparator />
             <DropdownMenuItem>Profile</DropdownMenuItem>
             <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuItem>Logout</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={handleLogout}
+              className="text-red-600 cursor-pointer"
+            >
+              Logout
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

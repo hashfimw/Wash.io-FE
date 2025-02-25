@@ -1,128 +1,203 @@
 // src/hooks/api/employees/useEmployeeTable.ts
-import { useEffect, useState } from "react";
-import { useEmployees } from "./useEmployee";
+import { useCallback, useEffect, useState } from "react";
+
 import { Employee, Role } from "@/types/employee";
-import { Outlet } from "@/types/outlet";
+import { useOutlets } from "@/hooks/api/outlets/useOutlets";
+import { useEmployees } from "./useEmployee";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useDebounce } from "@/hooks/useDebounce";
+
+interface SortConfig {
+  field: string;
+  direction: "asc" | "desc";
+}
 
 interface UseEmployeeTableProps {
   pageSize?: number;
+  initialSortField?: string;
+  initialSortDirection?: "asc" | "desc";
 }
 
 export function useEmployeeTable({
   pageSize = 10,
+  initialSortField = "fullName",
+  initialSortDirection = "asc",
 }: UseEmployeeTableProps = {}) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedRole, setSelectedRole] = useState<Role | "">("");
-  const [selectedOutlet, setSelectedOutlet] = useState<number | null>(null);
-  const [sortBy, setSortBy] = useState<{
-    field: string;
-    direction: "asc" | "desc";
-  }>({
-    field: "fullName",
-    direction: "asc",
+  // Search and pagination state
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const [searchInput, setSearchInput] = useState(
+    searchParams.get("search") || ""
+  );
+  const debounceSearch = useDebounce(searchInput, 600);
+  const [searchQuery, setSearchQuery] = useState(
+    searchParams.get("search") || ""
+  );
+  const [currentPage, setCurrentPage] = useState(
+    Number(searchParams.get("page")) || 1
+  );
+  const [sortBy, setSortBy] = useState<SortConfig>({
+    field: initialSortField,
+    direction: initialSortDirection,
   });
-
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const { loading, error, getEmployees } = useEmployees();
-
-  // Fetch employees
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        const response = await getEmployees();
-        console.log("Response from API:", response); // Debug response
-        console.log("Data from API:", response.data); // Debug data
-        if (response.data) {
-          setEmployees(response.data);
-        }
-      } catch (error) {
-        console.error("Error fetching employees:", error);
-      }
-    };
-
-    fetchEmployees();
-  }, []);
-
-  // Debug: lihat nilai employees setelah di-set
-  console.log("Current employees state:", employees);
-
-  // Filter employees
-  const filteredEmployees = employees.filter((employee) => {
-    const matchesSearch =
-      (employee?.fullName || "")
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      (employee?.email || "").toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesRole = selectedRole ? employee?.role === selectedRole : true;
-
-    const matchesOutlet = selectedOutlet
-      ? employee?.Employee?.outlet?.id === selectedOutlet
-      : true;
-
-    return matchesSearch && matchesRole && matchesOutlet;
-  });
-
-  // Sort employees
-  const sortedEmployees = [...filteredEmployees].sort((a, b) => {
-    let aValue: any;
-    let bValue: any;
-
-    // Handle nested properties
-    if (sortBy.field === "fullName") {
-      aValue = a.fullName;
-      bValue = b.fullName;
-    } else if (sortBy.field === "email") {
-      aValue = a.email;
-      bValue = b.email;
-    } else if (sortBy.field === "role") {
-      aValue = a.role;
-      bValue = b.role;
-    } else {
-      aValue = (a as any)[sortBy.field];
-      bValue = (b as any)[sortBy.field];
-    }
-
-    // Handle null values
-    if (aValue === null) aValue = "";
-    if (bValue === null) bValue = "";
-
-    return sortBy.direction === "asc"
-      ? String(aValue).localeCompare(String(bValue))
-      : String(bValue).localeCompare(String(aValue));
-  });
-
-  // Paginate employees
-  const totalPages = Math.ceil(sortedEmployees.length / pageSize);
-  const paginatedEmployees = sortedEmployees.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
+  const [selectedRole, setSelectedRole] = useState<Role | "">(
+    (searchParams.get("role") as Role) || ""
+  );
+  const [selectedOutlet, setSelectedOutlet] = useState<number | null>(
+    searchParams.get("outlet") ? Number(searchParams.get("outlet")) : null
   );
 
-  const resetFilters = () => {
-    setSearchQuery("");
-    setCurrentPage(1);
-    setSelectedRole("");
-    setSelectedOutlet(null);
-    setSortBy({ field: "fullName", direction: "asc" });
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
+  const { loading, error, getEmployees } = useEmployees();
+  const { getOutletById } = useOutlets();
+
+  useEffect(() => {
+    updateUrl({
+      search: debounceSearch || null,
+      page: "1",
+    });
+  }, [debounceSearch]);
+
+  useEffect(() => {
+    fetchEmployees();
+  }, [
+    searchParams,
+    debounceSearch,
+    currentPage,
+    sortBy,
+    searchQuery,
+    selectedRole,
+    selectedOutlet,
+    pageSize,
+  ]);
+
+  useEffect(() => {
+    // Cek jika ada query params
+    if (searchParams.toString()) {
+      // Bersihkan URL ke path awal
+      router.push(pathname);
+    }
+  }, []);
+  const fetchEmployees = async () => {
+    try {
+      let outletName;
+      if (selectedOutlet !== null) {
+        const outletData = await getOutletById(selectedOutlet);
+        outletName = outletData?.outletName;
+      }
+
+      // Persiapkan parameter untuk API call
+      const params: any = {
+        page: currentPage,
+        limit: pageSize,
+        sortBy: sortBy.field,
+        sortOrder: sortBy.direction,
+      };
+
+      if (searchQuery) params.search = searchQuery;
+      if (selectedRole !== "") params.role = selectedRole;
+      if (outletName) params.outletName = outletName;
+
+      const response = await getEmployees(params);
+      setEmployees(response.employees);
+      setTotalPages(response.meta.total);
+      setTotalItems(response.meta.total * pageSize);
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+    }
   };
 
+  const updateUrl = (newParams: Record<string, string | null>) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    // Update params
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (value === null || value === "") {
+        params.delete(key);
+      } else {
+        params.set(key, value);
+      }
+    });
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchInput(value);
+    setCurrentPage(1);
+  };
+
+  const handleRoleChange = (role: Role | "") => {
+    setSelectedRole(role);
+    setCurrentPage(1);
+    updateUrl({ search: role || null, page: "1" });
+  };
+
+  const handleOutletChange = async (outletId: number | null) => {
+    setSelectedOutlet(outletId);
+    setCurrentPage(1);
+
+    // Jika ada outletId, dapatkan nama outletnya
+    let outletName = null;
+    if (outletId !== null) {
+      const outletData = await getOutletById(outletId);
+      outletName = outletData?.outletName || null;
+    }
+
+    // Update URL dengan outletName
+    updateUrl({
+      outletName: outletName || null,
+      page: "1",
+    });
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    updateUrl({ page: page.toString() });
+  };
+  // Reset semua filter
+  const resetFilters = useCallback(() => {
+    // Reset semua state
+    setSearchQuery("");
+    setSelectedRole("");
+    setSelectedOutlet(null);
+    setCurrentPage(1);
+    setSortBy({ field: initialSortField, direction: initialSortDirection });
+
+    // Hapus semua query params dari URL dan refresh data
+    router.push(pathname);
+    fetchEmployees();
+  }, [pathname, router, initialSortField, initialSortDirection]);
+
   return {
-    employees: paginatedEmployees,
+    // Data
+    employees,
     loading,
     error,
-    searchQuery,
-    setSearchQuery,
-    currentPage,
-    setCurrentPage,
     totalPages,
+    totalItems,
+
+    // Pagination
+    currentPage,
+    setCurrentPage: handlePageChange,
+
+    // Search dan filter yang sesuai dengan props EmployeeTableFilters
+    searchQuery: searchInput,
+    onSearchChange: handleSearchChange,
+    selectedRole,
+    onRoleChange: handleRoleChange,
+    selectedOutlet,
+    onOutletChange: handleOutletChange,
+
+    // Sorting
     sortBy,
     setSortBy,
-    selectedRole,
-    setSelectedRole,
-    selectedOutlet,
-    setSelectedOutlet,
-    resetFilters,
+
+    // Actions
+    onResetFilters: resetFilters,
+    refresh: fetchEmployees,
   };
 }

@@ -1,4 +1,5 @@
 // src/components/orders/OrderItemRow.tsx
+import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   FormControl,
@@ -19,6 +20,7 @@ import { X } from "lucide-react";
 import { Control } from "react-hook-form";
 import { OrderItem } from "@/types/order";
 import { ProcessOrderFormValues } from "./ProcessOrderForm";
+import { toast } from "@/components/ui/use-toast";
 
 interface OrderItemRowProps {
   index: number;
@@ -39,6 +41,31 @@ export function OrderItemRow({
   onSelectChange,
   onInputChange,
 }: OrderItemRowProps) {
+  const [selectedTab, setSelectedTab] = useState<"select" | "custom">("select");
+  const isExistingTemplate = (value: string): boolean => {
+    return templates.some(
+      (template) =>
+        template.orderItemName.toLowerCase().trim() ===
+        value.toLowerCase().trim()
+    );
+  };
+
+  // Handle input change dengan pengecekan template
+  const handleCustomInputChange = (value: string) => {
+    if (isExistingTemplate(value)) {
+      // Jika item sudah ada di template, tampilkan pesan error
+      onInputChange(""); // Reset input
+      toast({
+        title: "Item already exists",
+        description:
+          "This item already exists in the template. Please select it from 'Select Existing'.",
+        variant: "destructive",
+      });
+      setSelectedTab("select"); // Pindah ke tab select
+      return;
+    }
+    onInputChange(value);
+  };
   return (
     <div className="flex gap-3 items-start">
       <div className="flex-1">
@@ -47,7 +74,14 @@ export function OrderItemRow({
           name={`orderItems.${index}.orderItemName`}
           render={({ field }) => (
             <FormItem>
-              <Tabs defaultValue="select" className="w-full">
+              <Tabs
+                value={selectedTab}
+                onValueChange={(value) => {
+                  setSelectedTab(value as "select" | "custom");
+                  field.onChange(""); // Reset field saat ganti tab
+                }}
+                className="w-full"
+              >
                 <TabsList className="mb-2">
                   <TabsTrigger value="select">Select Existing</TabsTrigger>
                   <TabsTrigger value="custom">Add New</TabsTrigger>
@@ -56,7 +90,9 @@ export function OrderItemRow({
                 <TabsContent value="select">
                   <FormControl>
                     <Select
-                      onValueChange={(value) => onSelectChange(value)}
+                      onValueChange={(value) => {
+                        onSelectChange(value);
+                      }}
                       value={field.value}
                     >
                       <SelectTrigger>
@@ -81,7 +117,11 @@ export function OrderItemRow({
                     <Input
                       placeholder="Enter new item name"
                       {...field}
-                      onChange={(e) => onInputChange(e.target.value)}
+                      value={selectedTab === "custom" ? field.value : ""}
+                      onChange={(e) => {
+                        const value = e.target.value.trim();
+                        handleCustomInputChange(value);
+                      }}
                     />
                   </FormControl>
                 </TabsContent>
@@ -93,8 +133,6 @@ export function OrderItemRow({
       </div>
 
       <div className="w-24 pt-12 mt-1">
-        {" "}
-        {/* Tambahkan padding-top untuk menyejajarkan dengan select item */}
         <FormField
           control={control}
           name={`orderItems.${index}.qty`}
@@ -118,8 +156,6 @@ export function OrderItemRow({
       </div>
 
       <div className="pt-12 mt-1">
-        {" "}
-        {/* Tambahkan padding-top untuk menyejajarkan dengan button */}
         <Button
           type="button"
           variant="ghost"

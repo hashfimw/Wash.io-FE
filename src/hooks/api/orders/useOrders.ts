@@ -1,7 +1,13 @@
 // src/hooks/api/orders/useOrders.ts
 import { useCallback, useState } from "react";
 import axios from "axios";
-import { ApiResponse, Order, OrderTrackingResponse } from "@/types/order";
+import {
+  ApiResponse,
+  Order,
+  OrderParams,
+  OrderResponse,
+  OrderTrackingResponse,
+} from "@/types/order";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api",
@@ -20,13 +26,27 @@ export const useOrders = () => {
   const [error, setError] = useState<string | null>(null);
 
   const getAllOrders = useCallback(
-    async (outletId?: number): Promise<ApiResponse<Order[]>> => {
+    async (params: OrderParams = {}): Promise<ApiResponse<OrderResponse>> => {
       try {
         setLoading(true);
-        const queryParams = outletId ? `?outletId=${outletId}` : "";
-        const response = await api.get<ApiResponse<Order[]>>(
-          `/orders/show-order${queryParams}`
-        );
+
+        // Build query parameters
+        const queryParams = new URLSearchParams();
+        if (params.page) queryParams.append("page", params.page.toString());
+        if (params.limit) queryParams.append("limit", params.limit.toString());
+        if (params.outletId)
+          queryParams.append("outletId", params.outletId.toString());
+        if (params.orderStatus)
+          queryParams.append("orderStatus", params.orderStatus);
+        if (params.sortOrder) queryParams.append("sortOrder", params.sortOrder);
+        if (params.startDate) queryParams.append("startDate", params.startDate);
+        if (params.endDate) queryParams.append("endDate", params.endDate);
+
+        const url = `/orders/show-order${
+          queryParams.toString() ? `?${queryParams.toString()}` : ""
+        }`;
+
+        const response = await api.get<ApiResponse<OrderResponse>>(url);
         return response.data;
       } catch (err) {
         setError("Failed to fetch orders");
@@ -37,21 +57,6 @@ export const useOrders = () => {
     },
     []
   );
-
-  const getOutletOrders = async () => {
-    try {
-      setLoading(true);
-      const response = await api.get<ApiResponse<Order[]>>(
-        "/orders/show-order/outlet"
-      );
-      return response.data.data;
-    } catch (err) {
-      setError("Failed to fetch outlet orders");
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const trackOrder = async (orderId: number) => {
     try {
@@ -72,7 +77,6 @@ export const useOrders = () => {
     loading,
     error,
     getAllOrders,
-    getOutletOrders,
     trackOrder,
   };
 };

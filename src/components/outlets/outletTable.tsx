@@ -12,12 +12,13 @@ import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { OutletTableFilters } from "./outlet-table-filters";
-import { OutletTablePagination } from "./outlet-table-pagination";
+import { TablePagination } from "../shared/usePagination";
 import { OutletDeleteAlert } from "./outlet-delete-alert";
 import { useToast } from "@/components/ui/use-toast";
 import { useOutlets } from "@/hooks/api/outlets/useOutlets";
-import { useOutletTable } from "@/hooks/api/outlets/useTableOutlets";
+
 import { Outlet } from "@/types/outlet";
+import { useOutletTable } from "@/hooks/api/outlets/useTableOutlets";
 
 interface OutletTableProps {
   onEdit: (outlet: Outlet) => void;
@@ -34,13 +35,14 @@ export function OutletTable({ onEdit }: OutletTableProps) {
     loading,
     error,
     searchQuery,
-    setSearchQuery,
+    onSearchChange, // Perubahan dari setSearchQuery
     currentPage,
     setCurrentPage,
     totalPages,
     sortBy,
-    setSortBy,
+    onSortChange, // Perubahan dari setSortBy
     resetFilters,
+    refresh,
   } = useOutletTable();
 
   const handleDelete = async () => {
@@ -54,6 +56,7 @@ export function OutletTable({ onEdit }: OutletTableProps) {
         description: "Outlet deleted successfully",
       });
       setDeleteOutletId(null);
+      refresh();
     } catch (error) {
       toast({
         title: "Error",
@@ -74,7 +77,7 @@ export function OutletTable({ onEdit }: OutletTableProps) {
       <div className="w-full">
         <OutletTableFilters
           searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+          onSearchChange={onSearchChange}
           onResetFilters={resetFilters}
         />
       </div>
@@ -86,28 +89,24 @@ export function OutletTable({ onEdit }: OutletTableProps) {
             <TableRow>
               <TableHead
                 className="cursor-pointer whitespace-nowrap min-w-[150px]"
-                onClick={() =>
-                  setSortBy({
-                    field: "outletName",
-                    direction:
-                      sortBy.field === "outletName" &&
-                      sortBy.direction === "asc"
-                        ? "desc"
-                        : "asc",
-                  })
-                }
+                onClick={() => onSortChange("outletName")} // Perubahan
               >
                 Outlet Name{" "}
                 {sortBy.field === "outletName" &&
                   (sortBy.direction === "asc" ? "↑" : "↓")}
               </TableHead>
-              <TableHead className="whitespace-nowrap min-w-[200px]">
+              <TableHead className="cursor-pointer whitespace-nowrap min-w-[200px]">
                 Address
               </TableHead>
-              <TableHead className="whitespace-nowrap min-w-[120px]">
-                Province
+              <TableHead
+                className="cursor-pointer whitespace-nowrap min-w-[120px]"
+                onClick={() => onSortChange("province")}
+              >
+                Province{" "}
+                {sortBy.field === "province" &&
+                  (sortBy.direction === "asc" ? "↑" : "↓")}
               </TableHead>
-              <TableHead className="whitespace-nowrap min-w-[120px]">
+              <TableHead className="cursor-pointer whitespace-nowrap min-w-[120px]">
                 District
               </TableHead>
               <TableHead className="text-right whitespace-nowrap min-w-[100px]">
@@ -116,7 +115,7 @@ export function OutletTable({ onEdit }: OutletTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {outlets.map((outlet: Outlet) => (
+            {outlets?.map((outlet: Outlet) => (
               <TableRow key={outlet.id}>
                 <TableCell className="font-medium whitespace-nowrap">
                   {outlet.outletName}
@@ -158,7 +157,7 @@ export function OutletTable({ onEdit }: OutletTableProps) {
 
       {/* Pagination dengan proper spacing */}
       <div className="flex justify-center sm:justify-end mt-4">
-        <OutletTablePagination
+        <TablePagination
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={setCurrentPage}
