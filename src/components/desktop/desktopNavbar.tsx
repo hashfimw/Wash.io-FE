@@ -35,7 +35,7 @@ export default function DesktopNavbar() {
           <Image
             src={"/washio.png"}
             alt="washio-logo"
-            layout="fill"
+            fill
             className="object-cover"
           />
         </Link>
