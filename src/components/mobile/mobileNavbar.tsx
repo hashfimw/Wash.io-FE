@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function MobileNavbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -36,9 +37,19 @@ export default function MobileNavbar() {
     >
       {/* Header */}
       <div className="flex justify-between items-center p-6 px-8">
-        <Link href={"/"} className="text-xl font-bold">
-          Wash<span className="text-orange-500">io</span>
-        </Link>
+        <div className="flex flex-row">
+          <Link href={"/"} className="w-[36px] h-[36px] relative bottom-2">
+            <Image
+              src={"/washio.png"}
+              alt="washio-logo"
+              layout="fill"
+              className="object-cover"
+            />
+          </Link>
+          <Link href={"/"} className="text-xl font-semibold">
+            ash<span className="text-orange-500">io</span>
+          </Link>
+        </div>
         <div
           className="text-gray-700 font-bold hover:cursor-pointer"
           onClick={toggleMenu}
@@ -50,22 +61,22 @@ export default function MobileNavbar() {
       {/* Dropdown Menu */}
       {isOpen && (
         <nav className="flex flex-col text-center space-y-4 bg-gray-100 p-6 text-gray-700">
-          <Link href="#" className="hover:text-orange-500">
+          <Link href={"/"} className="hover:text-orange-500">
             Home
           </Link>
-          <Link href="#" className="hover:text-orange-500">
+          <Link href={"/"} className="hover:text-orange-500">
             Services
           </Link>
-          <Link href="#" className="hover:text-orange-500">
+          <Link href={"/"} className="hover:text-orange-500">
             Locations
           </Link>
-          <Link href="#" className="hover:text-orange-500">
+          <Link href={"/"} className="hover:text-orange-500">
             About
           </Link>
-          <Link href="#" className="hover:text-orange-500">
+          <Link href={"/"} className="hover:text-orange-500">
             Contact
           </Link>
-          <Link href="#" className="hover:text-orange-500">
+          <Link href={"/"} className="hover:text-orange-500">
             Sign In
           </Link>
         </nav>

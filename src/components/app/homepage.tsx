@@ -1,30 +1,59 @@
 "use client";
 
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import { Autoplay, Pagination } from "swiper/modules";
 import { Button } from "../ui/button";
 import { Package2, Shirt, Smartphone, Truck } from "lucide-react";
+import LaundrySearchBar from "./searchbar";
 
 export default function Homepage() {
   const images = [
-    "https://www.goteso.com/products/assets/images/clone-scripts/laundrapp/laundrapp-clone-banner.png",
     "https://img.freepik.com/free-vector/flat-design-laundry-service-instagram-posts_23-2150989277.jpg?t=st=1738556340~exp=1738559940~hmac=3e1551d8c688b631863d5723eb2f35a162dc220cf640d70d3d6a70c983cea6d0&w=996",
+    "https://www.goteso.com/products/assets/images/clone-scripts/laundrapp/laundrapp-clone-banner.png",
     "https://www.digitalopeners.com/images/service/Laundry%20App/laundry-banner.webp",
   ];
 
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 100);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <div className="bg-gradient-to-b from-[#E7FAFE] to-white min-h-screen text-center p-4">
-      <section className="py-24 space-y-14">
+    <div className="bg-gradient-to-b from-[#E7FAFE] to-white min-h-screen text-center p-4 mb-24">
+      {/* Navbar Sticky dengan Search Bar */}
+      <div
+        className={`fixed top-0 left-80 right-80 z-50 transition-all ${
+          isScrolled ? "bg-transparent" : "bg-transparent py-6"
+        }`}
+      >
+        <div className="hidden md:flex w-50 mx-auto px-4">
+          <LaundrySearchBar />
+        </div>
+      </div>
+
+      <section className="pt-28 space-y-14">
         <div className="flex flex-col md:flex-row items-center gap-8 px-12">
           <div className="text-center md:text-left md:w-1/2">
             <h2 className="text-2xl md:text-4xl font-bold">
               Fresh Laundry,{" "}
-              <span className="bg-orange-500 p-1 text-white">Hassle-Free</span>
+              <span className="relative bg-orange-500 p-2 text-white inline-block overflow-hidden rotate-12 group">
+                Hassle-Free
+                {/* Lipatan awalnya terlihat */}
+                <span className="absolute top-0 right-0 w-[40px] h-[40px] bg-gradient-to-br from-white to-gray-300 rounded-bl-full shadow-lg transition-all duration-300 ease-in-out group-hover:opacity-0 group-hover:scale-0 group-hover:translate-x-8 group-hover:-translate-y-8"></span>
+                <span className="absolute top-0 right-0 w-0 h-0 border-t-[40px] border-l-[40px] border-t-[#E7FAFE] border-l-transparent transition-all duration-300 ease-in-out group-hover:opacity-0 group-hover:scale-0 group-hover:translate-x-8 group-hover:-translate-y-8"></span>
+              </span>
             </h2>
+
             <p className="text-gray-600">
               Experience premium laundry service at your fingertips.
             </p>
@@ -34,7 +63,7 @@ export default function Homepage() {
                   Get Started Now
                 </Button>
                 <Button className="bg-gray-700 hover:bg-gray-800 text-white text-sm">
-                  Learn More.
+                  Learn More
                 </Button>
               </div>
             </div>
@@ -44,9 +73,9 @@ export default function Homepage() {
               spaceBetween={20}
               slidesPerView={1}
               autoplay={{ delay: 5000, disableOnInteraction: false }}
-              pagination={{ clickable: true, el: "none" }}
+              pagination={{ clickable: true,}}
               modules={[Pagination, Autoplay]}
-              className="w-full max-w-xs md:max-w-full mx-auto rounded-lg"
+              className="w-full max-w-xs md:max-w-full mx-auto rounded-3xl"
             >
               {images.map((src, index) => (
                 <SwiperSlide key={index}>
@@ -63,6 +92,7 @@ export default function Homepage() {
           </div>
         </div>
 
+        {/* Promotions Section */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 md:px-12 mt-8">
           {[
             { title: "20% OFF", desc: "First Order Discount" },
@@ -81,6 +111,7 @@ export default function Homepage() {
           ))}
         </section>
 
+        {/* Why Choose Us Section */}
         <section className="mt-8">
           <h3 className="text-xl md:text-2xl font-semibold">Why Choose Us</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 md:px-12 mt-6">
@@ -111,6 +142,7 @@ export default function Homepage() {
           </div>
         </section>
 
+        {/* How It Works Section */}
         <section className="mt-8 md:px-20">
           <h3 className="text-xl md:text-2xl font-semibold">How It Works</h3>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 px-4 md:px-12 mt-6">
