@@ -1,6 +1,11 @@
-import Image from "next/image";
-import { redirect } from "next/navigation";
+import Homepage from "@/components/app/homepage";
 
 export default function Home() {
-  redirect("/super-admin/dashboard");
+  return (
+    <div className="container mx-auto max-w-full">
+      <main className="">
+        <Homepage />
+      </main>
+    </div>
+  );
 }
