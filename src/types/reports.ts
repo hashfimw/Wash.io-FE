@@ -58,10 +58,7 @@ export interface SalesReportResponse {
 }
 
 export interface EmployeePerformanceResponse {
-  drivers: any;
-  drivers: any;
-  workers: any;
-  workers: any;
+  [x: string]: any;
   pagination: EmployeePerformanceResponse;
   data: EmployeePerformanceData;
 }
