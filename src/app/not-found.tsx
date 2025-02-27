@@ -12,8 +12,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
-
-// Import reusable animation components
 import Bubbles from "@/components/animations/Bubble";
 import WavesAnimation from "@/components/animations/Waves";
 import LightBeam from "@/components/animations/LightBeam";

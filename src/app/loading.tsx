@@ -3,8 +3,6 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Shirt, WashingMachine, Droplets } from "lucide-react";
-
-// Import reusable animation components
 import Bubbles from "@/components/animations/Bubble";
 import WavesAnimation from "@/components/animations/Waves";
 import LightBeam from "@/components/animations/LightBeam";
