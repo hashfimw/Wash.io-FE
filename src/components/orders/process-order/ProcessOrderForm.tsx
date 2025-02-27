@@ -51,11 +51,13 @@ export type ProcessOrderFormValues = z.infer<typeof formSchema>;
 interface ProcessOrderFormProps {
   orderId: number;
   onSuccess: () => void;
+  role: string;
 }
 
 export function ProcessOrderForm({
   orderId,
   onSuccess,
+  role,
 }: ProcessOrderFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [templates, setTemplates] = useState<OrderItem[]>([]);

@@ -196,7 +196,7 @@ export default function LaundrySearchBar() {
           {/* Search Button */}
           <button
             onClick={handleSearch}
-            className="px-3 py-3 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-colors flex items-center gap-2"
+            className="px-3 py-3 bg-birtu text-white rounded-full hover:bg-orange-400 transition-colors flex items-center gap-2"
           >
             <Search className="w-5 h-5" />
           </button>

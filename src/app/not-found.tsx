@@ -8,21 +8,17 @@ import {
   AlertTriangle,
   Home,
   Droplets,
-  Waves,
   Search,
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 
-export default function NotFound() {
-  const colors = {
-    biruMuda: "#CCF5F5",
-    biruTua: "#73A5A8",
-    oren: "#E5843F",
-    putih: "#FCFCFC",
-    putihBiru: "#EEFDFF",
-  };
+// Import reusable animation components
+import Bubbles from "@/components/animations/Bubble";
+import WavesAnimation from "@/components/animations/Waves";
+import LightBeam from "@/components/animations/LightBeam";
 
+export default function NotFound() {
   const [showSearchAnimation, setShowSearchAnimation] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -79,121 +75,17 @@ export default function NotFound() {
   const washText = "Wash.io";
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-[#EEFDFF] to-[#CCF5F5] overflow-hidden relative">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-putbir to-birmud overflow-hidden relative">
       {/* Background layer */}
       <div
-        className="absolute inset-0 bg-[#EEFDFF] opacity-40"
+        className="absolute inset-0 bg-putbir opacity-40"
         style={{ zIndex: 0 }}
       />
 
-      {/* Bubbles - Fixed positioning and z-index */}
-      <div
-        className="absolute inset-0 overflow-hidden pointer-events-none"
-        style={{ zIndex: 1 }}
-      >
-        {[...Array(isMobile ? 8 : 15)].map((_, i) => (
-          <motion.div
-            key={i}
-            initial={{
-              opacity: 0,
-              scale: 0,
-              x: Math.random() * 50 - 25,
-              y: Math.random() * 50 + 300,
-            }}
-            animate={{
-              opacity: [0, 0.7, 0],
-              scale: [0, 1, 0.5],
-              y: [300 + Math.random() * 100, 100 - Math.random() * 200],
-              x: [Math.random() * 50 - 25, Math.random() * 100 - 50],
-            }}
-            transition={{
-              duration: 3 + Math.random() * 2,
-              repeat: Infinity,
-              repeatType: "loop",
-              delay: i * 0.3, // Reduced delay to see bubbles sooner
-              times: [0, 0.6, 1],
-            }}
-            className="absolute rounded-full"
-            style={{
-              width: `${8 + Math.random() * 12}px`,
-              height: `${8 + Math.random() * 12}px`,
-              backgroundColor:
-                i % 3 === 0
-                  ? colors.oren
-                  : i % 2 === 0
-                  ? colors.biruTua
-                  : colors.biruMuda,
-              left: `${10 + ((i * 6) % 90)}%`,
-              top: `${90 - ((i * 3) % 40)}%`,
-              filter: "blur(1px)",
-              boxShadow: "0 0 2px rgba(255, 255, 255, 0.5)",
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Water Wave Animation - Fixed z-index and made more visible */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-32 overflow-hidden pointer-events-none"
-        style={{ zIndex: 1 }}
-      >
-        <motion.div
-          initial={{ opacity: 0.4 }}
-          animate={{ opacity: 0.4, x: [0, -50, 0] }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            repeatType: "loop",
-            ease: "linear",
-          }}
-          className="absolute inset-0"
-        >
-          <svg
-            width="200%"
-            height="100%"
-            viewBox="0 0 1200 120"
-            preserveAspectRatio="none"
-          >
-            <motion.path
-              d="M0,0 C300,30 600,60 900,50 C1200,40 1500,30 1800,40 L1800,120 L0,120 Z"
-              fill={colors.biruTua}
-              fillOpacity="0.3"
-              animate={{
-                d: [
-                  "M0,0 C300,30 600,60 900,50 C1200,40 1500,30 1800,40 L1800,120 L0,120 Z",
-                  "M0,40 C300,10 600,30 900,50 C1200,70 1500,50 1800,20 L1800,120 L0,120 Z",
-                  "M0,0 C300,30 600,60 900,50 C1200,40 1500,30 1800,40 L1800,120 L0,120 Z",
-                ],
-              }}
-              transition={{
-                duration: 10,
-                repeat: Infinity,
-                repeatType: "loop",
-                times: [0, 0.5, 1],
-              }}
-            />
-          </svg>
-        </motion.div>
-      </div>
-
-      {/* Light Beam Effect */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: [0, 0.15, 0.3, 0.15] }}
-        transition={{
-          duration: 5,
-          repeat: Infinity,
-          repeatType: "reverse",
-          times: [0, 0.33, 0.66, 1],
-        }}
-        className="absolute top-0 left-1/2 w-full max-w-md h-screen opacity-30"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%)",
-          transform: "translateX(-50%)",
-          zIndex: 1,
-        }}
-      />
+      {/* Reusable Animation Components */}
+      <Bubbles isMobile={isMobile} />
+      <LightBeam />
+      <WavesAnimation />
 
       <div className="relative z-10 max-w-full md:max-w-2xl mx-auto px-4 text-center">
         <div className="relative mb-8 pt-16 md:pt-0">
@@ -224,7 +116,7 @@ export default function NotFound() {
                 >
                   <WashingMachine
                     size={isMobile ? 80 : 120}
-                    color={colors.biruTua}
+                    className="text-birtu"
                   />
                 </motion.div>
                 <motion.div
@@ -237,8 +129,8 @@ export default function NotFound() {
                     width: "20%",
                     height: "20%",
                     borderRadius: "50%",
-                    border: `3px dashed ${colors.biruMuda}`,
                   }}
+                  className="border-dashed border-3 border-birmud"
                 />
               </div>
             </motion.div>
@@ -266,7 +158,7 @@ export default function NotFound() {
                   >
                     <Search
                       size={isMobile ? 40 : 50}
-                      color={colors.biruTua}
+                      className="text-birtu"
                       strokeWidth={1.5}
                     />
                     <motion.div
@@ -278,7 +170,10 @@ export default function NotFound() {
                       }}
                       className="absolute -right-2 -top-2 md:-right-4 md:-top-4"
                     >
-                      <Sparkles size={isMobile ? 16 : 24} color={colors.oren} />
+                      <Sparkles
+                        size={isMobile ? 16 : 24}
+                        className="text-oren"
+                      />
                     </motion.div>
                   </motion.div>
                 </motion.div>
@@ -299,7 +194,7 @@ export default function NotFound() {
             >
               <Shirt
                 size={isMobile ? 40 : 54}
-                color={colors.oren}
+                className="text-oren"
                 strokeWidth={1.5}
               />
             </motion.div>
@@ -320,7 +215,7 @@ export default function NotFound() {
             >
               <Droplets
                 size={isMobile ? 30 : 40}
-                color={colors.biruMuda}
+                className="text-birmud"
                 strokeWidth={1.5}
               />
             </motion.div>
@@ -339,7 +234,7 @@ export default function NotFound() {
                   className="relative mx-1 md:mx-2"
                 >
                   <span
-                    className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold text-[#E5843F]"
+                    className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold text-oren"
                     style={{
                       textShadow: "3px 3px 6px rgba(0, 0, 0, 0.15)",
                       display: "inline-block",
@@ -351,7 +246,7 @@ export default function NotFound() {
                   </span>
                   {/* Reflection effect */}
                   <span
-                    className="absolute top-full left-0 text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold text-[#E5843F] opacity-20"
+                    className="absolute top-full left-0 text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold text-oren opacity-20"
                     style={{
                       transform: "rotateX(180deg) translateY(97%)",
                       maskImage: "linear-gradient(transparent 40%, white)",
@@ -378,7 +273,7 @@ export default function NotFound() {
                   whileHover={{ scale: 1.2, y: -5 }}
                   transition={{ type: "spring", stiffness: 300 }}
                   className={`text-2xl sm:text-3xl md:text-4xl font-bold ${
-                    index < 4 ? "text-[#73A5A8]" : "text-[#E5843F]"
+                    index < 4 ? "text-birtu" : "text-oren"
                   }`}
                   style={{
                     filter:
@@ -404,9 +299,9 @@ export default function NotFound() {
             <div className="flex items-center justify-center mb-2 sm:mb-4">
               <AlertTriangle
                 size={isMobile ? 24 : 28}
-                className="text-[#E5843F] mr-2"
+                className="text-oren mr-2"
               />
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-[#73A5A8]">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-birtu">
                 Page Not Found
               </h2>
             </div>
@@ -427,7 +322,7 @@ export default function NotFound() {
           >
             <Link
               href="/"
-              className="flex items-center gap-2 sm:gap-3 px-5 sm:px-8 py-3 sm:py-4 rounded-full bg-gradient-to-r from-[#73A5A8] to-[#66979A] text-[#FCFCFC] hover:from-[#E5843F] hover:to-[#D67938] transition-all duration-300 font-medium shadow-lg shadow-[#73A5A8]/20 hover:shadow-[#E5843F]/20"
+              className="flex items-center gap-2 sm:gap-3 px-5 sm:px-8 py-3 sm:py-4 rounded-full bg-gradient-to-r from-birtu to-[#66979A] text-putih hover:from-oren hover:to-[#D67938] transition-all duration-300 font-medium shadow-lg shadow-birtu/20 hover:shadow-oren/20"
             >
               <Home size={18} />
               <span className="text-base sm:text-lg">Return to Home</span>

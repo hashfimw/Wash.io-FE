@@ -46,7 +46,7 @@ export default function Homepage() {
           <div className="text-center md:text-left md:w-1/2">
             <h2 className="text-2xl md:text-4xl font-bold">
               Fresh Laundry,{" "}
-              <span className="relative bg-orange-500 p-2 text-white inline-block overflow-hidden rotate-12 group">
+              <span className="relative bg-oren p-2 text-white inline-block overflow-hidden rotate-12 group">
                 Hassle-Free
                 {/* Lipatan awalnya terlihat */}
                 <span className="absolute top-0 right-0 w-[40px] h-[40px] bg-gradient-to-br from-white to-gray-300 rounded-bl-full shadow-lg transition-all duration-300 ease-in-out group-hover:opacity-0 group-hover:scale-0 group-hover:translate-x-8 group-hover:-translate-y-8"></span>
@@ -59,10 +59,10 @@ export default function Homepage() {
             </p>
             <div className="flex justify-center md:justify-start">
               <div className="mt-6 space-x-2">
-                <Button className="bg-orange-500 hover:bg-orange-600 text-white text-sm">
+                <Button className="bg-oren hover:bg-orange-400 text-white text-sm">
                   Get Started Now
                 </Button>
-                <Button className="bg-gray-700 hover:bg-gray-800 text-white text-sm">
+                <Button className="bg-birtu hover:bg-birtu/80 text-white text-sm">
                   Learn More
                 </Button>
               </div>
@@ -73,7 +73,7 @@ export default function Homepage() {
               spaceBetween={20}
               slidesPerView={1}
               autoplay={{ delay: 5000, disableOnInteraction: false }}
-              pagination={{ clickable: true,}}
+              pagination={{ clickable: true }}
               modules={[Pagination, Autoplay]}
               className="w-full max-w-xs md:max-w-full mx-auto rounded-3xl"
             >

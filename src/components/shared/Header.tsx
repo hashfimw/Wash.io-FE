@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Breadcrumb } from "./breadCrumb";
-import { Menu } from "lucide-react";
+import { Menu, User, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { SidebarContent } from "./Sidebar";
@@ -37,50 +37,94 @@ export const Header = ({ user, breadcrumbItems, role }: HeaderProps) => {
   };
 
   return (
-    <div className="border-b bg-birtu rounded-r-2xl">
-      <div className="flex h-16 items-center px-4 gap-4">
+    <div className="relative border-b overflow-hidden">
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-birtu to-birtu/70 rounded-r-3xl"></div>
+
+      <div className="relative flex h-16 items-center px-4 gap-4 z-10">
         {/* Mobile Sidebar Toggle */}
         <Sheet>
           <SheetTrigger asChild>
             <div className="items-center flex justify-center h-16">
-              <Button variant="ghost" className="lg:hidden">
+              <Button
+                variant="ghost"
+                className="lg:hidden text-putbir hover:bg-birtu/80 hover:text-white"
+              >
                 <Menu className="h-6 w-6" />
               </Button>
             </div>
           </SheetTrigger>
-          <SheetContent side="left" className="w-64 p-0 rounded-r-2xl">
-            <SidebarContent role={role} />
+          <SheetContent
+            side="left"
+            className="w-64 p-0 overflow-hidden rounded-r-3xl border-0  shadow-xl"
+          >
+            <div className="h-full relative rounded-r-3xl overflow-hidden bg-none border-0">
+              <SidebarContent role={role} isMobile={true} />
+            </div>
           </SheetContent>
         </Sheet>
 
-        {/* Breadcrumb */}
+        {/* Breadcrumb with improved styling */}
         <div className="flex-1">
           <Breadcrumb items={breadcrumbItems} />
         </div>
 
-        {/* User Menu */}
+        {/* User Menu - Improved styling */}
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Avatar>
-              <AvatarImage src={user.avatar} />
-              <AvatarFallback>
-                {user.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
-              </AvatarFallback>
-            </Avatar>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="relative h-10 w-10 rounded-full bg-putbir/20 p-0 hover:bg-putbir/30"
+            >
+              {user.avatar ? (
+                <Avatar className="h-9 w-9 border-2 border-putbir/30">
+                  <AvatarImage src={user.avatar} />
+                  <AvatarFallback className="bg-birtu text-putih text-sm font-medium">
+                    {user.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
+                  </AvatarFallback>
+                </Avatar>
+              ) : (
+                <Avatar className="h-9 w-9 border-2 border-putbir/30">
+                  <AvatarFallback className="bg-gradient-to-br from-birtu to-oren/80 text-putih text-sm font-medium">
+                    {user.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
+                  </AvatarFallback>
+                </Avatar>
+              )}
+              <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-oren border-2 border-birtu"></span>
+            </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel className="font-normal">
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm font-medium leading-none">{user.name}</p>
+                <p className="text-xs leading-none text-muted-foreground">
+                  {user.email}
+                </p>
+              </div>
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
+            <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+              <User size={16} className="text-birtu" />
+              <span>Profile</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+              <Settings size={16} className="text-birtu" />
+              <span>Settings</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={handleLogout}
-              className="text-red-600 cursor-pointer"
+              className="flex items-center gap-2 text-oren cursor-pointer"
             >
-              Logout
+              <LogOut size={16} />
+              <span>Logout</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

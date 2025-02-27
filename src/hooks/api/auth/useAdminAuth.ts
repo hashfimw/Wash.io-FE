@@ -1,4 +1,4 @@
-// hooks/api/auth/useAuth.ts
+// hooks/api/auth/useAdminAuth.ts
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { User } from "@/types/customer";
