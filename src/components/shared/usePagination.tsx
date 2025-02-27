@@ -1,4 +1,4 @@
-// src/components/outlets/outlet-table-pagination.tsx
+// src/components//UsePagination.tsx
 import { Button } from "@/components/ui/button";
 import {
   Pagination,

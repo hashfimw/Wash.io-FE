@@ -20,6 +20,10 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         orenghost: "hover:bg-oren hover:text-accent-foreground",
         birtughost: "hover:bg-birtu hover:text-accent-foreground",
+        birtu: "bg-birtu text-primary-foreground shadow-sm hover:bg-birtu/95",
+        oren: "bg-oren text-primary-foreground shadow-sm hover:bg-orange-400",
+        birput: "bg-birtu text-primary-foreground shadow-sm hover:bg-birtu/95",
+
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

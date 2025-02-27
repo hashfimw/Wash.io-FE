@@ -13,8 +13,10 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/hooks/api/auth/useAdminAuth";
+import { useRouter } from "next/navigation";
 
 const LoginPage = () => {
+  const router = useRouter();
   const [credentials, setCredentials] = useState({
     email: "",
     password: "",
@@ -33,12 +35,25 @@ const LoginPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const response = await login(credentials);
+    try {
+      const response = await login(credentials);
 
-    if (response?.data.user.role === "SUPER_ADMIN") {
-      window.location.href = "/super-admin/dashboard";
-    } else if (response?.data.user.role === "OUTLET_ADMIN") {
-      window.location.href = "/outlet-admin/orders";
+      if (response?.data?.user) {
+        const { role } = response.data.user;
+
+        // Map the role enum value to the URL path parameter
+        // SUPER_ADMIN → super-admin
+        // OUTLET_ADMIN → outlet-admin
+        const rolePathParam =
+          role === "SUPER_ADMIN" ? "super-admin" : "outlet-admin";
+
+        // Use Next.js router for client-side navigation
+        // This is preferred over window.location for better performance
+        router.push(`dashboard/${rolePathParam}`);
+      }
+    } catch (err) {
+      // Error handling is done by the useAuth hook
+      console.error("Login failed:", err);
     }
   };
 

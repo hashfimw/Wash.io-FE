@@ -5,6 +5,8 @@ export interface OrderItem {
   orderId: number;
   qty: number;
   orderItemName: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface LaundryJob {

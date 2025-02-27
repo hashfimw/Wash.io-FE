@@ -33,18 +33,18 @@ export default function DesktopNavbar() {
       <div className="flex flex-row">
         <Link href={"/"} className="w-[36px] h-[36px] relative bottom-2">
           <Image
-            src={"/washio.png"}
+            src={"/washio-oren.png"}
             alt="washio-logo"
             fill
             className="object-cover"
           />
         </Link>
         <Link href={"/"} className="text-xl font-semibold">
-          ash<span className="text-orange-500">io</span>
+          ash<span className="text-oren">io</span>
         </Link>
       </div>
 
-      <Button className="bg-orange-500 hover:bg-orange-600 text-white text-sm">
+      <Button className="bg-oren hover:bg-orange-400 text-white text-sm">
         Sign In
       </Button>
     </nav>

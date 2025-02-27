@@ -14,8 +14,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
+import { Calendar as CalendarIcon, X } from "lucide-react";
+import { format, isSameDay } from "date-fns";
 import { OrderStatus } from "@/types/order";
 import { useOutlets } from "@/hooks/api/outlets/useOutlets";
 
@@ -41,18 +41,16 @@ export function OrderFilters({
     []
   );
   const { getOutlets, loading: outletsLoading } = useOutlets();
-  const [startDate, setStartDate] = useState<Date>();
-  const [endDate, setEndDate] = useState<Date>();
+  const [startDate, setStartDate] = useState<Date | undefined>();
+  const [endDate, setEndDate] = useState<Date | undefined>();
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
 
   // Fetch outlets only if user is super admin
   useEffect(() => {
     const fetchOutlets = async () => {
-      console.log("Current user:", user); // Tambahkan ini
-      console.log("User role:", user?.role); // Tambahkan ini
       if (user?.role === "SUPER_ADMIN") {
         try {
           const response = await getOutlets();
-          console.log("Outlets response:", response); // Tambahkan ini
           setOutlets(response.data);
         } catch (error) {
           console.error("Failed to fetch outlets:", error);
@@ -62,6 +60,68 @@ export function OrderFilters({
 
     fetchOutlets();
   }, [user]);
+
+  // Format date range for display
+  const formatDateRange = () => {
+    if (!startDate) return "Pick a date range";
+
+    // Jika tanggal awal dan akhir sama (satu hari)
+    if (endDate && isSameDay(startDate, endDate)) {
+      return format(startDate, "d MMMM yyyy");
+    }
+
+    // Jika ada rentang tanggal
+    if (endDate) {
+      return `${format(startDate, "d MMM yyyy")} - ${format(
+        endDate,
+        "d MMM yyyy"
+      )}`;
+    }
+
+    // Jika hanya ada tanggal awal
+    return format(startDate, "d MMMM yyyy");
+  };
+
+  // Handle date selection
+  const handleDateSelect = (range: { from?: Date; to?: Date } | undefined) => {
+    if (!range) {
+      setStartDate(undefined);
+      setEndDate(undefined);
+      onDateRangeChange?.(null);
+      return;
+    }
+
+    // Set tanggal awal
+    if (range.from) {
+      setStartDate(range.from);
+    }
+
+    // Set tanggal akhir
+    if (range.to) {
+      setEndDate(range.to);
+    } else if (range.from && !range.to) {
+      // Jika pengguna hanya memilih satu tanggal, gunakan tanggal tersebut
+      // sebagai tanggal awal dan akhir (filter untuk satu hari)
+      setEndDate(range.from);
+    }
+
+    // Kirim ke parent component jika kedua tanggal sudah dipilih
+    if (range.from) {
+      const endDateValue = range.to || range.from;
+      onDateRangeChange?.({
+        startDate: range.from,
+        endDate: endDateValue,
+      });
+    }
+  };
+
+  // Clear date filter
+  const clearDateFilter = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Mencegah popover tertutup
+    setStartDate(undefined);
+    setEndDate(undefined);
+    onDateRangeChange?.(null);
+  };
 
   return (
     <div className="flex flex-col sm:flex-row gap-4">
@@ -76,7 +136,7 @@ export function OrderFilters({
             <SelectValue placeholder="Filter by outlet" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Outlets</SelectItem>
+            <SelectItem value="all">All Outlet</SelectItem>
             {outlets.map((outlet) => (
               <SelectItem key={outlet.id} value={outlet.id.toString()}>
                 {outlet.outletName}
@@ -97,33 +157,33 @@ export function OrderFilters({
           <SelectItem value="all status">All Status</SelectItem>
           {Object.values(OrderStatus).map((status) => (
             <SelectItem key={status} value={status}>
-              {status.replace(/_/g, " ")}
+              {status
+                .replace(/_/g, " ")
+                .toLowerCase()
+                .replace(/\b\w/g, (c) => c.toUpperCase())}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
 
       {/* Date Range Picker */}
-      <Popover>
+      <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             className={cn(
-              "w-[240px] justify-start text-left font-normal",
+              "min-w-[240px] flex-grow md:flex-grow-0 md:max-w-[320px] justify-start text-left font-normal",
               !startDate && "text-muted-foreground"
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {startDate ? (
-              endDate ? (
-                <>
-                  {format(startDate, "PPP")} - {format(endDate, "PPP")}
-                </>
-              ) : (
-                format(startDate, "PPP")
-              )
-            ) : (
-              <span>Pick a date range</span>
+            <span className="truncate flex-grow">{formatDateRange()}</span>
+            {startDate && (
+              <X
+                className="ml-2 h-4 w-4 opacity-70 hover:opacity-100"
+                onClick={clearDateFilter}
+                aria-label="Clear date filter"
+              />
             )}
           </Button>
         </PopoverTrigger>
@@ -135,17 +195,38 @@ export function OrderFilters({
               to: endDate,
             }}
             onSelect={(range) => {
-              if (range?.from) setStartDate(range.from);
-              if (range?.to) setEndDate(range.to);
+              handleDateSelect(range);
+              // Biarkan popover tetap terbuka sampai pengguna memilih tanggal kedua
               if (range?.from && range?.to) {
-                onDateRangeChange?.({
-                  startDate: range.from,
-                  endDate: range.to,
-                });
+                // Tutup popover setelah pengguna memilih rentang tanggal lengkap
+                setTimeout(() => setDatePickerOpen(false), 300);
               }
             }}
             numberOfMonths={2}
+            initialFocus
           />
+          <div className="p-3 border-t flex justify-between">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                // Pilih satu hari - hari ini
+                const today = new Date();
+                setStartDate(today);
+                setEndDate(today);
+                onDateRangeChange?.({
+                  startDate: today,
+                  endDate: today,
+                });
+                setDatePickerOpen(false);
+              }}
+            >
+              Today
+            </Button>
+            <Button variant="outline" size="sm" onClick={clearDateFilter}>
+              Reset
+            </Button>
+          </div>
         </PopoverContent>
       </Popover>
     </div>

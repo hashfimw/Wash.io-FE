@@ -4,14 +4,17 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ClipboardList, ArrowRight, RefreshCcw, Loader2 } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { usePendingOrders } from "@/hooks/api/orders/usePendingOrders";
 import { Order } from "@/types/order";
 
-export function PendingOrdersList() {
+interface PendingOrdersListProps {
+  role: string;
+}
+
+export function PendingOrdersList({ role }: PendingOrdersListProps) {
   const router = useRouter();
   const { loading, error, getPendingOrders } = usePendingOrders();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -34,7 +37,7 @@ export function PendingOrdersList() {
   }, []);
 
   const handleProcess = (orderId: number) => {
-    router.push(`/super-admin/orders/process/${orderId}`);
+    router.push(`/dashboard/${role}/orders/process/${orderId}`);
   };
 
   if (isLoading || loading) {
