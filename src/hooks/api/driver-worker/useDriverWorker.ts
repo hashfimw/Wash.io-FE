@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useAuth } from "../auth/useAdminAuth";
-import { GetJobByIdResponse, GetJobsRequest, GetJobsResponse } from "@/types/driverWorker";
+import { GetJobByIdResponse, GetJobsRequest, GetJobsResponse, UpdateLaundryJobInputBody } from "@/types/driverWorker";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api",
@@ -90,11 +90,11 @@ export const useDriverWorker = () => {
     }
   };
 
-  const updateJob = async (endPoint: "transport-jobs" | "laundry-jobs", jobId: number) => {
+  const updateJob = async (endPoint: "transport-jobs" | "laundry-jobs", jobId: number, inputBody?: UpdateLaundryJobInputBody) => {
     try {
       setLoading(true);
 
-      const response = await api.patch<{ message: string }>(`/${endPoint}/${jobId}?tzo=${tzo}`);
+      const response = await api.patch<{ message: string }>(`/${endPoint}/${jobId}?tzo=${tzo}`, inputBody);
 
       return response.data.message;
     } catch (err) {

@@ -8,7 +8,7 @@ export interface JobRecord {
 }
 
 export interface GetJobsRequest {
-  endPoint: "transport-jobs" | "laundry-jobs"
+  endPoint: "transport-jobs" | "laundry-jobs";
   page?: number;
   limit?: number;
   sortBy?: string;
@@ -27,6 +27,11 @@ export interface GetJobsResponse {
     total_pages: number;
     total_data: number;
   };
+}
+
+export interface UpdateLaundryJobInputBody {
+  orderItemId: number;
+  qty: number;
 }
 
 export interface GetJobByIdResponse {
