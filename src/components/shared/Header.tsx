@@ -26,7 +26,7 @@ interface HeaderProps {
     label: string;
     href?: string;
   }[];
-  role: "SUPER_ADMIN" | "OUTLET_ADMIN";
+  role: "SUPER_ADMIN" | "OUTLET_ADMIN" | "DRIVER" | "WORKER";
 }
 
 export const Header = ({ user, breadcrumbItems, role }: HeaderProps) => {

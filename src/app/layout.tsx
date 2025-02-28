@@ -38,7 +38,7 @@ export default function RootLayout({
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <body
         className={`
-          ${montserrat.className} antialiased`}
+          ${montserrat.className} antialiased hover:cursor-default`}
       >
         <NavbarExcept />
         {children}

@@ -1,4 +1,3 @@
-// hooks/api/auth/useAdminAuth.ts
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { User } from "@/types/customer";
@@ -35,20 +34,14 @@ export const useAuth = () => {
       setLoading(true);
       setError(null);
 
-      // Login request
-      const response = await api.post<LoginResponse>(
-        "/auth/login",
-        credentials
-      );
+      const response = await api.post<LoginResponse>("/auth/login", credentials);
       const { token } = response.data;
 
       if (token) {
         localStorage.setItem("token", token);
 
-        // Decode token untuk mendapatkan user ID
         const decoded: any = JSON.parse(atob(token.split(".")[1]));
 
-        // Get user details using ID
         const userResponse = await api.get(`/users/${decoded.id}`);
         const userData = userResponse.data.user;
         setUser(userData);
@@ -86,21 +79,15 @@ export const useAuth = () => {
         return null;
       }
 
-      // Decode token untuk mendapatkan user ID
       const decoded: any = JSON.parse(atob(token.split(".")[1]));
 
-      // Get user details using ID
       const response = await api.get(`/users/${decoded.id}`);
       const userData = response.data.user;
-      console.log("User data fetched:", userData); // Debug log
       setUser(userData);
       return userData;
     } catch (err) {
       console.error("Failed to fetch current user:", err);
-      if (
-        axios.isAxiosError(err) &&
-        (err.response?.status === 401 || err.response?.status === 403)
-      ) {
+      if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
         logout();
       }
       setError("Failed to fetch user details");
@@ -113,11 +100,7 @@ export const useAuth = () => {
   const logout = (): void => {
     localStorage.removeItem("token");
     setUser(null);
-    if (user?.role === "SUPER_ADMIN" || user?.role === "OUTLET_ADMIN") {
-      window.location.href = "/login-admin";
-    } else if (user?.role === "DRIVER" || user?.role === "WORKER") {
-      window.location.href = "/login-employee";
-    } else window.location.href = "/";
+    window.location.href = "/login-employee";
   };
 
   const checkAuth = (): boolean => {
@@ -125,7 +108,6 @@ export const useAuth = () => {
     return !!token;
   };
 
-  // Auto fetch user on mount
   useEffect(() => {
     getCurrentUser();
   }, []);
