@@ -62,8 +62,8 @@ export const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
   const showUnauthorizedToast = (role: string) => {
     toast({
       variant: "destructive",
-      title: "Akses Ditolak",
-      description: `Anda tidak memiliki akses ke halaman ini sebagai ${role}.`,
+      title: "Access Denied",
+      description: `You do not have access to this page as a ${role}.`,
     });
   };
 
@@ -83,7 +83,7 @@ export const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
   }
 
   if (!isAuthorized) {
-    return null; // Will redirect in the useEffect
+    return null;
   }
 
   return <>{children}</>;

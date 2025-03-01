@@ -37,7 +37,7 @@ export function useOrderItems(form: UseFormReturn<ProcessOrderFormValues>) {
 
   // Add new item row
   const addItem = () => {
-    append({ orderItemName: "", qty: 1 });
+    append({ orderItemName: "", qty: undefined as unknown as number });
   };
 
   // Remove item row

@@ -11,6 +11,7 @@ export interface User {
 }
 
 export interface UserResponse {
+  meta: any;
   total_page: number;
   page: number;
   limit: number;

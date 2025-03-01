@@ -37,7 +37,7 @@ export default function ReportsIndexPage({
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xl font-bold">Sales Report</CardTitle>
-              <ChartBar className="h-6 w-6 text-muted-foreground" />
+              <ChartBar className="h-6 w-6 text-oren" />
             </CardHeader>
             <CardContent>
               <CardDescription className="min-h-[60px]">
@@ -52,7 +52,9 @@ export default function ReportsIndexPage({
                 href={`/dashboard/${role}/reports/sales`}
                 className="w-full"
               >
-                <Button className="w-full">View Sales Report</Button>
+                <Button className="w-full" variant={"birtu"}>
+                  View Sales Report
+                </Button>
               </Link>
             </CardFooter>
           </Card>
@@ -63,7 +65,7 @@ export default function ReportsIndexPage({
               <CardTitle className="text-xl font-bold">
                 Employee Performance
               </CardTitle>
-              <Users className="h-6 w-6 text-muted-foreground" />
+              <Users className="h-6 w-6 text-oren" />
             </CardHeader>
             <CardContent>
               <CardDescription className="min-h-[60px]">
@@ -78,7 +80,9 @@ export default function ReportsIndexPage({
                 href={`/dashboard/${role}/reports/employee-performance`}
                 className="w-full"
               >
-                <Button className="w-full">View Employee Performance</Button>
+                <Button className="w-full" variant={"birtu"}>
+                  View Employee Performance
+                </Button>
               </Link>
             </CardFooter>
           </Card>

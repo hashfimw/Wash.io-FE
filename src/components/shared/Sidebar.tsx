@@ -147,10 +147,26 @@ export const SidebarContent = ({ role, isMobile = false }: SidebarProps) => {
       )
     );
   };
-
   const isActive = (path: string) => {
     if (!path) return false;
-    return pathname === path || pathname.startsWith(`${path}/`);
+
+    // Normalisasi path dengan menghapus trailing slash
+    const normalizedPathname = pathname.replace(/\/$/, "");
+    const normalizedPath = path.replace(/\/$/, "");
+
+    // Kasus khusus untuk Overview
+    if (
+      normalizedPath.startsWith("/dashboard/") &&
+      normalizedPath.split("/").length === 3
+    ) {
+      return normalizedPathname === normalizedPath;
+    }
+
+    return (
+      normalizedPathname === normalizedPath ||
+      (normalizedPath !== "" &&
+        normalizedPathname.startsWith(`${normalizedPath}/`))
+    );
   };
 
   return (
