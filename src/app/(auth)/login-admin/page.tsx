@@ -14,7 +14,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useAuth } from "@/hooks/api/auth/useAdminAuth";
+import { useAdminAuth } from "@/hooks/api/auth/useAdminAuth";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import VerificationModal from "@/components/admin/verficationModal";
@@ -29,7 +29,7 @@ const LoginPage = () => {
   });
   const [showVerificationModal, setShowVerificationModal] = useState(true);
 
-  const { login, loading, error } = useAuth();
+  const { login, loading, error } = useAdminAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

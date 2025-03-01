@@ -16,6 +16,10 @@ import {
   ClipboardCheck,
   FileChartColumnIncreasing,
   Sparkles,
+  Bike,
+  RotateCw,
+  History,
+  WashingMachine,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -23,7 +27,7 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
 
 interface SidebarProps {
-  role: "SUPER_ADMIN" | "OUTLET_ADMIN";
+  role: "SUPER_ADMIN" | "OUTLET_ADMIN" | "DRIVER" | "WORKER";
   isMobile?: boolean;
 }
 
@@ -38,7 +42,7 @@ interface MenuItem {
 // Function to generate menu configurations
 const generateMenuConfig = (roleParam: string): MenuItem[] => {
   // Common items for both roles
-  const commonItems: MenuItem[] = [
+  const outletAdminItems: MenuItem[] = [
     {
       title: "Overview",
       path: `/dashboard/${roleParam}`,
@@ -102,18 +106,87 @@ const generateMenuConfig = (roleParam: string): MenuItem[] => {
     },
   ];
 
-  // Convert component role to URL parameter
-  const isSuper = roleParam === "super-admin";
+  const driverItems: MenuItem[] = [
+    {
+      title: "Attendances",
+      path: `/employee-dashboard/${roleParam}/attendances`,
+      icon: <ClipboardCheck size={20} />,
+    },
+    {
+      title: "Transport Jobs",
+      path: "",
+      icon: <Bike size={20} />,
+      submenu: [
+        {
+          title: "Ongoing Job",
+          path: `/employee-dashboard/${roleParam}/ongoing`,
+          icon: <RotateCw size={20} />,
+        },
+        {
+          title: "Requests",
+          path: `/employee-dashboard/${roleParam}/requests`,
+          icon: <TableOfContents size={20} />,
+        },
+      ],
+    },
+    {
+      title: "Job history",
+      path: `/employee-dashboard/${roleParam}/history`,
+      icon: <History size={20} />,
+    },
+  ];
 
-  return isSuper
-    ? [...commonItems.slice(0, 1), ...superAdminItems, ...commonItems.slice(1)]
-    : commonItems;
+  const workerItems: MenuItem[] = [
+    {
+      title: "Attendances",
+      path: `/employee-dashboard/${roleParam}/attendances`,
+      icon: <ClipboardCheck size={20} />,
+    },
+    {
+      title: "Laundry Jobs",
+      path: "",
+      icon: <WashingMachine size={20} />,
+      submenu: [
+        {
+          title: "Ongoing Job",
+          path: `/employee-dashboard/${roleParam}/ongoing`,
+          icon: <RotateCw size={20} />,
+        },
+        {
+          title: "Requests",
+          path: `/employee-dashboard/${roleParam}/requests`,
+          icon: <TableOfContents size={20} />,
+        },
+      ],
+    },
+    {
+      title: "Job history",
+      path: `/employee-dashboard/${roleParam}/history`,
+      icon: <History size={20} />,
+    },
+  ];
+
+  // Convert component role to URL parameter
+
+  return roleParam === "super-admin"
+    ? [
+        ...outletAdminItems.slice(0, 1),
+        ...superAdminItems,
+        ...outletAdminItems.slice(1),
+      ]
+    : roleParam === "outlet-admin"
+    ? outletAdminItems
+    : roleParam === "driver"
+    ? driverItems
+    : workerItems;
 };
 
 // Map component role formats to URL parameters
 const roleToParam = {
   SUPER_ADMIN: "super-admin",
   OUTLET_ADMIN: "outlet-admin",
+  DRIVER: "driver",
+  WORKER: "worker",
 };
 
 export const SidebarContent = ({ role, isMobile = false }: SidebarProps) => {

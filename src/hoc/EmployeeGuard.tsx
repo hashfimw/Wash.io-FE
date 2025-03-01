@@ -1,11 +1,10 @@
-// HOCs/RoleGuard.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { useAdminAuth } from "@/hooks/api/auth/useAdminAuth";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/hooks/api/auth/useEmployeeAuth";
 
 type RoleGuardProps = {
   children: React.ReactNode;
@@ -14,7 +13,7 @@ type RoleGuardProps = {
 
 export const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
-  const { user, loading, getCurrentUser, logout } = useAdminAuth();
+  const { user, loading, getCurrentUser, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
@@ -22,26 +21,24 @@ export const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
   useEffect(() => {
     const checkUserRole = async () => {
       try {
-        // Check if user is already loaded
         if (user) {
           if (allowedRoles.includes(user.role)) {
             setIsAuthorized(true);
           } else {
             setIsAuthorized(false);
             showUnauthorizedToast(user.role);
-            // Hapus token (logout) jika role tidak sesuai
+            // Hapus token jika role tidak sesuai
             logout();
-            // Redirect to login page
-            router.push("/login-admin");
+            // Redirect ke halaman login
+            router.push("/login-employee");
             return;
           }
         } else {
-          // Try to get the current user
           const currentUser = await getCurrentUser();
 
           if (!currentUser) {
             setIsAuthorized(false);
-            router.push("/login-admin");
+            router.push("/login-employee");
             return;
           }
 
@@ -50,19 +47,19 @@ export const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
           } else {
             setIsAuthorized(false);
             showUnauthorizedToast(currentUser.role);
-            // Hapus token (logout) jika role tidak sesuai
+            // Hapus token jika role tidak sesuai
             logout();
-            // Redirect to login page
-            router.push("/login-admin");
+            // Redirect ke halaman login
+            router.push("/login-employee");
             return;
           }
         }
       } catch (error) {
         console.error("Error in RoleGuard:", error);
         setIsAuthorized(false);
-        // Hapus token (logout) karena ada error
+        // Hapus token jika terjadi error
         logout();
-        router.push("/login-admin");
+        router.push("/login-employee");
       }
     };
 
@@ -72,8 +69,8 @@ export const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
   const showUnauthorizedToast = (role: string) => {
     toast({
       variant: "destructive",
-      title: "Access Denied",
-      description: `You do not have access to this page as a ${role}. Your session has been terminated for security reasons.`,
+      title: "Unauthorized Access",
+      description: `You do not have access to this page as ${role}. Your session has been terminated for security reasons.`,
     });
   };
 
@@ -93,27 +90,14 @@ export const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
   return <>{children}</>;
 };
 
-export const SuperAdminGuard = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
-  return <RoleGuard allowedRoles={["SUPER_ADMIN"]}>{children}</RoleGuard>;
+export const DriverGuard = ({ children }: { children: React.ReactNode }) => {
+  return <RoleGuard allowedRoles={["DRIVER"]}>{children}</RoleGuard>;
 };
 
-export const OutletAdminGuard = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
-  return <RoleGuard allowedRoles={["OUTLET_ADMIN"]}>{children}</RoleGuard>;
+export const WorkerGuard = ({ children }: { children: React.ReactNode }) => {
+  return <RoleGuard allowedRoles={["WORKER"]}>{children}</RoleGuard>;
 };
 
-// You can also create an AdminGuard that allows both roles
-export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <RoleGuard allowedRoles={["SUPER_ADMIN", "OUTLET_ADMIN"]}>
-      {children}
-    </RoleGuard>
-  );
+export const EmployeeGuard = ({ children }: { children: React.ReactNode }) => {
+  return <RoleGuard allowedRoles={["DRIVER", "WORKER"]}>{children}</RoleGuard>;
 };

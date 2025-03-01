@@ -1,4 +1,3 @@
-// hooks/api/auth/useAdminAuth.ts
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { User } from "@/types/customer";
@@ -25,7 +24,7 @@ interface LoginResponse {
   token: string;
 }
 
-export const useAdminAuth = () => {
+export const useAuth = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -35,7 +34,6 @@ export const useAdminAuth = () => {
       setLoading(true);
       setError(null);
 
-      // Login request
       const response = await api.post<LoginResponse>(
         "/auth/login",
         credentials
@@ -45,10 +43,8 @@ export const useAdminAuth = () => {
       if (token) {
         localStorage.setItem("token", token);
 
-        // Decode token untuk mendapatkan user ID
         const decoded: any = JSON.parse(atob(token.split(".")[1]));
 
-        // Get user details using ID
         const userResponse = await api.get(`/users/${decoded.id}`);
         const userData = userResponse.data.user;
         setUser(userData);
@@ -86,13 +82,10 @@ export const useAdminAuth = () => {
         return null;
       }
 
-      // Decode token untuk mendapatkan user ID
       const decoded: any = JSON.parse(atob(token.split(".")[1]));
 
-      // Get user details using ID
       const response = await api.get(`/users/${decoded.id}`);
       const userData = response.data.user;
-      console.log("User data fetched:", userData); // Debug log
       setUser(userData);
       return userData;
     } catch (err) {
@@ -113,11 +106,7 @@ export const useAdminAuth = () => {
   const logout = (): void => {
     localStorage.removeItem("token");
     setUser(null);
-    if (user?.role === "SUPER_ADMIN" || user?.role === "OUTLET_ADMIN") {
-      window.location.href = "/login-admin";
-    } else if (user?.role === "DRIVER" || user?.role === "WORKER") {
-      window.location.href = "/login-employee";
-    } else window.location.href = "/";
+    window.location.href = "/login-employee";
   };
 
   const checkAuth = (): boolean => {
@@ -125,7 +114,6 @@ export const useAdminAuth = () => {
     return !!token;
   };
 
-  // Auto fetch user on mount
   useEffect(() => {
     getCurrentUser();
   }, []);

@@ -6,7 +6,7 @@ import { useBreadcrumb } from "@/context/BreadcrumbContext";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
-  role: "SUPER_ADMIN" | "OUTLET_ADMIN";
+  role: "SUPER_ADMIN" | "OUTLET_ADMIN" | "DRIVER" | "WORKER";
   user: {
     name: string;
     email: string;

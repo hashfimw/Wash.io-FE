@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useOutlets } from "@/hooks/api/outlets/useOutlets";
 import { usePendingOrders } from "@/hooks/api/orders/usePendingOrders";
 import { useOrders } from "@/hooks/api/orders/useOrders";
-import { useAuth } from "@/hooks/api/auth/useAdminAuth";
+import { useAdminAuth } from "@/hooks/api/auth/useAdminAuth";
 import Link from "next/link";
 import { useUsers } from "@/hooks/api/users/getUser";
 import { Role } from "@/types/employee";
@@ -20,7 +20,7 @@ export default function Dashboard() {
   const { getUsers } = useUsers();
   const { getPendingOrders } = usePendingOrders();
   const { getAllOrders } = useOrders();
-  const { user } = useAuth();
+  const { user } = useAdminAuth();
   const router = useRouter();
   // State variables
   const [outletsCount, setOutletsCount] = useState<number>(0);

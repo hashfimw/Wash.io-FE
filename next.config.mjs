@@ -14,6 +14,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "www.digitalopeners.com",
       },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
     ],
   },
 };
