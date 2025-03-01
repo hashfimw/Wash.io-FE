@@ -78,7 +78,7 @@ export function ActionSection({
             {/* Reject Button with Dialog */}
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" disabled={isSubmitting}>
+                <Button variant="oren" disabled={isSubmitting}>
                   {isSubmitting && currentAction === "reject" ? (
                     <span className="mr-2">Rejecting...</span>
                   ) : (
@@ -113,7 +113,7 @@ export function ActionSection({
             {/* Approve Button with Dialog */}
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="default" disabled={isSubmitting}>
+                <Button variant="birtu" disabled={isSubmitting}>
                   {isSubmitting && currentAction === "approve" ? (
                     <span className="mr-2">Approving...</span>
                   ) : (

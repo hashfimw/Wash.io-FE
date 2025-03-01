@@ -20,7 +20,7 @@ import { OrderStatus } from "@/types/order";
 import { useOutlets } from "@/hooks/api/outlets/useOutlets";
 
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/hooks/api/auth/useAdminAuth";
+import { useAdminAuth } from "@/hooks/api/auth/useAdminAuth";
 
 interface OrderFiltersProps {
   onSearch?: (value: string) => void;
@@ -36,7 +36,7 @@ export function OrderFilters({
   onDateRangeChange,
   onOutletChange,
 }: OrderFiltersProps) {
-  const { user } = useAuth(); // Get current user
+  const { user } = useAdminAuth(); // Get current user
   const [outlets, setOutlets] = useState<{ id: number; outletName: string }[]>(
     []
   );

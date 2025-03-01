@@ -4,8 +4,8 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Shirt, WashingMachine, Droplets } from "lucide-react";
 import Bubbles from "@/components/animations/Bubble";
-import WavesAnimation from "@/components/animations/Waves";
 import LightBeam from "@/components/animations/LightBeam";
+import CSSWave from "@/components/animations/Waves";
 
 const Loading = () => {
   const [showFullContent, setShowFullContent] = useState(false);
@@ -70,7 +70,7 @@ const Loading = () => {
 
       {/* Reusable Animation Components */}
       <Bubbles isMobile={isMobile} />
-      <WavesAnimation />
+      <CSSWave />
       <LightBeam />
 
       <div className="relative z-10">

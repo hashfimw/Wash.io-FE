@@ -34,7 +34,10 @@ export const useAuth = () => {
       setLoading(true);
       setError(null);
 
-      const response = await api.post<LoginResponse>("/auth/login", credentials);
+      const response = await api.post<LoginResponse>(
+        "/auth/login",
+        credentials
+      );
       const { token } = response.data;
 
       if (token) {
@@ -87,7 +90,10 @@ export const useAuth = () => {
       return userData;
     } catch (err) {
       console.error("Failed to fetch current user:", err);
-      if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
+      if (
+        axios.isAxiosError(err) &&
+        (err.response?.status === 401 || err.response?.status === 403)
+      ) {
         logout();
       }
       setError("Failed to fetch user details");

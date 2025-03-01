@@ -3,7 +3,7 @@
 export interface OrderItem {
   id: number;
   orderId: number;
-  qty: number;
+  qty: number | undefined;
   orderItemName: string;
   createdAt: Date;
   updatedAt: Date;
@@ -100,7 +100,7 @@ export enum TransportType {
 export interface OrderItem {
   id: number;
   orderId: number;
-  qty: number;
+  qty: number | undefined;
   orderItemName: string;
 }
 
@@ -117,7 +117,7 @@ export interface ProcessOrderRequest {
   laundryWeight: number;
   orderItems: {
     orderItemName: string;
-    qty: number;
+    qty: number | undefined;
   }[];
 }
 

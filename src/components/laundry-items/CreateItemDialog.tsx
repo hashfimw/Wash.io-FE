@@ -98,47 +98,58 @@ export function CreateItemDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="w-[95%] max-w-md mx-auto p-4 sm:p-6">
         <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>Create New Laundry Item</DialogTitle>
-            <DialogDescription>
+          <DialogHeader className="space-y-2">
+            <DialogTitle className="text-lg sm:text-xl">
+              Create New Laundry Item
+            </DialogTitle>
+            <DialogDescription className="text-sm">
               Add a new laundry item that can be selected in orders.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="itemName" className="text-right">
+          <div className="grid gap-4 py-3 sm:py-4">
+            <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-1 sm:gap-4">
+              <Label
+                htmlFor="itemName"
+                className="sm:text-right text-sm sm:text-base mb-1 sm:mb-0"
+              >
                 Item Name
               </Label>
               <Input
                 id="itemName"
                 value={itemName}
                 onChange={(e) => setItemName(e.target.value)}
-                className="col-span-3"
+                className="col-span-1 sm:col-span-3"
                 placeholder="e.g., T-Shirt, Jeans, Bedsheet"
                 autoFocus
               />
             </div>
 
             {error && (
-              <div className="text-sm text-red-500 col-span-4 text-right">
+              <div className="text-xs sm:text-sm text-red-500 col-span-1 sm:col-span-4 text-left sm:text-right">
                 {error}
               </div>
             )}
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0 mt-2 sm:mt-0">
             <Button
               type="button"
               variant="outline"
               onClick={handleClose}
               disabled={isSubmitting}
+              className="w-full sm:w-auto order-2 sm:order-1"
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              variant="birtu"
+              className="w-full sm:w-auto order-1 sm:order-2"
+            >
               {isSubmitting ? "Creating..." : "Create Item"}
             </Button>
           </DialogFooter>

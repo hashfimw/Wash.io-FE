@@ -134,7 +134,7 @@ const generateMenuConfig = (roleParam: string): MenuItem[] => {
       path: `/employee-dashboard/${roleParam}/history`,
       icon: <History size={20} />,
     },
-  ]
+  ];
 
   const workerItems: MenuItem[] = [
     {
@@ -164,12 +164,16 @@ const generateMenuConfig = (roleParam: string): MenuItem[] => {
       path: `/employee-dashboard/${roleParam}/history`,
       icon: <History size={20} />,
     },
-  ]
+  ];
 
   // Convert component role to URL parameter
-   
+
   return roleParam === "super-admin"
-    ? [...outletAdminItems.slice(0, 1), ...superAdminItems, ...outletAdminItems.slice(1)]
+    ? [
+        ...outletAdminItems.slice(0, 1),
+        ...superAdminItems,
+        ...outletAdminItems.slice(1),
+      ]
     : roleParam === "outlet-admin"
     ? outletAdminItems
     : roleParam === "driver"
@@ -182,7 +186,7 @@ const roleToParam = {
   SUPER_ADMIN: "super-admin",
   OUTLET_ADMIN: "outlet-admin",
   DRIVER: "driver",
-  WORKER: "worker"
+  WORKER: "worker",
 };
 
 export const SidebarContent = ({ role, isMobile = false }: SidebarProps) => {
@@ -216,10 +220,26 @@ export const SidebarContent = ({ role, isMobile = false }: SidebarProps) => {
       )
     );
   };
-
   const isActive = (path: string) => {
     if (!path) return false;
-    return pathname === path || pathname.startsWith(`${path}/`);
+
+    // Normalisasi path dengan menghapus trailing slash
+    const normalizedPathname = pathname.replace(/\/$/, "");
+    const normalizedPath = path.replace(/\/$/, "");
+
+    // Kasus khusus untuk Overview
+    if (
+      normalizedPath.startsWith("/dashboard/") &&
+      normalizedPath.split("/").length === 3
+    ) {
+      return normalizedPathname === normalizedPath;
+    }
+
+    return (
+      normalizedPathname === normalizedPath ||
+      (normalizedPath !== "" &&
+        normalizedPathname.startsWith(`${normalizedPath}/`))
+    );
   };
 
   return (

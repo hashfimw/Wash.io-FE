@@ -14,7 +14,7 @@ import { Menu, User, Settings, LogOut, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { SidebarContent } from "./Sidebar";
-import { useAuth } from "@/hooks/api/auth/useAdminAuth";
+import { useAdminAuth } from "@/hooks/api/auth/useAdminAuth";
 import { useEffect, useState } from "react";
 import NotificationModal from "../notification/NotificationModal";
 import { useNotification } from "@/hooks/api/notifications/useNotification";
@@ -33,8 +33,9 @@ interface HeaderProps {
 }
 
 export const Header = ({ user, breadcrumbItems, role }: HeaderProps) => {
-  const { logout } = useAuth();
-  const [isNotificationModalOpen, setNotificaionModalOpen] = useState<boolean>(false);
+  const { logout } = useAdminAuth();
+  const [isNotificationModalOpen, setNotificaionModalOpen] =
+    useState<boolean>(false);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const { getUnreadCount } = useNotification();
 
@@ -131,7 +132,10 @@ export const Header = ({ user, breadcrumbItems, role }: HeaderProps) => {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleOpen} className="z-0 group relative flex items-center cursor-pointer justify-between">
+            <DropdownMenuItem
+              onClick={handleOpen}
+              className="z-0 group relative flex items-center cursor-pointer justify-between"
+            >
               <div
                 className={`${
                   unreadCount
@@ -140,7 +144,10 @@ export const Header = ({ user, breadcrumbItems, role }: HeaderProps) => {
                 }`}
               ></div>
               <div className="flex items-center gap-2">
-                <Bell size={16} className={`${unreadCount ? "text-oren" : "text-birtu"}`} />
+                <Bell
+                  size={16}
+                  className={`${unreadCount ? "text-oren" : "text-birtu"}`}
+                />
                 <span>Notifications</span>
               </div>
               <div
@@ -172,7 +179,7 @@ export const Header = ({ user, breadcrumbItems, role }: HeaderProps) => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <NotificationModal open={isNotificationModalOpen} onClose={handleClose}/>
+      <NotificationModal open={isNotificationModalOpen} onClose={handleClose} />
     </div>
   );
 };

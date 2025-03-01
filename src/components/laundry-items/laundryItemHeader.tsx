@@ -39,7 +39,7 @@ export function LaundryItemHeader({
         </div>
 
         {isSuperAdmin && (
-          <Button onClick={onCreateClick}>
+          <Button onClick={onCreateClick} variant={"oren"}>
             <Plus className="mr-2 h-4 w-4" />
             New Item
           </Button>

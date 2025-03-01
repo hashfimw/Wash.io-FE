@@ -25,7 +25,7 @@ interface LoginResponse {
   token: string;
 }
 
-export const useAuth = () => {
+export const useAdminAuth = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);

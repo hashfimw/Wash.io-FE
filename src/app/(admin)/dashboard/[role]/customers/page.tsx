@@ -1,38 +1,6 @@
-// src/app/(dashboard)/super-admin/customers/page.tsx
-"use client";
-
-import { useEffect } from "react";
-
-import { useBreadcrumb } from "@/context/BreadcrumbContext";
-
-import { UserTable } from "@/components/customers/userTable";
-import { useUserTable } from "@/hooks/api/users/getUserTable";
-import { useParams } from "next/navigation";
+import { UserTableWithBreadcrumb } from "@/components/customers/breadCrumbClient";
 
 export default function CustomersPage() {
-  const {
-    users,
-    loading,
-    error,
-    currentPage,
-    totalPages,
-    searchQuery,
-    handleSearch,
-    handlePageChange,
-  } = useUserTable({ limit: 5 }); // Sesuaikan limit dengan kebutuhan
-
-  const { setBreadcrumbItems } = useBreadcrumb();
-  const params = useParams();
-  const role = params.role as string;
-
-  useEffect(() => {
-    const roleName = role === "super-admin" ? "Super Admin" : "Outlet Admin";
-    setBreadcrumbItems([
-      { label: roleName, href: `/dashboard/${role}` },
-      { label: "Bypass Requests" },
-    ]);
-  }, [role, setBreadcrumbItems]);
-
   return (
     <div className="container mx-auto p-4 sm:p-6 space-y-6">
       {/* Header Section */}
@@ -50,16 +18,7 @@ export default function CustomersPage() {
       {/* Main Content */}
       <div className="bg-white rounded-lg shadow-sm">
         <div className="p-4 sm:p-6 ">
-          <UserTable
-            users={users}
-            loading={loading}
-            error={error}
-            searchQuery={searchQuery}
-            onSearch={handleSearch}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
+          <UserTableWithBreadcrumb limit={5} />
         </div>
       </div>
     </div>

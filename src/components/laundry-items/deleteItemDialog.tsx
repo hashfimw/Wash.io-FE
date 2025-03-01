@@ -54,7 +54,7 @@ export function DeleteItemDialog({
           <AlertDialogAction
             onClick={handleConfirm}
             disabled={isDeleting}
-            className="bg-red-600 hover:bg-red-700 focus:ring-red-500"
+            className="bg-birtu hover:bg-oren focus:ring-birtu"
           >
             {isDeleting ? "Deleting..." : "Delete"}
           </AlertDialogAction>

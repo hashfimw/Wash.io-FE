@@ -35,7 +35,11 @@ export function OutletDeleteAlert({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm} disabled={loading}>
+          <AlertDialogAction
+            onClick={onConfirm}
+            disabled={loading}
+            className="bg-birtu hover:bg-oren"
+          >
             {loading ? "Deleting..." : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>
