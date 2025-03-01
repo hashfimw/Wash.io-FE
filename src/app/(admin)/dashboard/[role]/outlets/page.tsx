@@ -33,25 +33,22 @@ export default function OutletsPage() {
       { label: "Super Admin", href: "/super-admin/dashboard" },
       { label: "Outlets" },
     ]);
-  }, [setBreadcrumbItems]);
+  }, [setBreadcrumbItems]); // Tambahkan dependency
 
   return (
-    <div className="container mx-auto px-4 py-3 sm:p-6 space-y-4 sm:space-y-6 max-w-full">
+    <div className="container mx-auto p-4 sm:p-6 space-y-6">
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div className="flex-1 min-w-0">
           <h1 className="text-xl sm:text-2xl font-bold truncate">
             Manage Outlets
           </h1>
-          <p className="text-sm text-muted-foreground mt-1 sm:hidden">
-            Add, edit and manage all your laundry outlets
-          </p>
         </div>
-        <div className="w-full sm:w-auto mt-2 sm:mt-0">
+        <div className="w-full sm:w-auto">
           <Button
             onClick={() => setIsFormOpen(true)}
             className="w-full sm:w-auto"
-            variant="oren"
+            variant={"oren"}
           >
             <Plus className="h-4 w-4 mr-2" />
             Add New Outlet
@@ -60,11 +57,9 @@ export default function OutletsPage() {
       </div>
 
       {/* Main Content */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <div className="p-2 sm:p-6">
-          <div className="overflow-x-auto -mx-2 sm:mx-0">
-            <OutletTable onEdit={handleEdit} />
-          </div>
+      <div className="bg-white rounded-lg shadow-sm">
+        <div className="p-4 sm:p-6">
+          <OutletTable onEdit={handleEdit} />
         </div>
       </div>
 
