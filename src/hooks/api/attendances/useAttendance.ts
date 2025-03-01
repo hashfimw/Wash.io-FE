@@ -42,7 +42,7 @@ export const useAttendance = () => {
       return response.data;
     } catch (err) {
       if (axios.isAxiosError(err)) setError(err.response?.data.message);
-      else setError("Failed to fetch jobs");
+      else setError("Failed to fetch attendances");
       throw err;
     } finally {
       setLoading(false);
@@ -58,7 +58,7 @@ export const useAttendance = () => {
       return response.data.message;
     } catch (err) {
       if (axios.isAxiosError(err)) setError(err.response?.data.message);
-      else setError("Failed to fetch jobs");
+      else setError("Failed to create attendance");
       throw err;
     } finally {
       setLoading(false);

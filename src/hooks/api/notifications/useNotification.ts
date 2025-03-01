@@ -29,11 +29,26 @@ export const useNotification = () => {
       if (params.requestType) queryParams.append("requestType", params.requestType.toString());
 
       const response = await api.get<GetNotificationsResponse>(`/notifications?${queryParams}`);
+      return response.data;
+    } catch (err) {
+      if (axios.isAxiosError(err)) setError(err.response?.data.message);
+      else setError("Failed to fetch notifications");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getUnreadNotificationsCount = async () => {
+    try {
+      setLoading(true);
+
+      const response = await api.get<{ data: number }>("/notifications/count-unread");
 
       return response.data;
     } catch (err) {
       if (axios.isAxiosError(err)) setError(err.response?.data.message);
-      else setError("Failed to fetch jobs");
+      else setError("Failed to count unread notifications");
       throw err;
     } finally {
       setLoading(false);
@@ -49,10 +64,9 @@ export const useNotification = () => {
       return response.data.message;
     } catch (err) {
       if (axios.isAxiosError(err)) setError(err.response?.data.message);
-      else setError("Failed to fetch jobs");
+      else setError("Failed to alter notification");
       throw err;
     } finally {
-      setLoading(false);
     }
   };
 
@@ -65,10 +79,12 @@ export const useNotification = () => {
       return response.data.message;
     } catch (err) {
       if (axios.isAxiosError(err)) setError(err.response?.data.message);
-      else setError("Failed to fetch jobs");
+      else setError("Failed to alter notifications");
       throw err;
     } finally {
-      setLoading(false);
+      setTimeout(() => {
+        setLoading(false);
+      }, 2000);
     }
   };
 
@@ -76,7 +92,8 @@ export const useNotification = () => {
     loading,
     error,
     getNotifications,
-    markNotificationAsReadById,
-    markAllUnreadNotificationAsRead,
+    getUnreadCount: getUnreadNotificationsCount,
+    markAsReadById: markNotificationAsReadById,
+    markAllAsRead: markAllUnreadNotificationAsRead,
   };
 };

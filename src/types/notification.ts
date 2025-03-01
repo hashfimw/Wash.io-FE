@@ -1,7 +1,10 @@
+export type NotificationRequestType = "read" | "unread" | "all"  
+
+
 export interface GetNotificationsRequest {
   page?: number;
   limit?: number;
-  requestType?: "read" | "unread" | "all";
+  requestType?: NotificationRequestType ;
 }
 
 export interface NotificationRecord {
@@ -11,6 +14,7 @@ export interface NotificationRecord {
   description: string;
   isRead: boolean;
   url: string | null;
+  createdAt: string
 }
 
 export interface GetNotificationsResponse {

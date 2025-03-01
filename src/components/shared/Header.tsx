@@ -10,11 +10,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Breadcrumb } from "./breadCrumb";
-import { Menu, User, Settings, LogOut } from "lucide-react";
+import { Menu, User, Settings, LogOut, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { SidebarContent } from "./Sidebar";
 import { useAuth } from "@/hooks/api/auth/useAdminAuth";
+import { useEffect, useState } from "react";
+import NotificationModal from "../notification/NotificationModal";
+import { useNotification } from "@/hooks/api/notifications/useNotification";
 
 interface HeaderProps {
   user: {
@@ -31,6 +34,25 @@ interface HeaderProps {
 
 export const Header = ({ user, breadcrumbItems, role }: HeaderProps) => {
   const { logout } = useAuth();
+  const [isNotificationModalOpen, setNotificaionModalOpen] = useState<boolean>(false);
+  const [unreadCount, setUnreadCount] = useState<number>(0);
+  const { getUnreadCount } = useNotification();
+
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      const response = await getUnreadCount();
+      setUnreadCount(response.data);
+    };
+    fetchUnreadCount();
+  }, [!isNotificationModalOpen]);
+
+  const handleOpen = () => {
+    setNotificaionModalOpen(true);
+  };
+
+  const handleClose = () => {
+    setNotificaionModalOpen(false);
+  };
 
   const handleLogout = () => {
     logout();
@@ -74,29 +96,28 @@ export const Header = ({ user, breadcrumbItems, role }: HeaderProps) => {
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="relative h-10 w-10 rounded-full bg-putbir/20 p-0 hover:bg-putbir/30"
+              className="relative size-10 rounded-full bg-putbir/20 p-0 hover:bg-putbir/30"
             >
-              {user.avatar ? (
-                <Avatar className="h-9 w-9 border-2 border-putbir/30">
+              {/* <div className={`${unreadCount ? "block" : "hidden"} absolute size-[38px] animate-spin duration-3000 rounded-full bg-gradient-to-r from-oren via-orange-400 to-orange-300`}></div> */}
+              <Avatar className="size-9 border-2 border-putbir/30">
+                {user.avatar ? (
                   <AvatarImage src={user.avatar} />
+                ) : (
                   <AvatarFallback className="bg-birtu text-putih text-sm font-medium">
                     {user.name
                       .split(" ")
                       .map((n) => n[0])
                       .join("")}
                   </AvatarFallback>
-                </Avatar>
-              ) : (
-                <Avatar className="h-9 w-9 border-2 border-putbir/30">
-                  <AvatarFallback className="bg-gradient-to-br from-birtu to-oren/80 text-putih text-sm font-medium">
-                    {user.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-              )}
-              <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-oren border-2 border-birtu"></span>
+                )}
+              </Avatar>
+              <span
+                className={` ${
+                  unreadCount
+                    ? "absolute -bottom-0.5 -right-0.5 size-4 rounded-full bg-oren border-2 border-birtu animate-pulse duration-1000"
+                    : "hidden"
+                } `}
+              ></span>
             </Button>
           </DropdownMenuTrigger>
 
@@ -110,6 +131,28 @@ export const Header = ({ user, breadcrumbItems, role }: HeaderProps) => {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleOpen} className="z-0 group relative flex items-center cursor-pointer justify-between">
+              <div
+                className={`${
+                  unreadCount
+                    ? "-z-10 left-0 absolute size-full bg-oren/30 rounded-sm pointer-events-none animate-pulse group-hover:animate-none group-hover:bg-oren/50 group-hover:brightness-110 transition"
+                    : "hidden"
+                }`}
+              ></div>
+              <div className="flex items-center gap-2">
+                <Bell size={16} className={`${unreadCount ? "text-oren" : "text-birtu"}`} />
+                <span>Notifications</span>
+              </div>
+              <div
+                className={`${
+                  unreadCount
+                    ? "bg-oren/85 px-2 text-sm font-semibold rounded-full text-white ring-oren ring-inset ring-2 brightness-105 group-hover:brightness-100 transition pointer-events-none"
+                    : "hidden"
+                }`}
+              >
+                {unreadCount}
+              </div>
+            </DropdownMenuItem>
             <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
               <User size={16} className="text-birtu" />
               <span>Profile</span>
@@ -129,6 +172,7 @@ export const Header = ({ user, breadcrumbItems, role }: HeaderProps) => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      <NotificationModal open={isNotificationModalOpen} onClose={handleClose}/>
     </div>
   );
 };
