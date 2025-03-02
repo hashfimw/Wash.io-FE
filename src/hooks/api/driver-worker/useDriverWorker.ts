@@ -1,11 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import {
-  GetJobByIdResponse,
-  GetJobsRequest,
-  GetJobsResponse,
-  UpdateLaundryJobInputBody,
-} from "@/types/driverWorker";
+import { GetJobByIdResponse, GetJobsRequest, GetJobsResponse, UpdateLaundryJobInputBody } from "@/types/driverWorker";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api",
@@ -43,19 +38,14 @@ export const useDriverWorker = () => {
       if (params.limit) queryParams.append("limit", params.limit.toString());
       if (params.sortBy) queryParams.append("sortBy", params.sortBy);
       if (params.sortOrder) queryParams.append("sortOrder", params.sortOrder);
-      if (params.startDate)
-        queryParams.append("startDate", toUTCtime(params.startDate));
-      if (params.endDate)
-        queryParams.append("endDate", toUTCtime(params.endDate));
-      if (params.transportType)
-        queryParams.append("transportType", params.transportType);
+      if (params.startDate) queryParams.append("startDate", toUTCtime(params.startDate));
+      if (params.endDate) queryParams.append("endDate", toUTCtime(params.endDate));
+      if (params.transportType) queryParams.append("transportType", params.transportType);
 
       queryParams.append("tzo", tzo);
       queryParams.append("requestType", params.requestType);
 
-      const response = await api.get<GetJobsResponse>(
-        `/${params.endPoint}?${queryParams}`
-      );
+      const response = await api.get<GetJobsResponse>(`/${params.endPoint}?${queryParams}`);
 
       return response.data.data;
     } catch (err) {
@@ -67,16 +57,11 @@ export const useDriverWorker = () => {
     }
   };
 
-  const getJobById = async (
-    endPoint: "transport-jobs" | "laundry-jobs",
-    jobId: number
-  ) => {
+  const getJobById = async (endPoint: "transport-jobs" | "laundry-jobs", jobId: number) => {
     try {
       setLoading(true);
 
-      const response = await api.get<GetJobByIdResponse>(
-        `/${endPoint}/${jobId}`
-      );
+      const response = await api.get<GetJobByIdResponse>(`/${endPoint}/${jobId}`);
 
       return response.data;
     } catch (err) {
@@ -92,9 +77,7 @@ export const useDriverWorker = () => {
     try {
       setLoading(true);
 
-      const response = await api.get<GetJobByIdResponse>(
-        `/${endPoint}/ongoing`
-      );
+      const response = await api.get<GetJobByIdResponse>(`/${endPoint}/ongoing`);
 
       return response.data;
     } catch (err) {
@@ -106,18 +89,11 @@ export const useDriverWorker = () => {
     }
   };
 
-  const updateJob = async (
-    endPoint: "transport-jobs" | "laundry-jobs",
-    jobId: number,
-    inputBody?: UpdateLaundryJobInputBody
-  ) => {
+  const updateJob = async (endPoint: "transport-jobs" | "laundry-jobs", jobId: number, inputBody?: UpdateLaundryJobInputBody) => {
     try {
       setLoading(true);
 
-      const response = await api.patch<{ message: string }>(
-        `/${endPoint}/${jobId}?tzo=${tzo}`,
-        inputBody
-      );
+      const response = await api.patch<{ message: string }>(`/${endPoint}/${jobId}?tzo=${tzo}`, inputBody);
 
       return response.data.message;
     } catch (err) {
