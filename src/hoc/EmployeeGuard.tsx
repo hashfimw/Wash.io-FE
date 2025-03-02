@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { useAuth } from "@/hooks/api/auth/useEmployeeAuth";
+import { useEmployeeAuth } from "@/hooks/api/auth/useEmployeeAuth";
 
 type RoleGuardProps = {
   children: React.ReactNode;
@@ -13,7 +13,7 @@ type RoleGuardProps = {
 
 export const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
-  const { user, loading, getCurrentUser } = useAuth();
+  const { user, loading, getCurrentUser, logout } = useEmployeeAuth();
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
@@ -27,7 +27,11 @@ export const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
           } else {
             setIsAuthorized(false);
             showUnauthorizedToast(user.role);
-            redirectBasedOnRole(user.role);
+            // Hapus token jika role tidak sesuai
+            logout();
+            // Redirect ke halaman login
+            router.push("/login-employee");
+            return;
           }
         } else {
           const currentUser = await getCurrentUser();
@@ -43,12 +47,18 @@ export const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
           } else {
             setIsAuthorized(false);
             showUnauthorizedToast(currentUser.role);
-            redirectBasedOnRole(currentUser.role);
+            // Hapus token jika role tidak sesuai
+            logout();
+            // Redirect ke halaman login
+            router.push("/login-employee");
+            return;
           }
         }
       } catch (error) {
         console.error("Error in RoleGuard:", error);
         setIsAuthorized(false);
+        // Hapus token jika terjadi error
+        logout();
         router.push("/login-employee");
       }
     };
@@ -60,15 +70,8 @@ export const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
     toast({
       variant: "destructive",
       title: "Unauthorized Access",
-      description: `You do not have access to this page as ${role}.`,
+      description: `You do not have access to this page as ${role}. Your session has been terminated for security reasons.`,
     });
-  };
-
-  const redirectBasedOnRole = (role: string) => {
-    if (role === "DRIVER" || role === "WORKER") {
-      const rolePathParam = role === "DRIVER" ? "driver" : "worker";
-      router.push(`/employee-dashboard/${rolePathParam}`);
-    } else router.push("/");
   };
 
   if (loading || isAuthorized === null) {

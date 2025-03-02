@@ -132,7 +132,7 @@ export default function NotificationModal({ open, onClose }: NotificationModalPr
                   onClick={() => handleRequestType(state as NotificationRequestType)}
                   disabled={requestType == state || loading}
                   className={`${requestType == state ? "bg-birtu text-white shadow-md" : "text-birtu hover:bg-birtu/10 hover:shadow-inner"} ${
-                    loading ? "hover:cursor-not-allowed" : ""
+                    loading && "hover:cursor-not-allowed"
                   } w-1/2 p-2 rounded-md font-semibold transition`}
                 >
                   {value}
@@ -170,9 +170,7 @@ export default function NotificationModal({ open, onClose }: NotificationModalPr
                   Showing {notifications.length} out of {totalData} notification(s)
                 </p>
                 <div className="flex justify-between">
-                  <div>
-                    {totalPages > 1 ? <NotificationPagination onPageChange={handlePageChange} currentPage={page} totalPages={totalPages} /> : <></>}
-                  </div>
+                  <div>{totalPages > 1 && <NotificationPagination onPageChange={handlePageChange} currentPage={page} totalPages={totalPages} />}</div>
                   <Button
                     onClick={() => alterAllAsRead()}
                     disabled={requestType == "read"}

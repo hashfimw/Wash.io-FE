@@ -2,6 +2,7 @@
 import { ChevronRight, Home } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 
 interface BreadcrumbProps {
   items: {
@@ -12,8 +13,13 @@ interface BreadcrumbProps {
 
 export const Breadcrumb = ({ items }: BreadcrumbProps) => {
   const [isMobile, setIsMobile] = useState(false);
+  const params = useParams();
+  const role = params.role as string;
 
-  // Deteksi viewport mobile
+  // Determine home link based on role
+  const homeLink = role ? `/dashboard/${role}` : "/";
+
+  // Detect mobile viewport
   useEffect(() => {
     const checkIfMobile = () => {
       setIsMobile(window.innerWidth < 640);
@@ -27,54 +33,59 @@ export const Breadcrumb = ({ items }: BreadcrumbProps) => {
     };
   }, []);
 
-  // Tentukan berapa item yang akan ditampilkan dalam mode mobile
-  const visibleItems =
-    isMobile && items.length > 2 ? [items[0], items[items.length - 1]] : items;
+  // Get the last item for mobile view
+  const lastItem = items.length > 0 ? items[items.length - 1] : null;
 
   return (
-    <nav className="flex items-center space-x-1 text-sm">
+    <nav className="flex items-center text-sm overflow-hidden max-w-full">
+      {/* Always show home icon on both mobile and desktop */}
       <Link
-        href="/"
-        className="flex items-center text-slate-800 hover:text-putih transition-colors"
+        href={homeLink}
+        className="flex-shrink-0 flex items-center text-slate-800 hover:text-putih transition-colors"
       >
         <Home className="h-4 w-4" />
       </Link>
 
-      {isMobile && items.length > 2 && (
-        <div className="flex items-center">
-          <ChevronRight className="h-4 w-4 text-slate-800" />
-          <span className="ml-1 text-slate-800">...</span>
-        </div>
-      )}
+      {/* Desktop view - show all items */}
+      {!isMobile &&
+        items.map((item, index) => (
+          <div key={item.label} className="flex items-center min-w-0">
+            <ChevronRight className="h-4 w-4 text-slate-800 flex-shrink-0 mx-1" />
 
-      {visibleItems.map((item, index) => {
-        // Jika dalam mode mobile dan ini adalah item terakhir setelah ellipsis
-        const isLastMobileItem = isMobile && items.length > 2 && index === 1;
-
-        return (
-          <div key={item.label} className="flex items-center">
-            {(!isMobile || index > 0 || items.length <= 2) && (
-              <ChevronRight className="h-4 w-4 text-slate-800" />
-            )}
             {item.href ? (
               <Link
                 href={item.href}
-                className={`ml-1 hover:text-putih transition-colors ${
-                  isLastMobileItem
-                    ? "text-slate-800 font-medium"
-                    : "text-slate-800 font-medium"
-                }`}
+                className="text-slate-800 hover:text-putih transition-colors font-medium truncate"
               >
                 {item.label}
               </Link>
             ) : (
-              <span className="ml-1 text-slate-800 hover:text-putih font-medium">
+              <span className="text-slate-800 hover:text-putih font-medium truncate">
                 {item.label}
               </span>
             )}
           </div>
-        );
-      })}
+        ))}
+
+      {/* Mobile view - show only last item (but keep the chevron) */}
+      {isMobile && lastItem && (
+        <div className="flex items-center min-w-0">
+          <ChevronRight className="h-4 w-4 text-slate-800 flex-shrink-0 mx-1" />
+
+          {lastItem.href ? (
+            <Link
+              href={lastItem.href}
+              className="text-slate-800 hover:text-putih transition-colors font-medium truncate max-w-[200px]"
+            >
+              {lastItem.label}
+            </Link>
+          ) : (
+            <span className="text-slate-800 hover:text-putih font-medium truncate max-w-[200px]">
+              {lastItem.label}
+            </span>
+          )}
+        </div>
+      )}
     </nav>
   );
 };

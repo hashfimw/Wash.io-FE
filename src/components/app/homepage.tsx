@@ -14,7 +14,7 @@ export default function Homepage() {
   const images = [
     "https://img.freepik.com/free-vector/flat-design-laundry-service-instagram-posts_23-2150989277.jpg?t=st=1738556340~exp=1738559940~hmac=3e1551d8c688b631863d5723eb2f35a162dc220cf640d70d3d6a70c983cea6d0&w=996",
     "https://www.goteso.com/products/assets/images/clone-scripts/laundrapp/laundrapp-clone-banner.png",
-    "https://www.digitalopeners.com/images/service/Laundry%20App/laundry-banner.webp",
+    // "https://www.digitalopeners.com/images/service/Laundry%20App/laundry-banner.webp",
   ];
 
   const [isScrolled, setIsScrolled] = useState(false);

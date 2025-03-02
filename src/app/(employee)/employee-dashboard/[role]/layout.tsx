@@ -5,11 +5,17 @@ import { BreadcrumbProvider } from "@/context/BreadcrumbContext";
 import { DashboardLayout } from "@/components/layouts/dashboardLayout";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/api/auth/useEmployeeAuth";
+import { useEmployeeAuth } from "@/hooks/api/auth/useEmployeeAuth";
 import Loading from "@/app/loading";
 import { DriverGuard, WorkerGuard } from "@/hoc/EmployeeGuard";
 
-export default function RoleLayout({ children, params }: { children: React.ReactNode; params: { role: string } }) {
+export default function RoleLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: { role: string };
+}) {
   const validRoleParams = ["driver", "worker"];
   const { role } = params;
 
@@ -17,7 +23,7 @@ export default function RoleLayout({ children, params }: { children: React.React
     return notFound();
   }
 
-  const { user, getCurrentUser, loading } = useAuth();
+  const { user, getCurrentUser, loading } = useEmployeeAuth();
   const router = useRouter();
   const [showLoading, setShowLoading] = useState(true);
 
@@ -51,7 +57,11 @@ export default function RoleLayout({ children, params }: { children: React.React
           avatar: user.avatar,
         }}
       >
-        {role === "driver" ? <DriverGuard>{children}</DriverGuard> : <WorkerGuard>{children}</WorkerGuard>}
+        {role === "driver" ? (
+          <DriverGuard>{children}</DriverGuard>
+        ) : (
+          <WorkerGuard>{children}</WorkerGuard>
+        )}
       </DashboardLayout>
     </BreadcrumbProvider>
   );

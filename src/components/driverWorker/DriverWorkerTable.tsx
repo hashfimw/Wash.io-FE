@@ -9,14 +9,16 @@ import { useToast } from "../ui/use-toast";
 import { TableSkeleton } from "../ui/table-skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import TimeDifferenceTooltip from "../notification/TimeDifferenceTooltip";
-import { toLocalTimeString, toUTCtime } from "@/utils/dateTime";
+import { toLocalTimeString } from "@/utils/dateTime";
 import { TablePagination } from "../shared/usePagination";
 import { Badge } from "../ui/badge";
 import { DateRange } from "react-day-picker";
 import { DatePickerWithRange } from "../attendances/DateRangePicker";
-import { Button } from "../ui/button";
-import { ListRestart } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Skeleton } from "../ui/skeleton";
+import ResetFiltersButton from "../attendances/ResetFiltersButton";
+import SelectTransportTypeButton from "../attendances/SelectTransportTypeButton";
+import SelectLimitButton from "../attendances/SelectLimitButton";
 
 export default function DriverWorkerTable({
   endPoint,
@@ -119,17 +121,13 @@ export default function DriverWorkerTable({
     if (date?.from) startDate = toLocalTimeString(date.from);
     if (date?.to) endDate = toLocalTimeString(date.to);
     handleDateRangeChange(startDate, endDate);
-    if (!error) {
-      fetchJobs();
-    }
   }, [date]);
-  console.log(date);
 
   useEffect(() => {
     if (!error) {
       fetchJobs();
     }
-  }, [page, sortOrder, transportType, limit]);
+  }, [page, sortOrder, transportType, limit, startDate, endDate]);
 
   useEffect(() => {
     if (error) {
@@ -142,46 +140,30 @@ export default function DriverWorkerTable({
   }, [error]);
 
   return (
-    <div className="mx-auto p-3 sm:p-6 space-y-6 max-w-screen-lg">
+    <div className="mx-auto p-3 space-y-6 max-w-screen-lg">
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold">Job History</h1>
-        <p className="text-muted-foreground">View list of jobs handled by you</p>
+        <h1 className="text-xl sm:text-2xl font-bold">{requestType === "request" ? "Job Requests" : "Jobs History"}</h1>
+        <p className="text-muted-foreground">
+          {requestType === "request" ? (
+            loading ? (
+              <Skeleton className="h-4 w-60 mt-2" />
+            ) : (
+              !error && `${totalData} job request(s) is available for you`
+            )
+          ) : (
+            "View list of jobs handled by you"
+          )}
+        </p>
       </div>
-      <div className="sm:p-4 space-y-3 sm:bg-white sm:shadow sm:rounded-xl w-full">
+      <div className={`${loading && "pointer-events-none"} sm:p-4 flex flex-col space-y-3 sm:bg-white sm:shadow sm:rounded-xl w-full`}>
         <div className="flex justify-between items-center">
           <p className="font-semibold text-base">Filters</p>
-          <Button variant="outline" size="sm" className="text-sm w-fit" onClick={handleResetFilters}>
-            <ListRestart />
-            Reset filters
-          </Button>
+          <ResetFiltersButton onClick={handleResetFilters} />
         </div>
         {requestType === "request" ? (
           <div className="flex justify-between">
-            {endPoint === "transport-jobs" ? (
-              <Select value={transportType} onValueChange={handleTransportTypeChange}>
-                <SelectTrigger className="w-fit border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground">
-                  <SelectValue placeholder="Transport Type" />
-                </SelectTrigger>
-                <SelectContent className="font-medium">
-                  <SelectItem value="PICKUP">Pickup</SelectItem>
-                  <SelectItem value="DELIVERY">Delivery</SelectItem>
-                </SelectContent>
-              </Select>
-            ) : (
-              <></>
-            )}
-            <Select value={limit} onValueChange={handleLimitChange}>
-              <SelectTrigger className="w-fit border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground">
-                <SelectValue placeholder="Limit" />
-              </SelectTrigger>
-              <SelectContent className="font-medium">
-                {[5, 10, 15, 20].map((limit, idx) => (
-                  <SelectItem key={idx} value={limit.toString()}>
-                    {limit}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {endPoint === "transport-jobs" && <SelectTransportTypeButton value={transportType} onClick={handleTransportTypeChange} />}
+            <SelectLimitButton value={limit} onClick={handleLimitChange} />
           </div>
         ) : (
           <div className="font-medium flex gap-3 flex-wrap justify-center md:justify-normal flex-col md:flex-row">
@@ -195,38 +177,15 @@ export default function DriverWorkerTable({
                 <SelectItem value="desc">Descending</SelectItem>
               </SelectContent>
             </Select>
-            {endPoint === "transport-jobs" ? (
-              <Select value={transportType} onValueChange={handleTransportTypeChange}>
-                <SelectTrigger className="w-fit border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground">
-                  <SelectValue placeholder="Transport Type" />
-                </SelectTrigger>
-                <SelectContent className="font-medium">
-                  <SelectItem value="PICKUP">Pickup</SelectItem>
-                  <SelectItem value="DELIVERY">Delivery</SelectItem>
-                </SelectContent>
-              </Select>
-            ) : (
-              <></>
-            )}
-            <Select value={limit} onValueChange={handleLimitChange}>
-              <SelectTrigger className="w-fit border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground">
-                <SelectValue placeholder="Limit" />
-              </SelectTrigger>
-              <SelectContent className="font-medium">
-                {[5, 10, 15, 20].map((limit, idx) => (
-                  <SelectItem key={idx} value={limit.toString()}>
-                    {limit}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {endPoint === "transport-jobs" && <SelectTransportTypeButton value={transportType} onClick={handleTransportTypeChange} />}
+            <SelectLimitButton value={limit} onClick={handleLimitChange} />
           </div>
         )}
 
         {error ? (
           <>Error</>
         ) : loading ? (
-          <TableSkeleton columns={4} rows={10} />
+          <TableSkeleton columns={4} rows={5} />
         ) : jobs.length === 0 ? (
           <>No data</>
         ) : (
@@ -239,7 +198,7 @@ export default function DriverWorkerTable({
                 <TableHeader>
                   <TableRow className="bg-muted hover:bg-muted">
                     <TableHead className="text-center font-semibold">Date</TableHead>
-                    {endPoint === "transport-jobs" ? <TableHead className="text-center font-semibold">Transport Type</TableHead> : <></>}
+                    {endPoint === "transport-jobs" && <TableHead className="text-center font-semibold">Transport Type</TableHead>}
                     <TableHead className="text-center font-semibold">Job Id</TableHead>
                     <TableHead className="text-center font-semibold">Order Id</TableHead>
                   </TableRow>
@@ -249,25 +208,17 @@ export default function DriverWorkerTable({
                     <TableRow
                       key={idx}
                       onClick={() => router.push(`/employee-dashboard/${endPoint === "transport-jobs" ? "driver" : "worker"}/${job.id}`, {})}
-                      className="group hover:cursor-pointer hover:underline hover:font-medium hover:text-birtu transition"
+                      className="group hover:cursor-pointer hover:underline hover:font-medium hover:text-birtu transition h-14 sm:h-10"
                     >
                       <TableCell className="min-w-48">
-                        {requestType == "request" ? (
-                          <>
-                            <TimeDifferenceTooltip date={job.date} />
-                          </>
-                        ) : (
-                          <p>{new Date(job.date).toLocaleString()}</p>
-                        )}
+                        {requestType == "request" ? <TimeDifferenceTooltip date={job.date} /> : <p>{new Date(job.date).toLocaleString()}</p>}
                       </TableCell>
-                      {endPoint === "transport-jobs" ? (
+                      {endPoint === "transport-jobs" && (
                         <TableCell className="min-w-32">
                           <Badge variant={`${job.transportType === "PICKUP" ? "badgebirtu" : "badgeoren"}`} className="rounded-lg">
                             {job.transportType === "PICKUP" ? "Pickup" : "Delivery"}
                           </Badge>
                         </TableCell>
-                      ) : (
-                        <></>
                       )}
                       <TableCell className="min-w-24">{"#" + job.id}</TableCell>
                       <TableCell className="min-w-24">{"#" + job.orderId}</TableCell>
@@ -280,7 +231,7 @@ export default function DriverWorkerTable({
             <p>
               Showing {jobs.length} out of {totalData} job(s)
             </p>
-            {totalPages > 1 ? <TablePagination currentPage={page} totalPages={totalPages} onPageChange={handlePageChange} /> : <></>}
+            {totalPages > 1 && <TablePagination currentPage={page} totalPages={totalPages} onPageChange={handlePageChange} />}
           </div>
         )}
       </div>

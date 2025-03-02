@@ -42,7 +42,7 @@ export function EmployeeDeleteAlert({
               onConfirm();
             }}
             disabled={loading}
-            className="bg-destructive hover:bg-destructive/90"
+            className="bg-birtu hover:bg-oren"
           >
             {loading ? (
               <>

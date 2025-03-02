@@ -32,6 +32,19 @@ export function useEmployeeTable({
     searchParams.get("search") || ""
   );
   const debounceSearch = useDebounce(searchInput, 600);
+
+  // Setelah debounce, update URL dan searchQuery
+  useEffect(() => {
+    // Update searchQuery agar sinkron dengan nilai debounced
+    setSearchQuery(debounceSearch);
+
+    // Update URL dengan nilai pencarian yang sudah di-debounce
+    updateUrl({
+      search: debounceSearch || null,
+      page: "1",
+    });
+  }, [debounceSearch]);
+
   const [searchQuery, setSearchQuery] = useState(
     searchParams.get("search") || ""
   );
@@ -55,26 +68,22 @@ export function useEmployeeTable({
   const { loading, error, getEmployees } = useEmployees();
   const { getOutletById } = useOutlets();
 
-  useEffect(() => {
-    updateUrl({
-      search: debounceSearch || null,
-      page: "1",
-    });
-  }, [debounceSearch]);
-
+  // Effect untuk fetch data berdasarkan perubahan params
   useEffect(() => {
     fetchEmployees();
   }, [
     searchParams,
-    debounceSearch,
     currentPage,
     sortBy,
-    searchQuery,
     selectedRole,
     selectedOutlet,
     pageSize,
+    searchQuery, // Tambahkan searchQuery ke dependencies
   ]);
 
+  // Ini untuk membersihkan URL hanya sekali pada render pertama jika diperlukan
+  // Sebaiknya di-comment jika menyebabkan masalah atau tidak diperlukan
+  /*
   useEffect(() => {
     // Cek jika ada query params
     if (searchParams.toString()) {
@@ -82,8 +91,12 @@ export function useEmployeeTable({
       router.push(pathname);
     }
   }, []);
+  */
+
   const fetchEmployees = async () => {
     try {
+      console.log("Fetching with search:", searchQuery); // Debugging log
+
       let outletName;
       if (selectedOutlet !== null) {
         const outletData = await getOutletById(selectedOutlet);
@@ -98,6 +111,7 @@ export function useEmployeeTable({
         sortOrder: sortBy.direction,
       };
 
+      // Gunakan searchQuery yang sudah diupdate dari debounceSearch
       if (searchQuery) params.search = searchQuery;
       if (selectedRole !== "") params.role = selectedRole;
       if (outletName) params.outletName = outletName;
@@ -126,6 +140,7 @@ export function useEmployeeTable({
   };
 
   const handleSearchChange = (value: string) => {
+    console.log("Search changed to:", value); // Debugging log
     setSearchInput(value);
     setCurrentPage(1);
   };
@@ -133,7 +148,7 @@ export function useEmployeeTable({
   const handleRoleChange = (role: Role | "") => {
     setSelectedRole(role);
     setCurrentPage(1);
-    updateUrl({ search: role || null, page: "1" });
+    updateUrl({ role: role || null, page: "1" });
   };
 
   const handleOutletChange = async (outletId: number | null) => {
@@ -149,7 +164,7 @@ export function useEmployeeTable({
 
     // Update URL dengan outletName
     updateUrl({
-      outletName: outletName || null,
+      outlet: outletId !== null ? outletId.toString() : null,
       page: "1",
     });
   };
@@ -158,9 +173,11 @@ export function useEmployeeTable({
     setCurrentPage(page);
     updateUrl({ page: page.toString() });
   };
+
   // Reset semua filter
   const resetFilters = useCallback(() => {
     // Reset semua state
+    setSearchInput("");
     setSearchQuery("");
     setSelectedRole("");
     setSelectedOutlet(null);

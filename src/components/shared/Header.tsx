@@ -14,7 +14,7 @@ import { Menu, User, Settings, LogOut, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { SidebarContent } from "./Sidebar";
-import { useAuth } from "@/hooks/api/auth/useAdminAuth";
+import { useAdminAuth } from "@/hooks/api/auth/useAdminAuth";
 import { useEffect, useState } from "react";
 import NotificationModal from "../notification/NotificationModal";
 import { useNotification } from "@/hooks/api/notifications/useNotification";
@@ -33,17 +33,19 @@ interface HeaderProps {
 }
 
 export const Header = ({ user, breadcrumbItems, role }: HeaderProps) => {
-  const { logout } = useAuth();
+  const { logout } = useAdminAuth();
   const [isNotificationModalOpen, setNotificaionModalOpen] = useState<boolean>(false);
   const [unreadCount, setUnreadCount] = useState<number>(0);
-  const { getUnreadCount } = useNotification();
+  const { getUnreadCount, error } = useNotification();
 
   useEffect(() => {
     const fetchUnreadCount = async () => {
       const response = await getUnreadCount();
       setUnreadCount(response.data);
     };
-    fetchUnreadCount();
+    if (!error) {
+      fetchUnreadCount();
+    }
   }, [!isNotificationModalOpen]);
 
   const handleOpen = () => {
@@ -68,18 +70,12 @@ export const Header = ({ user, breadcrumbItems, role }: HeaderProps) => {
         <Sheet>
           <SheetTrigger asChild>
             <div className="items-center flex justify-center h-16">
-              <Button
-                variant="ghost"
-                className="lg:hidden text-putbir hover:bg-birtu/80 hover:text-white"
-              >
+              <Button variant="ghost" className="lg:hidden text-putbir hover:bg-birtu/80 hover:text-white">
                 <Menu className="h-6 w-6" />
               </Button>
             </div>
           </SheetTrigger>
-          <SheetContent
-            side="left"
-            className="w-64 p-0 overflow-hidden rounded-r-3xl border-0  shadow-xl"
-          >
+          <SheetContent side="left" className="w-64 p-0 overflow-hidden rounded-r-3xl border-0  shadow-xl">
             <div className="h-full relative rounded-r-3xl overflow-hidden bg-none border-0">
               <SidebarContent role={role} isMobile={true} />
             </div>
@@ -94,10 +90,7 @@ export const Header = ({ user, breadcrumbItems, role }: HeaderProps) => {
         {/* User Menu - Improved styling */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="relative size-10 rounded-full bg-putbir/20 p-0 hover:bg-putbir/30"
-            >
+            <Button variant="ghost" className="relative size-10 rounded-full bg-putbir/20 p-0 hover:bg-putbir/30">
               {/* <div className={`${unreadCount ? "block" : "hidden"} absolute size-[38px] animate-spin duration-3000 rounded-full bg-gradient-to-r from-oren via-orange-400 to-orange-300`}></div> */}
               <Avatar className="size-9 border-2 border-putbir/30">
                 {user.avatar ? (
@@ -125,9 +118,7 @@ export const Header = ({ user, breadcrumbItems, role }: HeaderProps) => {
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none">{user.name}</p>
-                <p className="text-xs leading-none text-muted-foreground">
-                  {user.email}
-                </p>
+                <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
@@ -162,17 +153,14 @@ export const Header = ({ user, breadcrumbItems, role }: HeaderProps) => {
               <span>Settings</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={handleLogout}
-              className="flex items-center gap-2 text-oren cursor-pointer"
-            >
+            <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 text-oren cursor-pointer">
               <LogOut size={16} />
               <span>Logout</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <NotificationModal open={isNotificationModalOpen} onClose={handleClose}/>
+      <NotificationModal open={isNotificationModalOpen} onClose={handleClose} />
     </div>
   );
 };

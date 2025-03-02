@@ -92,8 +92,8 @@ export function EmployeeTableFilters({
           </SelectContent>
         </Select>
       </div>
-      <Button variant="outline" onClick={onResetFilters} className="w-[100px]">
-        Reset Filters
+      <Button variant="birtu" onClick={onResetFilters} className="w-[80px]">
+        Reset
       </Button>
     </div>
   );

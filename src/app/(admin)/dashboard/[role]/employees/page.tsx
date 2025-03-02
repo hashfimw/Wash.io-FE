@@ -55,7 +55,8 @@ export default function EmployeesPage() {
         <div className="w-full sm:w-auto">
           <Button
             onClick={() => setIsFormOpen(true)}
-            className="w-full sm:w-auto bg-oren"
+            className="w-full sm:w-auto"
+            variant={"oren"}
           >
             <Plus className="h-4 w-4 mr-2" />
             Add New Employee
