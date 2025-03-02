@@ -1,8 +1,7 @@
 export const getTimeDifferenceString = (date: string) => {
   const now = new Date();
   const nowNumber = now.getTime();
-  const tzo = now.getTimezoneOffset() * 60000;
-  const target = new Date(date).getTime() - tzo;
+  const target = toLocalTime(date);
   const result = nowNumber - target;
 
   let time = "";
@@ -23,4 +22,18 @@ export const getTimeDifferenceString = (date: string) => {
   }
 
   return { time, isDate };
+};
+
+export const toLocalTime = (date: string) => {
+  const tzo = new Date().getTimezoneOffset() * 60000;
+  return new Date(date).getTime() - tzo;
+};
+
+export const toUTCtime = (date: string | null) => {
+  const tzo = new Date().getTimezoneOffset();
+  if (date) return new Date(new Date(date).getTime() + tzo * 60000).toISOString();
+};
+
+export const toLocalTimeString = (date: Date) => {
+  return new Date(toLocalTime(date.toISOString())).toISOString().split("T")[0];
 };

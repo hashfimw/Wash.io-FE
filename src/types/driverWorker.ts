@@ -5,6 +5,7 @@ export interface JobRecord {
   id: number;
   date: string;
   orderId: number;
+  transportType?: TransportType;
 }
 
 export interface GetJobsRequest {
@@ -15,7 +16,7 @@ export interface GetJobsRequest {
   sortOrder?: "asc" | "desc";
   startDate?: string;
   endDate?: string;
-  requestType: "requests" | "history";
+  requestType: "request" | "history";
   transportType?: TransportType;
 }
 

@@ -1,6 +1,5 @@
 import axios from "axios";
 import { useState } from "react";
-import { toUTCtime } from "../driver-worker/useDriverWorker";
 import { AttendanceType, GetAttendancesRequest, GetAttendancesResponse } from "@/types/attendance";
 
 const api = axios.create({
@@ -29,8 +28,9 @@ export const useAttendance = () => {
       if (params.limit) queryParams.append("limit", params.limit.toString());
       if (params.sortBy) queryParams.append("sortBy", params.sortBy);
       if (params.sortOrder) queryParams.append("sortOrder", params.sortOrder);
-      if (params.startDate) queryParams.append("startDate", toUTCtime(params.startDate));
-      if (params.endDate) queryParams.append("endDate", toUTCtime(params.endDate));
+      if (params.startDate) queryParams.append("startDate", params.startDate);
+      if (params.endDate) queryParams.append("endDate", params.endDate);
+      else if (!params.endDate) queryParams.append("endDate", new Date().toISOString());
       if (params.attendanceType) queryParams.append("attendanceType", params.attendanceType);
       if (params.name) queryParams.append("name", params.name);
       if (params.role) queryParams.append("role", params.role);

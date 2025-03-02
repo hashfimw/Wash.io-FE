@@ -1,6 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
-import { useAuth } from "../auth/useAdminAuth";
+import { useState } from "react";
 import { GetJobByIdResponse, GetJobsRequest, GetJobsResponse, UpdateLaundryJobInputBody } from "@/types/driverWorker";
 
 const api = axios.create({
@@ -16,19 +15,10 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export const toUTCtime = (date: string) => {
-  const tzo = new Date().getTimezoneOffset();
-  return new Date(new Date(date).getTime() + tzo * 60000).toISOString();
-};
-
 export const useDriverWorker = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [tzo, setTzo] = useState<string>("0");
-
-  useEffect(() => {
-    setTzo(new Date().getTimezoneOffset().toString());
-  }, []);
+  const tzo = new Date().getTimezoneOffset().toString();
 
   const getJobs = async (params: GetJobsRequest) => {
     try {
@@ -39,8 +29,9 @@ export const useDriverWorker = () => {
       if (params.limit) queryParams.append("limit", params.limit.toString());
       if (params.sortBy) queryParams.append("sortBy", params.sortBy);
       if (params.sortOrder) queryParams.append("sortOrder", params.sortOrder);
-      if (params.startDate) queryParams.append("startDate", toUTCtime(params.startDate));
-      if (params.endDate) queryParams.append("endDate", toUTCtime(params.endDate));
+      if (params.startDate) queryParams.append("startDate", params.startDate);
+      if (params.endDate) queryParams.append("endDate", params.endDate);
+      else if (!params.endDate) queryParams.append("endDate", new Date().toISOString());
       if (params.transportType) queryParams.append("transportType", params.transportType);
 
       queryParams.append("tzo", tzo);
@@ -48,7 +39,7 @@ export const useDriverWorker = () => {
 
       const response = await api.get<GetJobsResponse>(`/${params.endPoint}?${queryParams}`);
 
-      return response.data.data;
+      return response.data;
     } catch (err) {
       if (axios.isAxiosError(err)) setError(err.response?.data.message);
       else setError("Failed to fetch jobs");
@@ -99,7 +90,7 @@ export const useDriverWorker = () => {
       return response.data.message;
     } catch (err) {
       if (axios.isAxiosError(err)) setError(err.response?.data.message);
-      else setError("Failed to update jobs");
+      else setError("Failed to update job");
       throw err;
     } finally {
       setLoading(false);

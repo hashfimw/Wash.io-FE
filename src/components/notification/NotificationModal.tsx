@@ -11,8 +11,7 @@ import { Skeleton } from "../ui/skeleton";
 import Link from "next/link";
 import { useToast } from "../ui/use-toast";
 import Image from "next/image";
-import { getTimeDifferenceString } from "@/utils/dateTime";
-import NotificationCard from "./NotificationCard";
+import { NotificationCard, NotificationCardContent } from "./NotificationCard";
 
 interface NotificationModalProps {
   open: boolean;
@@ -47,8 +46,8 @@ export default function NotificationModal({ open, onClose }: NotificationModalPr
 
   const alterAsReadById = async (id: number, isRead: boolean) => {
     if (!isRead) {
-      await markAsReadById(id);
       onClose();
+      await markAsReadById(id);
     }
   };
 
@@ -75,13 +74,11 @@ export default function NotificationModal({ open, onClose }: NotificationModalPr
     setPage(page);
   };
 
-  if (error) {
-    toast({
-      title: "Error",
-      description: error,
-      variant: "destructive",
-    });
-  }
+  const handleClose = () => {
+    onClose();
+    setPage(1);
+    setRequestType("unread");
+  };
 
   useEffect(() => {
     fetchUnreadCount();
@@ -91,8 +88,22 @@ export default function NotificationModal({ open, onClose }: NotificationModalPr
     fetchNotification();
   }, [page, requestType]);
 
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error",
+        description: error,
+        variant: "destructive",
+      });
+    }
+  }, [error]);
+
+  if (error) {
+    return;
+  }
+
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-[95vw] sm:max-w-[600px] overflow-y-auto max-h-[90vh] bg-putbir px-2 sm:px-6 rounded-xl">
         <DialogHeader>
           <DialogTitle>Notifications</DialogTitle>
@@ -142,43 +153,21 @@ export default function NotificationModal({ open, onClose }: NotificationModalPr
           ) : notifications.length > 0 ? (
             <>
               {notifications.map((item, idx) => {
-                const time = getTimeDifferenceString(item.createdAt);
                 return item.url ? (
-                  <Card
-                    onClick={() => alterAsReadById(item.id, item.isRead)}
-                    key={idx}
-                    className={`relative z-0 ${
-                      !item.isRead ? " bg-orange-50 hover:bg-orange-100" : "bg-putbir brightness-95 hover:brightness-100"
-                    } transition`}
-                  >
-                    <div
-                      className={`${
-                        !item.isRead ? "absolute -left-1 -top-1 size-4 bg-oren rounded-full blur-[1px] animate-ping duration-1500" : "hidden"
-                      }`}
-                    ></div>
+                  <NotificationCard key={idx} item={item} onClick={() => alterAsReadById(item.id, item.isRead)}>
                     <Link href={item.url}>
-                      <NotificationCard item={item} time={time} />
+                      <NotificationCardContent item={item} />
                     </Link>
-                  </Card>
+                  </NotificationCard>
                 ) : (
-                  <Card
-                    onClick={() => alterAsReadById(item.id, item.isRead)}
-                    key={idx}
-                    className={`relative z-0 ${
-                      !item.isRead ? " bg-orange-50 hover:bg-orange-100" : "bg-putbir brightness-95 hover:brightness-100"
-                    } transition`}
-                  >
-                    <div
-                      className={`${
-                        !item.isRead ? "absolute -left-1 -top-1 size-4 bg-oren rounded-full blur-[1px] animate-ping duration-1500" : "hidden"
-                      }`}
-                    ></div>
-                  </Card>
+                  <NotificationCard key={idx} item={item}>
+                    <NotificationCardContent item={item} />
+                  </NotificationCard>
                 );
               })}
               <div className="flex flex-col space-y-3">
                 <p className="text-sm font-medium text-center text-muted-foreground">
-                  {notifications.length > 0 ? `Showing ${notifications.length} out of ${totalData} notification(s)` : ""}
+                  Showing {notifications.length} out of {totalData} notification(s)
                 </p>
                 <div className="flex justify-between">
                   <div>
