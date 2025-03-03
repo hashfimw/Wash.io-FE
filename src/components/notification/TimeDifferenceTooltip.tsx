@@ -12,7 +12,7 @@ export default function TmeDifferenceTooltip({ date }: { date: string }) {
           {timeDiff.time}
         </TooltipTrigger>
         {!timeDiff.isDate && (
-          <TooltipContent side="right" className="bg-birmud pointer-events-auto shadow text-black">
+          <TooltipContent side="right" className="bg-muted pointer-events-auto shadow text-black">
             {new Date(date).toLocaleString()}
           </TooltipContent>
         )}

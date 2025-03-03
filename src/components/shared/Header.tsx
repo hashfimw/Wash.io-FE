@@ -43,9 +43,7 @@ export const Header = ({ user, breadcrumbItems, role }: HeaderProps) => {
       const response = await getUnreadCount();
       setUnreadCount(response.data);
     };
-    if (!error) {
-      fetchUnreadCount();
-    }
+    fetchUnreadCount();
   }, [!isNotificationModalOpen]);
 
   const handleOpen = () => {

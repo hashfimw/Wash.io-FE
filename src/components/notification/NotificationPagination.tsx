@@ -15,7 +15,7 @@ export function NotificationPagination({ currentPage, totalPages, onPageChange }
       <PaginationContent>
         <PaginationItem>
           <Button
-            className="bg-birtu hover:brightness-110 hover:bg-birtu transition"
+            className="bg-birtu hover:bg-oren transition"
             size="icon"
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
@@ -30,7 +30,7 @@ export function NotificationPagination({ currentPage, totalPages, onPageChange }
         </PaginationItem>
         <PaginationItem>
           <Button
-            className="bg-birtu hover:brightness-110 hover:bg-birtu transition"
+            className="bg-birtu hover:bg-oren transition"
             size="icon"
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}

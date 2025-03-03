@@ -1,12 +1,11 @@
 import axios from "axios";
 import { useState } from "react";
-import { AttendanceType, GetAttendancesRequest, GetAttendancesResponse } from "@/types/attendance";
+import { AttendanceType, GetAttendancesRequest, GetAttendancesResponse, GetEmployeeStatusResponse } from "@/types/attendance";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api",
 });
 
-// Interceptor untuk token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -65,10 +64,42 @@ export const useAttendance = () => {
     }
   };
 
+  const checkIsNull = async () => {
+    try {
+      setLoading(true);
+
+      const response = await api.get<{ data: { count: number } }>(`/attendances/check`);
+
+      return response.data.data;
+    } catch (err) {
+      if (axios.isAxiosError(err)) setError(err.response?.data.message);
+      else setError("Failed to create attendance");
+      throw err;
+    }
+  };
+
+  const getEmployeeStatus = async () => {
+    try {
+      setLoading(true);
+
+      const response = await api.get<GetEmployeeStatusResponse>(`/attendances/check`);
+
+      return response.data;
+    } catch (err) {
+      if (axios.isAxiosError(err)) setError(err.response?.data.message);
+      else setError("Failed to create attendance");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     loading,
     error,
     getAttendances,
     createAttendance,
+    checkIsNull,
+    getEmployeeStatus,
   };
 };

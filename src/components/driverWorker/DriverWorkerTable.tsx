@@ -1,240 +1,107 @@
 "use client";
 
-import { useDriverWorker } from "@/hooks/api/driver-worker/useDriverWorker";
-import { JobRecord } from "@/types/driverWorker";
-import { TransportType } from "@/types/order";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useToast } from "../ui/use-toast";
-import { TableSkeleton } from "../ui/table-skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import TimeDifferenceTooltip from "../notification/TimeDifferenceTooltip";
-import { toLocalTimeString } from "@/utils/dateTime";
 import { TablePagination } from "../shared/usePagination";
+import { JobRecord, JobSortField } from "@/types/driverWorker";
+import { useRouter } from "next/navigation";
 import { Badge } from "../ui/badge";
-import { DateRange } from "react-day-picker";
-import { DatePickerWithRange } from "../attendances/DateRangePicker";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Skeleton } from "../ui/skeleton";
-import ResetFiltersButton from "../attendances/ResetFiltersButton";
-import SelectTransportTypeButton from "../attendances/SelectTransportTypeButton";
-import SelectLimitButton from "../attendances/SelectLimitButton";
+
+interface DriverWorkerTableProps {
+  endPoint: string;
+  requestType: string;
+  jobs: JobRecord[];
+  page: number;
+  totalPages: number;
+  totalData: number;
+  sortBy: string;
+  sortOrder: string;
+  onSortChange: (sortByInput: JobSortField) => void;
+  onPageChange: (page: number) => void;
+}
 
 export default function DriverWorkerTable({
   endPoint,
   requestType,
-}: {
-  endPoint: "transport-jobs" | "laundry-jobs";
-  requestType: "request" | "history";
-}) {
+  jobs,
+  page,
+  totalPages,
+  totalData,
+  sortBy,
+  sortOrder,
+  onSortChange: handleSortChange,
+  onPageChange: handlePageChange,
+}: DriverWorkerTableProps) {
+  const sortOrderSymbol = (sortByInput: JobSortField) => {
+    if (sortBy == sortByInput) {
+      if (sortOrder == "asc") return " ↑";
+      else return " ↓";
+    } else return "";
+  };
   const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const page = +(searchParams.get("page") || "1");
-  const limit = searchParams.get("limit") || "";
-  const sortBy = searchParams.get("sortBy") || "date";
-  const sortOrder = searchParams.get("sortOrder") || "";
-  const transportType = searchParams.get("transportType") || "";
-  const startDate = searchParams.get("startDate");
-  const endDate = searchParams.get("endDate");
-
-  const [date, setDate] = useState<DateRange | undefined>();
-
-  const [jobs, setJobs] = useState<JobRecord[]>([]);
-  const [totalPages, setTotalPage] = useState<number>(1);
-  const [totalData, setTotalData] = useState<number>(0);
-
-  const { loading, error, getJobs } = useDriverWorker();
-  const { toast } = useToast();
-
-  const fetchJobs = async () => {
-    const response = await getJobs({
-      endPoint,
-      requestType,
-      page,
-      limit: +limit,
-      sortBy,
-      sortOrder: sortOrder as "asc" | "desc",
-      transportType: transportType as TransportType,
-      startDate: date?.from?.toISOString(),
-      endDate: date?.to?.toISOString(),
-    });
-
-    setJobs(response.data);
-    setTotalPage(response.meta.total_pages);
-    setTotalData(response.meta.total_data);
-  };
-
-  const updateUrlParams = (params: Record<string, string>) => {
-    const url = new URL(window.location.href);
-
-    Object.entries(params).forEach(([key, value]) => {
-      if (value) {
-        url.searchParams.set(key, value);
-      } else {
-        url.searchParams.delete(key);
-      }
-    });
-
-    router.push(url.pathname + url.search);
-  };
-
-  const handlePageChange = (page: number) => {
-    updateUrlParams({ page: page.toString() });
-  };
-
-  const handleLimitChange = (limit: string) => {
-    updateUrlParams({
-      limit: limit,
-      page: "1",
-    });
-  };
-
-  const handleSortOrderChange = (sortOrder: "asc" | "desc") => {
-    updateUrlParams({
-      sortOrder,
-      page: "1",
-    });
-  };
-
-  const handleTransportTypeChange = (transportType: TransportType) => {
-    updateUrlParams({
-      transportType,
-      page: "1",
-    });
-  };
-
-  const handleDateRangeChange = (startDate?: string, endDate?: string) => {
-    updateUrlParams({ startDate: startDate || "", endDate: endDate || "", page: "1" });
-  };
-
-  const handleResetFilters = () => {
-    setDate(undefined);
-    const url = new URL(window.location.href);
-    url.search = "?page=1";
-    router.push(url.pathname + url.search);
-  };
-
-  useEffect(() => {
-    let startDate;
-    let endDate;
-    if (date?.from) startDate = toLocalTimeString(date.from);
-    if (date?.to) endDate = toLocalTimeString(date.to);
-    handleDateRangeChange(startDate, endDate);
-  }, [date]);
-
-  useEffect(() => {
-    if (!error) {
-      fetchJobs();
-    }
-  }, [page, sortOrder, transportType, limit, startDate, endDate]);
-
-  useEffect(() => {
-    if (error) {
-      toast({
-        title: "Error",
-        description: error,
-        variant: "destructive",
-      });
-    }
-  }, [error]);
 
   return (
-    <div className="mx-auto p-3 space-y-6 max-w-screen-lg">
-      <div>
-        <h1 className="text-xl sm:text-2xl font-bold">{requestType === "request" ? "Job Requests" : "Jobs History"}</h1>
-        <p className="text-muted-foreground">
-          {requestType === "request" ? (
-            loading ? (
-              <Skeleton className="h-4 w-60 mt-2" />
-            ) : (
-              !error && `${totalData} job request(s) is available for you`
-            )
-          ) : (
-            "View list of jobs handled by you"
-          )}
-        </p>
+    <div className="flex flex-col items-center space-y-3">
+      <p className="text-muted-foreground place-self-start translate-y-1 text-sm">
+        Click on the table row to {requestType === "request" ? "process the job." : "access the job's detail."}
+      </p>
+      <div className="rounded-md border text-center w-full">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted hover:bg-muted hover:cursor-pointer">
+              <TableHead onClick={() => handleSortChange("date")} className="text-center font-semibold hover:bg-neutral-200 transition">
+                Date{sortOrderSymbol("date")}
+              </TableHead>
+              {endPoint === "transport-jobs" && (
+                <>
+                  <TableHead onClick={() => handleSortChange("transportType")} className="text-center font-semibold hover:bg-neutral-200 transition">
+                    Transport Type{sortOrderSymbol("transportType")}
+                  </TableHead>
+                  <TableHead onClick={() => handleSortChange("distance")} className="text-center font-semibold hover:bg-neutral-200 transition">
+                    Distance{sortOrderSymbol("distance")}
+                  </TableHead>
+                </>
+              )}
+              <TableHead onClick={() => handleSortChange("id")} className="text-center font-semibold hover:bg-neutral-200 transition">
+                Job Id{sortOrderSymbol("id")}
+              </TableHead>
+              <TableHead onClick={() => handleSortChange("orderId")} className="text-center font-semibold hover:bg-neutral-200 transition">
+                Order Id{sortOrderSymbol("orderId")}
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {jobs.map((job, idx) => (
+              <TableRow
+                key={idx}
+                onClick={() => router.push(`/employee-dashboard/${endPoint === "transport-jobs" ? "driver" : "worker"}/${job.id}`, {})}
+                className="group hover:cursor-pointer hover:underline hover:font-medium hover:text-birtu transition h-14 sm:h-10"
+              >
+                <TableCell className="min-w-48">
+                  {requestType == "request" ? <TimeDifferenceTooltip date={job.date} /> : <p>{new Date(job.date).toLocaleString()}</p>}
+                </TableCell>
+                {endPoint === "transport-jobs" && (
+                  <>
+                    <TableCell className="min-w-32">
+                      <Badge variant={`${job.transportType === "PICKUP" ? "badgebirtu" : "badgeoren"}`} className="rounded-lg">
+                        {job.transportType === "PICKUP" ? "Pickup" : "Delivery"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="min-w-24">{job.distance + " km"}</TableCell>
+                  </>
+                )}
+                <TableCell className="min-w-24">{"#" + job.id}</TableCell>
+                <TableCell className="min-w-24">{"#" + job.orderId}</TableCell>
+              </TableRow>
+            ))}
+            <TableRow></TableRow>
+          </TableBody>
+        </Table>
       </div>
-      <div className={`${loading && "pointer-events-none"} sm:p-4 flex flex-col space-y-3 sm:bg-white sm:shadow sm:rounded-xl w-full`}>
-        <div className="flex justify-between items-center">
-          <p className="font-semibold text-base">Filters</p>
-          <ResetFiltersButton onClick={handleResetFilters} />
-        </div>
-        {requestType === "request" ? (
-          <div className="flex justify-between">
-            {endPoint === "transport-jobs" && <SelectTransportTypeButton value={transportType} onClick={handleTransportTypeChange} />}
-            <SelectLimitButton value={limit} onClick={handleLimitChange} />
-          </div>
-        ) : (
-          <div className="font-medium flex gap-3 flex-wrap justify-center md:justify-normal flex-col md:flex-row">
-            <DatePickerWithRange date={date} setDate={setDate} />
-            <Select value={sortOrder} onValueChange={handleSortOrderChange}>
-              <SelectTrigger className="w-fit border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground">
-                <SelectValue placeholder="Sort date" />
-              </SelectTrigger>
-              <SelectContent className="font-medium">
-                <SelectItem value="asc">Ascending</SelectItem>
-                <SelectItem value="desc">Descending</SelectItem>
-              </SelectContent>
-            </Select>
-            {endPoint === "transport-jobs" && <SelectTransportTypeButton value={transportType} onClick={handleTransportTypeChange} />}
-            <SelectLimitButton value={limit} onClick={handleLimitChange} />
-          </div>
-        )}
-
-        {error ? (
-          <>Error</>
-        ) : loading ? (
-          <TableSkeleton columns={4} rows={5} />
-        ) : jobs.length === 0 ? (
-          <>No data</>
-        ) : (
-          <div className="flex flex-col items-center space-y-3">
-            <p className="text-muted-foreground place-self-start translate-y-1">
-              Click on the table row to {requestType === "request" ? "process the job." : "access the job's detail."}
-            </p>
-            <div className="rounded-md border text-center w-full">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted hover:bg-muted">
-                    <TableHead className="text-center font-semibold">Date</TableHead>
-                    {endPoint === "transport-jobs" && <TableHead className="text-center font-semibold">Transport Type</TableHead>}
-                    <TableHead className="text-center font-semibold">Job Id</TableHead>
-                    <TableHead className="text-center font-semibold">Order Id</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {jobs.map((job, idx) => (
-                    <TableRow
-                      key={idx}
-                      onClick={() => router.push(`/employee-dashboard/${endPoint === "transport-jobs" ? "driver" : "worker"}/${job.id}`, {})}
-                      className="group hover:cursor-pointer hover:underline hover:font-medium hover:text-birtu transition h-14 sm:h-10"
-                    >
-                      <TableCell className="min-w-48">
-                        {requestType == "request" ? <TimeDifferenceTooltip date={job.date} /> : <p>{new Date(job.date).toLocaleString()}</p>}
-                      </TableCell>
-                      {endPoint === "transport-jobs" && (
-                        <TableCell className="min-w-32">
-                          <Badge variant={`${job.transportType === "PICKUP" ? "badgebirtu" : "badgeoren"}`} className="rounded-lg">
-                            {job.transportType === "PICKUP" ? "Pickup" : "Delivery"}
-                          </Badge>
-                        </TableCell>
-                      )}
-                      <TableCell className="min-w-24">{"#" + job.id}</TableCell>
-                      <TableCell className="min-w-24">{"#" + job.orderId}</TableCell>
-                    </TableRow>
-                  ))}
-                  <TableRow></TableRow>
-                </TableBody>
-              </Table>
-            </div>
-            <p>
-              Showing {jobs.length} out of {totalData} job(s)
-            </p>
-            {totalPages > 1 && <TablePagination currentPage={page} totalPages={totalPages} onPageChange={handlePageChange} />}
-          </div>
-        )}
-      </div>
+      <p>
+        Showing {jobs.length} out of {totalData} job(s)
+      </p>
+      {totalPages > 1 && <TablePagination currentPage={page} totalPages={totalPages} onPageChange={handlePageChange} />}
     </div>
   );
 }

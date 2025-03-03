@@ -1,3 +1,5 @@
+import { WorkerStation } from "./employee";
+
 export enum EmployeeWorkShift {
   MORNING = "MORNING",
   NOON = "NOON",
@@ -47,12 +49,11 @@ export interface GetAttendancesResponse {
 
 export type AttendanceSortField = "id" | "date" | "attendanceType" | "name" | "role" | "workShift" | "outletName";
 
-export interface TableSortConfig<T> {
-  field: T;
-  direction: "asc" | "desc";
-}
-
-export interface TableProps<T> extends TableSortConfig<T> {
-  page: number;
-  limit: number;
+export interface GetEmployeeStatusResponse {
+  data: {
+    workShift: EmployeeWorkShift;
+    station: WorkerStation | null;
+    isWorking: boolean;
+    isPresent: boolean;
+  };
 }

@@ -6,7 +6,10 @@ export interface JobRecord {
   date: string;
   orderId: number;
   transportType?: TransportType;
+  distance?: number;
 }
+
+export type JobSortField = "id" | "date" | "orderId" | "transportType" | "distance";
 
 export interface GetJobsRequest {
   endPoint: "transport-jobs" | "laundry-jobs";

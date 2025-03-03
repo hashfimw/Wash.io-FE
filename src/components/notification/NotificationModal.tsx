@@ -174,7 +174,7 @@ export default function NotificationModal({ open, onClose }: NotificationModalPr
                   <Button
                     onClick={() => alterAllAsRead()}
                     disabled={requestType == "read"}
-                    className={`bg-birtu hover:brightness-110 hover:bg-birtu transition w-fit`}
+                    className={`bg-birtu hover:bg-oren transition w-fit`}
                   >
                     Mark all as read
                   </Button>
@@ -184,14 +184,14 @@ export default function NotificationModal({ open, onClose }: NotificationModalPr
           ) : (
             <div className="flex space-y-3 flex-col items-center place-content-center py-6">
               <Image
-                className="w-64 opacity-50"
+                className="w-64 opacity-50 pointer-events-none"
                 priority
                 width={1000}
                 height={1000}
                 src={"https://res.cloudinary.com/dowc5iu9c/image/upload/v1740797535/uw9ticbr55vrwafviv60.png"}
                 alt="no notifications"
               />
-              <p className="italic text-muted-foreground font-medium text-sm">Nothing to see here...</p>
+              <p className="text-muted-foreground font-medium text-center">Nothing to see here...</p>
             </div>
           )}
         </div>

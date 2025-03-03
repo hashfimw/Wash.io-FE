@@ -1,6 +1,6 @@
 "use client";
 
-import DriverWorkerTable from "@/components/driverWorker/DriverWorkerTable";
+import DriverWorkerList from "@/components/driverWorker/DriverWorkerList";
 import { useBreadcrumb } from "@/context/BreadcrumbContext";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -28,7 +28,7 @@ export default function EmployeeJobRequestsPage() {
 
   return (
     <>
-      <DriverWorkerTable requestType="request" endPoint={endPoint} />
+      <DriverWorkerList requestType="request" endPoint={endPoint} />
     </>
   );
 }

@@ -81,6 +81,20 @@ export const useDriverWorker = () => {
     }
   };
 
+  const checkIsNull = async (endPoint: "transport-jobs" | "laundry-jobs", requestType: "request" | "history") => {
+    try {
+      setLoading(true);
+
+      const response = await api.get<{ data: number }>(`/${endPoint}/check?requestType=${requestType}`);
+
+      return response.data;
+    } catch (err) {
+      if (axios.isAxiosError(err)) setError(err.response?.data.message);
+      else setError("Failed to fetch job");
+      throw err;
+    }
+  };
+
   const updateJob = async (endPoint: "transport-jobs" | "laundry-jobs", jobId: number, inputBody?: UpdateLaundryJobInputBody) => {
     try {
       setLoading(true);
@@ -103,6 +117,7 @@ export const useDriverWorker = () => {
     getJobs,
     getJobById,
     getOngoingJob,
+    checkIsNull,
     updateJob,
   };
 };
