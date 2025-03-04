@@ -15,7 +15,7 @@ export default function EmployeeJobRequestsPage() {
   useEffect(() => {
     const endPoint = role === "driver" ? "transport-jobs" : "laundry-jobs";
     setEndPoint(endPoint);
-  }, []);
+  }, [role]);
 
   useEffect(() => {
     const roleName = role === "driver" ? "Driver" : "Worker";

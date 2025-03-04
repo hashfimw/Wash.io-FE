@@ -17,7 +17,7 @@ export default function JobPage() {
       { label: roleName, href: `/employee-dashboard/${role}` },
       { label: `${role === "driver" ? "Transport Job" : "Laundry Job"} #${id}` },
     ]);
-  }, [role, setBreadcrumbItems]);
+  }, [role, setBreadcrumbItems, id]);
 
   return (
     <>
