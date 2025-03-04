@@ -7,7 +7,7 @@ import { BreadcrumbProvider } from "@/context/BreadcrumbContext";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/api/auth/useAdminAuth";
-import Loading from "../../components/loading";
+import Loading from "../loading";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { user, getCurrentUser, loading } = useAuth();

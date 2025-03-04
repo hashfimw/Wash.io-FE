@@ -9,12 +9,12 @@ import { Autoplay, Pagination } from "swiper/modules";
 import { Button } from "../ui/button";
 import { Package2, Shirt, Smartphone, Truck } from "lucide-react";
 import LaundrySearchBar from "./searchbar";
+import Link from "next/link";
 
 export default function Homepage() {
   const images = [
-    "https://img.freepik.com/free-vector/flat-design-laundry-service-instagram-posts_23-2150989277.jpg?t=st=1738556340~exp=1738559940~hmac=3e1551d8c688b631863d5723eb2f35a162dc220cf640d70d3d6a70c983cea6d0&w=996",
-    "https://www.goteso.com/products/assets/images/clone-scripts/laundrapp/laundrapp-clone-banner.png",
-    "https://www.digitalopeners.com/images/service/Laundry%20App/laundry-banner.webp",
+    "https://img.freepik.com/free-vector/laundry-service-facebook-template_23-2150940963.jpg?t=st=1740681005~exp=1740684605~hmac=daf4cb79adee7fd192963480afc35cf180fa213aa049efbf91f1f271ee694c49&w=1480",
+    "https://img.freepik.com/free-vector/laundry-service-webinar-template_23-2150940975.jpg?t=st=1740865716~exp=1740869316~hmac=eb651b8a3163daa7b9190ee8ac62040004520cd8fc0d97c4678104219a844d7f&w=1480",
   ];
 
   const [isScrolled, setIsScrolled] = useState(false);
@@ -60,10 +60,10 @@ export default function Homepage() {
             <div className="flex justify-center md:justify-start">
               <div className="mt-6 space-x-2">
                 <Button className="bg-orange-500 hover:bg-orange-600 text-white text-sm">
-                  Get Started Now
+                  <Link href={"/register"}>Get Started Now</Link>
                 </Button>
                 <Button className="bg-gray-700 hover:bg-gray-800 text-white text-sm">
-                  Learn More
+                  <Link href={"/about"}>Learn More</Link>
                 </Button>
               </div>
             </div>
@@ -73,9 +73,9 @@ export default function Homepage() {
               spaceBetween={20}
               slidesPerView={1}
               autoplay={{ delay: 5000, disableOnInteraction: false }}
-              pagination={{ clickable: true,}}
+              pagination={{ clickable: true }}
               modules={[Pagination, Autoplay]}
-              className="w-full max-w-xs md:max-w-full mx-auto rounded-3xl"
+              className="w-full max-w-xs md:max-w-full mx-auto rounded-3xl mt-10"
             >
               {images.map((src, index) => (
                 <SwiperSlide key={index}>
@@ -83,7 +83,7 @@ export default function Homepage() {
                     src={src}
                     alt={`Laundry ${index + 1}`}
                     width={900}
-                    height={250}
+                    height={666}
                     className="rounded-lg object-cover w-full h-auto"
                   />
                 </SwiperSlide>
