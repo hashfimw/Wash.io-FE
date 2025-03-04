@@ -1,4 +1,4 @@
-// hooks/api/auth/useAuth.ts
+// hooks/api/auth/useAdminAuth.ts
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { User } from "@/types/customer";
@@ -25,7 +25,7 @@ interface LoginResponse {
   token: string;
 }
 
-export const useAuth = () => {
+export const useAdminAuth = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -113,7 +113,11 @@ export const useAuth = () => {
   const logout = (): void => {
     localStorage.removeItem("token");
     setUser(null);
-    window.location.href = "/login-admin";
+    if (user?.role === "SUPER_ADMIN" || user?.role === "OUTLET_ADMIN") {
+      window.location.href = "/login-admin";
+    } else if (user?.role === "DRIVER" || user?.role === "WORKER") {
+      window.location.href = "/login-employee";
+    } else window.location.href = "/";
   };
 
   const checkAuth = (): boolean => {

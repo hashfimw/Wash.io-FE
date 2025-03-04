@@ -42,7 +42,7 @@ export default function DesktopNavbar() {
           <Image src={"/washio.png"} alt="washio-logo" fill className="object-cover" />
         </Link>
         <Link href={"/"} className="text-xl font-semibold">
-          ash<span className="text-orange-500">io</span>
+          ash<span className="text-oren">io</span>
         </Link>
       </div>
 

@@ -40,22 +40,28 @@ const formSchema = z.object({
     .array(
       z.object({
         orderItemName: z.string().min(1, "Item name is required"),
-        qty: z.number().int().positive("Quantity must be a positive number"),
+        qty: z.coerce
+          .number()
+          .int("Quantity must be a whole number")
+          .min(1, "Quantity must be at least 1")
+          .optional()
+          .refine((val) => val !== undefined, "Quantity is required"),
       })
     )
     .min(1, "At least one item must be added"),
 });
-
 export type ProcessOrderFormValues = z.infer<typeof formSchema>;
 
 interface ProcessOrderFormProps {
   orderId: number;
   onSuccess: () => void;
+  role: string;
 }
 
 export function ProcessOrderForm({
   orderId,
   onSuccess,
+  role,
 }: ProcessOrderFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [templates, setTemplates] = useState<OrderItem[]>([]);
@@ -66,7 +72,7 @@ export function ProcessOrderForm({
     defaultValues: {
       orderId,
       laundryWeight: undefined,
-      orderItems: [{ orderItemName: "", qty: 1 }],
+      orderItems: [{ orderItemName: "", qty: undefined }],
     },
   });
 
@@ -179,7 +185,7 @@ export function ProcessOrderForm({
                 <h3 className="text-md font-medium">Laundry Items</h3>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="oren"
                   size="sm"
                   onClick={addItem}
                 >
@@ -209,7 +215,12 @@ export function ProcessOrderForm({
             </div>
 
             <CardFooter className="px-0 pt-4">
-              <Button type="submit" disabled={isSubmitting} className="w-full">
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                variant={"birtu"}
+                className="w-full"
+              >
                 {isSubmitting && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}

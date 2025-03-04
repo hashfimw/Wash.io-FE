@@ -28,6 +28,7 @@ export interface CreateOutletInput {
 export interface UpdateOutletInput extends CreateOutletInput {}
 
 export interface Outlet {
+  createdAt: string | number | Date;
   id: number;
   outletName: string;
   outletAddress: {

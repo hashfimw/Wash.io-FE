@@ -106,7 +106,7 @@ export function UserTable({
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
                     <Badge
-                      variant={user.isVerified ? "default" : "destructive"}
+                      variant={user.isVerified ? "badgebirtu" : "badgeoren"}
                     >
                       {user.isVerified ? "Verified" : "Unverified"}
                     </Badge>

@@ -3,24 +3,36 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Shirt, WashingMachine, Droplets } from "lucide-react";
+import Bubbles from "@/components/animations/Bubble";
+import LightBeam from "@/components/animations/LightBeam";
+import CSSWave from "@/components/animations/Waves";
 
 const Loading = () => {
-  const colors = {
-    biruMuda: "#CCF5F5",
-    biruTua: "#73A5A8",
-    oren: "#E5843F",
-    putih: "#FCFCFC",
-    putihBiru: "#EEFDFF",
-  };
-
   const [showFullContent, setShowFullContent] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    // Check if we're on mobile
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    // Initial check
+    checkIfMobile();
+
+    // Add event listener for window resize
+    window.addEventListener("resize", checkIfMobile);
+
+    // Animation timer
     const timer = setTimeout(() => {
       setShowFullContent(true);
-    }, 4000);
+    }, 5000); // 5 second minimum display time
 
-    return () => clearTimeout(timer);
+    // Cleanup
+    return () => {
+      window.removeEventListener("resize", checkIfMobile);
+      clearTimeout(timer);
+    };
   }, []);
 
   const containerVariants = {
@@ -47,36 +59,21 @@ const Loading = () => {
       },
     },
   };
-
-  const bubbleVariants = {
-    hidden: { scale: 0 },
-    visible: {
-      scale: [0, 1.2, 1],
-      transition: {
-        duration: 1.2,
-        times: [0, 0.8, 1],
-      },
-    },
-  };
-
   // Main title and subtitle
   const washText = "Wash.io";
   const tagline = "Smart Laundry Solutions";
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-[#EEFDFF] to-[#CCF5F5]">
-      <div className="relative">
-        {/* Background Elements */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: [0, 0.1, 0.05, 0.1] }}
-          transition={{ duration: 5, repeat: Infinity, repeatType: "reverse" }}
-          className="absolute inset-0 -z-10"
-        >
-          <div className="absolute top-1/4 left-1/4 w-32 h-32 rounded-full bg-[#E5843F] opacity-10 blur-2xl" />
-          <div className="absolute top-1/3 right-1/4 w-40 h-40 rounded-full bg-[#73A5A8] opacity-10 blur-2xl" />
-        </motion.div>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-putbir to-birmud overflow-hidden relative">
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-putbir opacity-40 z-0" />
 
+      {/* Reusable Animation Components */}
+      <Bubbles isMobile={isMobile} />
+      <CSSWave />
+      <LightBeam />
+
+      <div className="relative z-10">
         {/* Washing Machine Animation */}
         <motion.div
           initial={{ scale: 0 }}
@@ -85,10 +82,13 @@ const Loading = () => {
             duration: 2.5,
             repeat: Infinity,
             repeatType: "reverse",
+            times: [0, 0.33, 0.66, 1],
           }}
-          className="absolute -top-36 right-0"
+          className={`absolute ${
+            isMobile ? "-top-20 right-0" : "-top-36 right-0"
+          }`}
         >
-          <WashingMachine size={100} color={colors.biruTua} />
+          <WashingMachine size={isMobile ? 80 : 100} className="text-birtu" />
         </motion.div>
 
         {/* Shirt Animation */}
@@ -100,10 +100,13 @@ const Loading = () => {
             repeat: Infinity,
             repeatType: "reverse",
             delay: 1,
+            times: [0, 0.5, 1],
           }}
-          className="absolute -top-32 -left-20"
+          className={`absolute ${
+            isMobile ? "-top-20 -left-10" : "-top-32 -left-20"
+          }`}
         >
-          <Shirt size={64} color={colors.oren} />
+          <Shirt size={isMobile ? 50 : 64} className="text-oren" />
         </motion.div>
 
         {/* Water Droplets */}
@@ -115,36 +118,18 @@ const Loading = () => {
             repeat: Infinity,
             repeatType: "reverse",
             delay: 0.8,
+            times: [0, 0.5, 1],
           }}
           className="absolute top-0 right-24"
         >
-          <Droplets size={42} color={colors.biruMuda} strokeWidth={1.5} />
+          <Droplets
+            size={isMobile ? 32 : 42}
+            className="text-birmud"
+            strokeWidth={1.5}
+          />
         </motion.div>
 
-        {/* Bubbles */}
-        <div className="absolute -top-20 left-0 right-0 flex justify-around">
-          {[...Array(8)].map((_, i) => (
-            <motion.div
-              key={i}
-              variants={bubbleVariants}
-              initial="hidden"
-              animate="visible"
-              transition={{ delay: i * 0.3 }}
-              style={{
-                width: `${15 + Math.random() * 25}px`,
-                height: `${15 + Math.random() * 25}px`,
-                borderRadius: "50%",
-                background: `rgba(204, 245, 245, ${0.5 + Math.random() * 0.5})`,
-                boxShadow: "0 0 10px rgba(255, 255, 255, 0.8)",
-                position: "absolute",
-                left: `${i * 15}%`,
-                top: `${Math.random() * 80}px`,
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Main Text Animation - ENLARGED */}
+        {/* Main Text Animation */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -155,8 +140,8 @@ const Loading = () => {
             <motion.span
               key={index}
               variants={letterVariants}
-              className={`text-8xl font-bold ${
-                index < 4 ? "text-[#73A5A8]" : "text-[#E5843F]"
+              className={`text-6xl sm:text-7xl md:text-8xl font-bold ${
+                index < 4 ? "text-birtu" : "text-oren"
               }`}
               style={{
                 textShadow: "3px 3px 6px rgba(0, 0, 0, 0.15)",
@@ -175,7 +160,7 @@ const Loading = () => {
           transition={{ delay: 3, duration: 1 }}
           className="text-center mt-2 mb-4"
         >
-          <span className="text-[#73A5A8] text-lg font-medium italic">
+          <span className="text-birtu text-sm sm:text-lg font-medium italic">
             {tagline}
           </span>
         </motion.div>
@@ -185,16 +170,16 @@ const Loading = () => {
           initial={{ width: 0 }}
           animate={{ width: "100%" }}
           transition={{ duration: 2.5, delay: 2 }}
-          className="h-1.5 bg-gradient-to-r from-[#73A5A8] to-[#E5843F] mt-1 rounded-full"
+          className="h-1.5 bg-gradient-to-r from-birtu to-oren mt-1 rounded-full"
         />
 
         {/* Loading Text */}
-        <motion.div className="mt-8">
+        <motion.div className="mt-6 sm:mt-8">
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 3.5 }}
-            className="text-center text-lg font-medium text-[#73A5A8]"
+            className="text-center text-base sm:text-lg font-medium text-birtu"
           >
             Loading your fresh laundry experience
           </motion.p>
@@ -211,7 +196,7 @@ const Loading = () => {
                   repeat: Infinity,
                   delay: dot * 0.3,
                 }}
-                className="w-3 h-3 rounded-full bg-[#E5843F]"
+                className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-oren"
               />
             ))}
           </motion.div>

@@ -15,6 +15,8 @@ import { Order, OrderStatus } from "@/types/order";
 import { TableSkeleton } from "../ui/table-skeleton";
 import { OrderFilters } from "./OrderFilters";
 import { TablePagination } from "../shared/usePagination";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
 
 // Update OrderTable props
 interface OrderTableProps {
@@ -78,7 +80,9 @@ export function OrderTable({
                     Rp {order.laundryPrice?.toLocaleString() || "-"}
                   </TableCell>
                   <TableCell className="text-center">
-                    {new Date(order.createdAt).toLocaleDateString()}
+                    {format(new Date(order.createdAt), "dd/MM/yyyy", {
+                      locale: id,
+                    })}
                   </TableCell>
                   <TableCell className="text-center">
                     <Button

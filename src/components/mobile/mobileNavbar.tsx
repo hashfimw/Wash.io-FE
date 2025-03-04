@@ -43,7 +43,7 @@ export default function MobileNavbar() {
         <div className="flex flex-row">
           <Link href={"/"} className="w-[36px] h-[36px] relative bottom-2">
             <Image
-              src={"/washio.png"}
+              src={"/washio-oren.png"}
               alt="washio-logo"
               layout="fill"
               className="object-cover"

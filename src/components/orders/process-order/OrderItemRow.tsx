@@ -50,10 +50,10 @@ export function OrderItemRow({
     );
   };
 
-  // Handle input change dengan pengecekan template
+  // Handle input change with template check
   const handleCustomInputChange = (value: string) => {
     if (isExistingTemplate(value)) {
-      // Jika item sudah ada di template, tampilkan pesan error
+      // If item already exists in template, show error message
       onInputChange(""); // Reset input
       toast({
         title: "Item already exists",
@@ -61,70 +61,99 @@ export function OrderItemRow({
           "This item already exists in the template. Please select it from 'Select Existing'.",
         variant: "destructive",
       });
-      setSelectedTab("select"); // Pindah ke tab select
+      setSelectedTab("select"); // Switch to select tab
       return;
     }
     onInputChange(value);
   };
+
   return (
-    <div className="flex gap-3 items-start">
-      <div className="flex-1">
+    <div className="flex flex-col sm:flex-row gap-3 w-full">
+      <div className="flex-1 w-full">
         <FormField
           control={control}
           name={`orderItems.${index}.orderItemName`}
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="w-full">
               <Tabs
                 value={selectedTab}
                 onValueChange={(value) => {
                   setSelectedTab(value as "select" | "custom");
-                  field.onChange(""); // Reset field saat ganti tab
+                  field.onChange(""); // Reset field when changing tabs
                 }}
                 className="w-full"
               >
-                <TabsList className="mb-2">
-                  <TabsTrigger value="select">Select Existing</TabsTrigger>
-                  <TabsTrigger value="custom">Add New</TabsTrigger>
+                <TabsList className="mb-2 w-full sm:w-auto">
+                  <TabsTrigger
+                    value="select"
+                    className="flex-1 text-xs sm:text-sm"
+                  >
+                    Select Existing
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="custom"
+                    className="flex-1 text-xs sm:text-sm"
+                  >
+                    Add New
+                  </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="select">
-                  <FormControl>
-                    <Select
-                      onValueChange={(value) => {
-                        onSelectChange(value);
-                      }}
-                      value={field.value}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select item" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {templates.map((template) => (
-                          <SelectItem
-                            key={template.id}
-                            value={template.orderItemName}
-                          >
-                            {template.orderItemName}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                </TabsContent>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1">
+                    <TabsContent value="select">
+                      <FormControl>
+                        <Select
+                          onValueChange={(value) => {
+                            onSelectChange(value);
+                          }}
+                          value={field.value}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select item" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {templates.map((template) => (
+                              <SelectItem
+                                key={template.id}
+                                value={template.orderItemName}
+                              >
+                                {template.orderItemName}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                    </TabsContent>
 
-                <TabsContent value="custom">
-                  <FormControl>
-                    <Input
-                      placeholder="Enter new item name"
-                      {...field}
-                      value={selectedTab === "custom" ? field.value : ""}
-                      onChange={(e) => {
-                        const value = e.target.value.trim();
-                        handleCustomInputChange(value);
-                      }}
-                    />
-                  </FormControl>
-                </TabsContent>
+                    <TabsContent value="custom">
+                      <FormControl>
+                        <Input
+                          placeholder="Enter new item name"
+                          {...field}
+                          value={selectedTab === "custom" ? field.value : ""}
+                          onChange={(e) => {
+                            const value = e.target.value.trim();
+                            handleCustomInputChange(value);
+                          }}
+                        />
+                      </FormControl>
+                    </TabsContent>
+                  </div>
+
+                  {/* Remove button positioned next to input fields on mobile */}
+                  <div className="block sm:hidden">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={onRemove}
+                      disabled={!canRemove}
+                      className="mt-1"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
               </Tabs>
               <FormMessage />
             </FormItem>
@@ -132,39 +161,44 @@ export function OrderItemRow({
         />
       </div>
 
-      <div className="w-24 pt-12 mt-1">
-        <FormField
-          control={control}
-          name={`orderItems.${index}.qty`}
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <Input
-                  type="number"
-                  placeholder="Qty"
-                  min={1}
-                  {...field}
-                  onChange={(e) =>
-                    field.onChange(parseInt(e.target.value, 10) || 1)
-                  }
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
+      <div className="flex items-center space-x-2 mt-2 sm:mt-12">
+        <div className="w-20 sm:w-24">
+          <FormField
+            control={control}
+            name={`orderItems.${index}.qty`}
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="Qty"
+                    {...field}
+                    onChange={(e) => {
+                      const value =
+                        e.target.value === "" ? undefined : e.target.value;
+                      field.onChange(value);
+                    }}
+                    className="w-full"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
-      <div className="pt-12 mt-1">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={onRemove}
-          disabled={!canRemove}
-        >
-          <X className="h-4 w-4" />
-        </Button>
+        {/* Remove button shown only on desktop */}
+        <div className="hidden sm:block">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={onRemove}
+            disabled={!canRemove}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );

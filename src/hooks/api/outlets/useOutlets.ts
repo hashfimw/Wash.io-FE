@@ -56,6 +56,7 @@ export const useOutlets = () => {
       }`;
 
       const response = await api.get<ApiResponseType>(url);
+      setOutlets(response.data.data || []);
       return response.data;
     } catch (err) {
       console.error("Failed to fetch outlets:", err);

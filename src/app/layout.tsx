@@ -2,21 +2,28 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
-import Navbar from "@/components/app/navbar";
-import Footer from "@/components/app/footer";
 import LocationProviderWrapper from "@/components/app/LocationProvider";
 import LocationPermissionBanner from "@/components/app/LocationBanner";
 import { SessionProvider } from "@/context/useSession";
+import { Montserrat } from "next/font/google";
+import NavbarExcept from "@/components/navbarExcept";
+import FooterExcept from "@/components/footerExcept";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+// const geistSans = localFont({
+//   src: "./fonts/GeistVF.woff",
+//   variable: "--font-geist-sans",
+//   weight: "100 900",
+// });
+// const geistMono = localFont({
+//   src: "./fonts/GeistMonoVF.woff",
+//   variable: "--font-geist-mono",
+//   weight: "100 900",
+// });
+
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "900"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -33,17 +40,19 @@ export default function RootLayout({
     <html lang="en">
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`
+          ${montserrat.className} antialiased hover:cursor-default`}
       >
         <LocationProviderWrapper>
           <SessionProvider>
-            <Navbar />
             <LocationPermissionBanner />
-            {children}
-            <Toaster />
-            <Footer />
+            <NavbarExcept />
+        {children}
+        <Toaster />
+        <FooterExcept />
           </SessionProvider>
         </LocationProviderWrapper>
+
       </body>
     </html>
   );
