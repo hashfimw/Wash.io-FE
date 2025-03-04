@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { TablePagination } from "../shared/usePagination";
 import { AttendanceRecord, AttendanceSortField } from "@/types/attendance";
 import { Badge } from "../ui/badge";
+import { format } from "date-fns";
 
 interface AttendancesTableProps {
   role: string;
@@ -73,7 +74,7 @@ export default function AttendancesTable({
           <TableBody>
             {attendances.map((record) => (
               <TableRow key={record.id} className="h-10">
-                <TableCell className="min-w-44">{new Date(record.date).toLocaleString()}</TableCell>
+                <TableCell className="min-w-44">{format(new Date(record.date), "PPPp")}</TableCell>
                 <TableCell className="min-w-40">
                   <Badge
                     variant="outline"

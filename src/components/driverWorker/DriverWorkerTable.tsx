@@ -6,6 +6,7 @@ import { TablePagination } from "../shared/usePagination";
 import { JobRecord, JobSortField } from "@/types/driverWorker";
 import { useRouter } from "next/navigation";
 import { Badge } from "../ui/badge";
+import { format } from "date-fns";
 
 interface DriverWorkerTableProps {
   endPoint: string;
@@ -50,7 +51,7 @@ export default function DriverWorkerTable({
           <TableHeader>
             <TableRow className="bg-muted hover:bg-muted hover:cursor-pointer">
               <TableHead onClick={() => handleSortChange("date")} className="text-center font-semibold hover:bg-neutral-200 transition">
-                Date{sortOrderSymbol("date")}
+                Issued Date{sortOrderSymbol("date")}
               </TableHead>
               {endPoint === "transport-jobs" && (
                 <>
@@ -78,7 +79,7 @@ export default function DriverWorkerTable({
                 className="group hover:cursor-pointer hover:underline hover:font-medium hover:text-birtu transition h-14 sm:h-10"
               >
                 <TableCell className="min-w-48">
-                  {requestType == "request" ? <TimeDifferenceTooltip date={job.date} /> : <p>{new Date(job.date).toLocaleString()}</p>}
+                  {requestType == "request" ? <TimeDifferenceTooltip date={job.date} /> : <p>{format(new Date(job.date), "PPPp")}</p>}
                 </TableCell>
                 {endPoint === "transport-jobs" && (
                   <>

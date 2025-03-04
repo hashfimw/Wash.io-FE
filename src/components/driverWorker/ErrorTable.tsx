@@ -16,7 +16,7 @@ export default function ErrorTable({ errorMessage }: { errorMessage: string }) {
         <CircleAlert className="absolute -bottom-4 left-[27px] size-20 text-red-700 stroke-[3] animate-bounce" />{" "}
       </div>
       <p className="text-xl font-semibold text-black/75">Error</p>
-      <p className="text-muted-foreground font-medium text-center">{errorMessage}</p>
+      <p className="text-muted-foreground font-medium text-center mb-2">{errorMessage}</p>
       <Button
         onClick={() => router.refresh()}
         variant="outline"

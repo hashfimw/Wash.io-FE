@@ -27,16 +27,20 @@ export default function NotificationModal({ open, onClose }: NotificationModalPr
   const [totalPages, setTotalPage] = useState<number>(1);
   const [totalData, setTotalData] = useState<number>(0);
 
-  const { loading, error, getNotifications, getUnreadCount, markAllAsRead, markAsReadById } = useNotification();
+  const { loading: apiLoading, error, getNotifications, getUnreadCount, markAllAsRead, markAsReadById } = useNotification();
+  const [pageLoading, setPageLoading] = useState<boolean>(true);
+  const loading = !!(pageLoading || apiLoading);
   const { toast } = useToast();
 
   const fetchNotification = async () => {
+    setPageLoading(true);
     const response = await getNotifications({ page, limit: 5, requestType });
 
     setNotifications(response.data);
     setPage(response.meta.page);
     setTotalPage(response.meta.total_pages);
     setTotalData(response.meta.total_data);
+    setPageLoading(false);
   };
 
   const fetchUnreadCount = async () => {
@@ -45,10 +49,12 @@ export default function NotificationModal({ open, onClose }: NotificationModalPr
   };
 
   const alterAsReadById = async (id: number, isRead: boolean) => {
+    setPageLoading(true);
     if (!isRead) {
       onClose();
       await markAsReadById(id);
     }
+    setPageLoading(false);
   };
 
   const alterAllAsRead = async () => {
@@ -171,11 +177,7 @@ export default function NotificationModal({ open, onClose }: NotificationModalPr
                 </p>
                 <div className="flex justify-between">
                   <div>{totalPages > 1 && <NotificationPagination onPageChange={handlePageChange} currentPage={page} totalPages={totalPages} />}</div>
-                  <Button
-                    onClick={() => alterAllAsRead()}
-                    disabled={requestType == "read"}
-                    className={`bg-birtu hover:bg-oren transition w-fit`}
-                  >
+                  <Button onClick={() => alterAllAsRead()} disabled={requestType == "read"} className={`bg-birtu hover:bg-oren transition w-fit`}>
                     Mark all as read
                   </Button>
                 </div>

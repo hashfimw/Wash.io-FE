@@ -36,15 +36,20 @@ export const Header = ({ user, breadcrumbItems, role }: HeaderProps) => {
   const { logout } = useAdminAuth();
   const [isNotificationModalOpen, setNotificaionModalOpen] = useState<boolean>(false);
   const [unreadCount, setUnreadCount] = useState<number>(0);
-  const { getUnreadCount, error } = useNotification();
+  const { getUnreadCount } = useNotification();
+
+  const fetchUnreadCount = async () => {
+    const response = await getUnreadCount();
+    setUnreadCount(response.data);
+  };
 
   useEffect(() => {
-    const fetchUnreadCount = async () => {
-      const response = await getUnreadCount();
-      setUnreadCount(response.data);
-    };
     fetchUnreadCount();
-  }, [!isNotificationModalOpen]);
+  }, []);
+
+  useEffect(() => {
+    fetchUnreadCount();
+  }, [isNotificationModalOpen]);
 
   const handleOpen = () => {
     setNotificaionModalOpen(true);

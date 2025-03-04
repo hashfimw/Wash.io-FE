@@ -1,5 +1,6 @@
 "use client";
 
+import JobDetails from "@/components/driverWorker/JobDetails";
 import { useBreadcrumb } from "@/context/BreadcrumbContext";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
@@ -18,5 +19,9 @@ export default function JobPage() {
     ]);
   }, [role, setBreadcrumbItems]);
 
-  return <></>;
+  return (
+    <>
+      <JobDetails role={role as "driver" | "worker"} id={id} />
+    </>
+  );
 }

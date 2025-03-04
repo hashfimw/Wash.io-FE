@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
-import { AttendanceType, GetAttendancesRequest, GetAttendancesResponse, GetEmployeeStatusResponse } from "@/types/attendance";
+import {  GetAttendancesRequest, GetAttendancesResponse, GetEmployeeStatusResponse } from "@/types/attendance";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api",
@@ -17,6 +17,7 @@ api.interceptors.request.use((config) => {
 export const useAttendance = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const tzo = new Date().getTimezoneOffset().toString();
 
   const getAttendances = async (params: GetAttendancesRequest) => {
     try {
@@ -48,7 +49,7 @@ export const useAttendance = () => {
     }
   };
 
-  const createAttendance = async (attendanceType: AttendanceType) => {
+  const createAttendance = async (attendanceType: "CLOCK_IN" | "CLOCK_OUT") => {
     try {
       setLoading(true);
 
@@ -68,7 +69,7 @@ export const useAttendance = () => {
     try {
       setLoading(true);
 
-      const response = await api.get<{ data: { count: number } }>(`/attendances/check`);
+      const response = await api.get<{ data: { count: number } }>(`/attendances/check?tzo=${tzo}`);
 
       return response.data.data;
     } catch (err) {
@@ -82,9 +83,9 @@ export const useAttendance = () => {
     try {
       setLoading(true);
 
-      const response = await api.get<GetEmployeeStatusResponse>(`/attendances/check`);
+      const response = await api.get<GetEmployeeStatusResponse>(`/attendances/check?tzo=${tzo}`);
 
-      return response.data;
+      return response.data.data;
     } catch (err) {
       if (axios.isAxiosError(err)) setError(err.response?.data.message);
       else setError("Failed to create attendance");

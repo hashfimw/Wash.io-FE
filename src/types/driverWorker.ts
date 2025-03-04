@@ -68,7 +68,7 @@ export interface GetJobByIdResponse {
     province: string;
     regency: string;
     district: string;
-    longitude: string;
+    village: string;
     customerId: number;
-  }[];
+  };
 }

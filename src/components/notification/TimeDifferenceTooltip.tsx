@@ -1,21 +1,18 @@
 "use client";
 
-import { getTimeDifferenceString } from "@/utils/dateTime";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import { format, formatDistanceToNow } from "date-fns";
 
 export default function TmeDifferenceTooltip({ date }: { date: string }) {
-  const timeDiff = getTimeDifferenceString(date);
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger className={`${!timeDiff.isDate && "hover:underline text-birtu brightness-50 hover:brightness-75 transition"}`}>
-          {timeDiff.time}
+        <TooltipTrigger className={`hover:underline text-birtu brightness-50 hover:brightness-75 transition`}>
+          {formatDistanceToNow(date, { includeSeconds: true, addSuffix: true })}
         </TooltipTrigger>
-        {!timeDiff.isDate && (
-          <TooltipContent side="right" className="bg-muted pointer-events-auto shadow text-black">
-            {new Date(date).toLocaleString()}
-          </TooltipContent>
-        )}
+        <TooltipContent side="right" className="bg-muted pointer-events-auto shadow text-black">
+          {format(new Date(date), "PPPp")}
+        </TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );

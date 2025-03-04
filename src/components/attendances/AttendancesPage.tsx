@@ -7,12 +7,15 @@ export default function AttendancesPage() {
   const params = useParams();
   const role = params.role as string;
 
+  const admin = !!(role === "super-admin" || role === "outlet-admin");
   return (
-    <div className={`mx-auto p-3 space-y-6 ${role === "driver" || role === "worker" ? "max-w-screen-lg" : ""}`}>
-      <div>
-        <h1 className="text-xl sm:text-2xl font-bold">Attendances History</h1>
-        <p className="text-muted-foreground">View list of {role === "driver" || role === "worker" ? "your" : "employees'"} attendances history</p>
-      </div>
+    <div className={`mx-auto p-3 space-y-6 ${!admin && "max-w-screen-lg"}`}>
+      {admin && (
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold">Attendances History</h1>
+          <p className="text-muted-foreground">View list of employees' attendances history</p>
+        </div>
+      )}
       <AttendancesList />
     </div>
   );

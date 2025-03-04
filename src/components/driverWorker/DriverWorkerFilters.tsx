@@ -33,7 +33,6 @@ export default function DriverWorkerFilters({
   date,
   onDateChange: handleDateRangeChange,
 }: DriverWorkerFiltersProps) {
-  const workerRequest: boolean = !!(endPoint === "transport-jobs" && requestType === "request");
 
   return (
     <>
@@ -51,7 +50,7 @@ export default function DriverWorkerFilters({
           </div>
         )}
         {endPoint === "transport-jobs" && <SelectTransportTypeButton value={transportType} onClick={handleTransportTypeChange} />}
-        <div className={`${workerRequest && "ml-auto"}`}>
+        <div className={`ml-auto`}>
           <SelectLimitButton value={limit} onClick={handleLimitChange} />
         </div>
       </div>

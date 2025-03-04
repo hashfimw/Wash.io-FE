@@ -45,7 +45,9 @@ export function AttendancesList() {
   const [totalPages, setTotalPages] = useState<number>(0);
   const [totalData, setTotalData] = useState<number>(0);
 
-  const { getAttendances, loading, error, checkIsNull } = useAttendance();
+  const { getAttendances, loading: apiLoading, error, checkIsNull } = useAttendance();
+  const [pageLoading, setPageLoading] = useState<boolean>(true);
+  const loading = !!(pageLoading || apiLoading);
   const { toast } = useToast();
 
   const fetchAttendances = async () => {
@@ -68,10 +70,12 @@ export function AttendancesList() {
   };
 
   const fetchCheckIsNull = async () => {
+    setPageLoading(true);
     const response = await checkIsNull();
     const isNull = !!response.count;
 
     setIsNull(!isNull);
+    setPageLoading(false);
   };
 
   useEffect(() => {
@@ -178,7 +182,9 @@ export function AttendancesList() {
   }, [date]);
 
   useEffect(() => {
+    setPageLoading(true);
     fetchAttendances();
+    setPageLoading(false);
   }, [page, limit, sortBy, sortOrder, name, attendanceType, roleFilter, workShift, outletName, startDate, endDate]);
 
   useEffect(() => {
@@ -191,8 +197,16 @@ export function AttendancesList() {
     }
   }, [error]);
 
+  const employee = !!(role === "driver" || role === "worker");
+
   return (
-    <div className={`${loading && "pointer-events-none"} sm:p-4 flex flex-col sm:bg-white sm:shadow sm:rounded-xl w-full`}>
+    <div className={`${loading && "pointer-events-none"} sm:p-4  ${employee && "sm:p-6"} flex flex-col sm:bg-white sm:shadow sm:rounded-xl w-full`}>
+      {employee && (
+        <div className="mb-4">
+          <h1 className="text-xl sm:text-2xl font-bold">Attendances History</h1>
+          <p className="text-muted-foreground">View list of your attendances history</p>
+        </div>
+      )}
       {!isNull && (
         <AttendancesFilters
           role={role}

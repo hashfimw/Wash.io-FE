@@ -41,7 +41,9 @@ export default function DriverWorkerList({
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalData, setTotalData] = useState<number>(0);
 
-  const { loading, error, getJobs, checkIsNull } = useDriverWorker();
+  const { loading: apiLoading, error, getJobs, checkIsNull } = useDriverWorker();
+  const [pageLoading, setPageLoading] = useState<boolean>(true);
+  const loading = !!(pageLoading || apiLoading);
   const { toast } = useToast();
 
   const fetchJobs = async () => {
@@ -70,7 +72,9 @@ export default function DriverWorkerList({
   };
 
   useEffect(() => {
+    setPageLoading(true);
     fetchCheckIsNull();
+    setPageLoading(false);
   }, []);
 
   const updateUrlParams = (params: Record<string, string>) => {
@@ -133,8 +137,9 @@ export default function DriverWorkerList({
   }, [date]);
 
   useEffect(() => {
+    setPageLoading(true);
     fetchJobs();
-    if (jobs.length > 0) setIsNull(false);
+    setPageLoading(false);
   }, [page, limit, sortOrder, transportType, startDate, endDate]);
 
   useEffect(() => {

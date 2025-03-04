@@ -14,9 +14,9 @@ export default function NullAttendance() {
         <ClipboardX className="absolute size-24 rotate-[20deg] text-rose-800 bottom-2 left-24" />
         <CircleHelp className="absolute -bottom-4 left-[27px] size-20 text-red-700 stroke-[3] animate-bounce" />{" "}
       </div>
-      <p className="text-xl font-semibold text-black/75">No results found</p>
+      <p className="text-xl font-semibold text-black/75">No records found</p>
       <p className="text-muted-foreground font-medium text-center">
-        You have not submitted any attendances in the past. It seems that you are new here, aren't you?
+        You have not submitted any attendances yet. It seems that you are new here, aren't you?
       </p>
     </div>
   );

@@ -52,8 +52,11 @@ export type AttendanceSortField = "id" | "date" | "attendanceType" | "name" | "r
 export interface GetEmployeeStatusResponse {
   data: {
     workShift: EmployeeWorkShift;
-    station: WorkerStation | null;
     isWorking: boolean;
     isPresent: boolean;
+    isOnWorkShift: boolean;
+    canClockIn: boolean;
+    isAttended: boolean;
+    shiftStart: string
   };
 }

@@ -53,9 +53,9 @@ export const useDriverWorker = () => {
     try {
       setLoading(true);
 
-      const response = await api.get<GetJobByIdResponse>(`/${endPoint}/${jobId}`);
+      const response = await api.get<{ data: GetJobByIdResponse }>(`/${endPoint}/${jobId}`);
 
-      return response.data;
+      return response.data.data;
     } catch (err) {
       if (axios.isAxiosError(err)) setError(err.response?.data.message);
       else setError("Failed to fetch job");
@@ -69,7 +69,7 @@ export const useDriverWorker = () => {
     try {
       setLoading(true);
 
-      const response = await api.get<GetJobByIdResponse>(`/${endPoint}/ongoing`);
+      const response = await api.get<{ data: number }>(`/${endPoint}/ongoing`);
 
       return response.data;
     } catch (err) {
@@ -95,11 +95,11 @@ export const useDriverWorker = () => {
     }
   };
 
-  const updateJob = async (endPoint: "transport-jobs" | "laundry-jobs", jobId: number, inputBody?: UpdateLaundryJobInputBody) => {
+  const updateJob = async (endPoint: "transport-jobs" | "laundry-jobs", jobId: number, inputBody?: UpdateLaundryJobInputBody[]) => {
     try {
       setLoading(true);
 
-      const response = await api.patch<{ message: string }>(`/${endPoint}/${jobId}?tzo=${tzo}`, inputBody);
+      const response = await api.patch<{ message: string }>(`/${endPoint}/${jobId}?tzo=${tzo}`, { orderItemInput: inputBody });
 
       return response.data.message;
     } catch (err) {
