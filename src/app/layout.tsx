@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import LocationProviderWrapper from "@/components/app/LocationProvider";
+import LocationPermissionBanner from "@/components/app/LocationBanner";
+import { SessionProvider } from "@/context/useSession";
 import { Montserrat } from "next/font/google";
 import NavbarExcept from "@/components/navbarExcept";
 import FooterExcept from "@/components/footerExcept";
@@ -40,10 +43,16 @@ export default function RootLayout({
         className={`
           ${montserrat.className} antialiased hover:cursor-default`}
       >
-        <NavbarExcept />
+        <LocationProviderWrapper>
+          <SessionProvider>
+            <LocationPermissionBanner />
+            <NavbarExcept />
         {children}
         <Toaster />
         <FooterExcept />
+          </SessionProvider>
+        </LocationProviderWrapper>
+
       </body>
     </html>
   );

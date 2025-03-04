@@ -5,6 +5,10 @@ import { BreadcrumbProvider } from "@/context/BreadcrumbContext";
 import { DashboardLayout } from "@/components/layouts/dashboardLayout";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+<<<<<<< HEAD:src/app/(dashboard)/layout.tsx
+import { useAuth } from "@/hooks/api/auth/useAdminAuth";
+import Loading from "../loading";
+=======
 import { useAuth } from "@/hooks/api/auth/useEmployeeAuth";
 import Loading from "@/app/loading";
 import { DriverGuard, WorkerGuard } from "@/hoc/EmployeeGuard";
@@ -22,6 +26,7 @@ export default function RoleLayout({
   if (!validRoleParams.includes(role)) {
     return notFound();
   }
+>>>>>>> 0f0d49b2513cf603fbc1a1288b8ec8ddeb2103d7:src/app/(employee)/employee-dashboard/[role]/layout.tsx
 
   const { user, getCurrentUser, loading } = useAuth();
   const router = useRouter();
