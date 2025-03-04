@@ -19,6 +19,7 @@ import { useOutlets } from "@/hooks/api/outlets/useOutlets";
 
 import { Outlet } from "@/types/outlet";
 import { useOutletTable } from "@/hooks/api/outlets/useTableOutlets";
+import SwipeIndicator from "../swipeIndicator";
 
 interface OutletTableProps {
   onEdit: (outlet: Outlet) => void;
@@ -81,9 +82,8 @@ export function OutletTable({ onEdit }: OutletTableProps) {
           onResetFilters={resetFilters}
         />
       </div>
-
-      {/* Table section dengan scroll horizontal */}
       <div className="overflow-auto rounded-md border">
+        <SwipeIndicator className="md:hidden" />
         <Table>
           <TableHeader>
             <TableRow>

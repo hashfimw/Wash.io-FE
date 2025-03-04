@@ -41,7 +41,7 @@ export default function RoleLayout({
 
       setTimeout(() => {
         setShowLoading(false);
-      }, 2000);
+      }, 3000);
     };
 
     initAuth();

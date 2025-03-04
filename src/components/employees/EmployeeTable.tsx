@@ -24,6 +24,7 @@ import { useEmployeeTable } from "@/hooks/api/employees/useEmployeeTable";
 import { EmployeeTableFilters } from "./employee-form/employee-table-filters";
 import { EmployeeDeleteAlert } from "./employee-form/employee-delete-alert";
 import { TablePagination } from "../shared/usePagination";
+import SwipeIndicator from "../swipeIndicator";
 
 interface EmployeeTableProps {
   onEdit: (employee: Employee) => void;
@@ -89,8 +90,8 @@ export function EmployeeTable({ onEdit }: EmployeeTableProps) {
         onOutletChange={onOutletChange}
         onResetFilters={onResetFilters}
       />
-
       <div className="rounded-md border">
+        <SwipeIndicator className="md:hidden" />
         <Table>
           <TableHeader>
             <TableRow>

@@ -1,8 +1,6 @@
-// src/components/reports/EmployeePerformanceTable.tsx
 "use client";
 
 import { useState } from "react";
-
 import {
   Card,
   CardContent,
@@ -25,6 +23,7 @@ import { AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { EmployeePerformanceData } from "@/types/reports";
+import SwipeIndicator from "../swipeIndicator";
 
 interface EmployeePerformanceTableProps {
   data: EmployeePerformanceData;
@@ -170,6 +169,7 @@ export function EmployeePerformanceTable({
               </Alert>
             ) : (
               <div className="rounded-md border">
+                <SwipeIndicator className="md:hidden" />
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -211,6 +211,7 @@ export function EmployeePerformanceTable({
               </Alert>
             ) : (
               <div className="rounded-md border">
+                <SwipeIndicator className="md:hidden" />
                 <Table>
                   <TableHeader>
                     <TableRow>

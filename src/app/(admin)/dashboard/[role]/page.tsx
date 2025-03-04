@@ -264,7 +264,7 @@ export default function Dashboard() {
           <CardContent className="flex flex-wrap gap-4">
             <Link href={`/dashboard/${userRoleForPath}/orders`}>
               <Button variant="outline">
-                <Shirt className="mr-2 h-4 w-4" /> New Order
+                <Shirt className="mr-2 h-4 w-4" /> Orders List
               </Button>
             </Link>
             <Link href={`/dashboard/${userRoleForPath}/outlets`}>

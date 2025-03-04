@@ -29,20 +29,32 @@ interface ReportFilterProps {
   outlets: Outlet[];
   showPeriodFilter?: boolean;
   onFilterChange: (filters: any) => void;
+  userRole: string; // User's role (SUPER_ADMIN or OUTLET_ADMIN)
+  userOutletId?: string; // Outlet ID for OUTLET_ADMIN
 }
 
 export function ReportFilter({
   outlets,
   showPeriodFilter = false,
   onFilterChange,
+  userRole,
+  userOutletId,
 }: ReportFilterProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const isOutletAdmin = userRole === "OUTLET_ADMIN";
 
   // State for filters
-  const [outletId, setOutletId] = useState<string | null>(
-    searchParams.get("outletId") || null
-  );
+  const [outletId, setOutletId] = useState<string | null>(() => {
+    // For OUTLET_ADMIN: Always use their assigned outlet
+    if (isOutletAdmin && userOutletId) {
+      return userOutletId;
+    }
+
+    // For SUPER_ADMIN: Use from URL or null (all outlets)
+    return searchParams.get("outletId") || null;
+  });
+
   const [startDate, setStartDate] = useState<Date | undefined>(
     searchParams.get("startDate")
       ? new Date(searchParams.get("startDate") as string)
@@ -164,12 +176,26 @@ export function ReportFilter({
               onValueChange={(value) =>
                 setOutletId(value === "" ? null : value)
               }
+              disabled={isOutletAdmin} // Disable the dropdown for OUTLET_ADMIN
             >
               <SelectTrigger id="outlet">
-                <SelectValue placeholder="All Outlets" />
+                {isOutletAdmin ? (
+                  // For OUTLET_ADMIN: Show outlet name directly without placeholder
+                  <span>
+                    {outlets.find((o) => o.id.toString() === outletId)
+                      ?.outletName || "Your Outlet"}
+                  </span>
+                ) : (
+                  // For SUPER_ADMIN: Use placeholder
+                  <SelectValue placeholder="All Outlets" />
+                )}
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="All">All Outlets</SelectItem>
+                {/* Only show "All Outlets" option for SUPER_ADMIN */}
+                {!isOutletAdmin && (
+                  <SelectItem value="outlets">All Outlets</SelectItem>
+                )}
+
                 {outlets.map((outlet) => (
                   <SelectItem key={outlet.id} value={outlet.id.toString()}>
                     {outlet.outletName}

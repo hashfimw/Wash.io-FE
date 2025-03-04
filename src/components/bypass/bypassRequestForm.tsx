@@ -5,7 +5,6 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,7 +30,7 @@ import { WorkerStation } from "@/types/bypass";
 
 const bypassFormSchema = z.object({
   byPassNote: z.string().min(10, {
-    message: "Alasan bypass minimal 10 karakter.",
+    message: "Bypass reason must be at least 10 characters.",
   }),
 });
 
@@ -69,9 +68,8 @@ export function BypassRequestForm({
       });
 
       toast({
-        title: "Permintaan bypass terkirim",
-        description:
-          "Permintaan Anda telah dikirim ke admin untuk persetujuan.",
+        title: "Bypass request submitted",
+        description: "Your request has been sent to admin for approval.",
       });
 
       setRequestSent(true);
@@ -79,13 +77,13 @@ export function BypassRequestForm({
         onRequestSuccess();
       }
     } catch (error: any) {
-      console.error("Error mengajukan permintaan bypass:", error);
+      console.error("Error submitting bypass request:", error);
       toast({
         variant: "destructive",
-        title: "Gagal mengirim permintaan",
+        title: "Failed to submit request",
         description:
           error.response?.data?.message ||
-          "Terjadi kesalahan saat mengajukan permintaan bypass. Silakan coba lagi.",
+          "An error occurred while submitting your bypass request. Please try again.",
       });
     }
   }
@@ -96,25 +94,34 @@ export function BypassRequestForm({
         <CardHeader className="bg-yellow-50">
           <CardTitle className="text-yellow-700 flex items-center gap-2">
             <AlertCircle className="h-5 w-5" />
-            Permintaan Bypass Menunggu
+            Bypass Request Pending
           </CardTitle>
           <CardDescription>
-            Permintaan bypass Anda untuk Order #{orderId} telah dikirim dan
-            sedang menunggu persetujuan admin.
+            Your bypass request for Order #{orderId} has been submitted and is
+            awaiting admin approval.
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
           <p className="text-sm text-muted-foreground">
-            Anda akan diberi tahu begitu admin merespon permintaan Anda. Jika
-            disetujui, Anda dapat melanjutkan ke stasiun berikutnya.
+            You will be notified once the admin responds to your request. If
+            approved, you can proceed to the next station.
           </p>
         </CardContent>
       </Card>
     );
   }
 
-  function getStationName(station: WorkerStation): import("react").ReactNode {
-    throw new Error("Function not implemented.");
+  function getStationName(station: WorkerStation): string {
+    switch (station) {
+      case WorkerStation.WASHING:
+        return "washing";
+      case WorkerStation.IRONING:
+        return "ironing";
+      case WorkerStation.PACKING:
+        return "packing";
+      default:
+        return (station as string).toLowerCase();
+    }
   }
 
   return (
@@ -122,11 +129,11 @@ export function BypassRequestForm({
       <CardHeader className="bg-red-50">
         <CardTitle className="text-red-700 flex items-center gap-2">
           <AlertCircle className="h-5 w-5" />
-          Proses Terblokir
+          Process Blocked
         </CardTitle>
         <CardDescription>
-          Silakan minta persetujuan bypass dari admin untuk melanjutkan proses{" "}
-          {getStationName(station)} untuk Order #{orderId}.
+          Please request bypass approval from admin to continue the{" "}
+          {getStationName(station)} process for Order #{orderId}.
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
@@ -137,24 +144,23 @@ export function BypassRequestForm({
               name="byPassNote"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Alasan Bypass</FormLabel>
+                  <FormLabel>Bypass Reason</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Jelaskan mengapa Anda perlu bypass proses ini (mis. item hilang, masalah berat)"
+                      placeholder="Explain why you need to bypass this process (e.g., missing items, weight issues)"
                       className="resize-none"
                       {...field}
                     />
                   </FormControl>
                   <FormDescription>
-                    Berikan informasi detail untuk membantu admin membuat
-                    keputusan.
+                    Provide detailed information to help admin make a decision.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <Button type="submit" disabled={loading}>
-              {loading ? "Mengirim..." : "Ajukan Persetujuan Bypass"}
+              {loading ? "Submitting..." : "Request Bypass Approval"}
             </Button>
           </form>
         </Form>

@@ -13,6 +13,7 @@ import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Badge } from "@/components/ui/badge";
 import { TablePagination } from "../shared/usePagination";
 import { User } from "@/types/user";
+import SwipeIndicator from "../swipeIndicator";
 
 interface UserTableProps {
   users: User[];
@@ -79,6 +80,7 @@ export function UserTable({
       />
 
       <div className="rounded-md border">
+        <SwipeIndicator className="md:hidden" />
         <Table className="justify-center item">
           <TableHeader>
             <TableRow>

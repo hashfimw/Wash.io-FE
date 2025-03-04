@@ -1,5 +1,3 @@
-// src/types/order.ts
-
 export interface OrderItem {
   id: number;
   orderId: number;

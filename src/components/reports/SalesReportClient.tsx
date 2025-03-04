@@ -1,24 +1,22 @@
 "use client";
 
-// src/components/reports/SalesReportClient.tsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { useReports } from "@/hooks/api/reports/useReports";
 import { useOutlets } from "@/hooks/api/outlets/useOutlets";
 import { useBreadcrumb } from "@/context/BreadcrumbContext";
-
 import {
   ReportPeriod,
   SalesReportData,
   SalesReportParams,
 } from "@/types/reports";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, Download } from "lucide-react";
-import { Button } from "@/components/ui/button";
-
+import { AlertCircle } from "lucide-react";
 import { SalesReportChart } from "./salesReportChart";
 import { ReportFilter } from "./reportFilter";
+import { ExportConfig } from "@/utils/exportReport/types";
+import { ReportExportMenu } from "./reportExportMenu";
 
 interface SalesReportClientProps {
   role: string;
@@ -28,6 +26,7 @@ interface SalesReportClientProps {
   initialOutletId?: number;
   initialPage: number;
   initialLimit: number;
+  userOutletId?: string;
 }
 
 export function SalesReportClient({
@@ -38,12 +37,13 @@ export function SalesReportClient({
   initialOutletId,
   initialPage,
   initialLimit,
+  userOutletId,
 }: SalesReportClientProps) {
   const router = useRouter();
   const { toast } = useToast();
   const { setBreadcrumbItems } = useBreadcrumb();
-
-  // API hooks
+  const chartRef = useRef<HTMLDivElement>(null);
+  const userRole = role === "super-admin" ? "SUPER_ADMIN" : "OUTLET_ADMIN";
   const { getSalesReport, loading, error: reportError } = useReports();
   const {
     getOutlets,
@@ -51,19 +51,19 @@ export function SalesReportClient({
     loading: outletsLoading,
     error: outletsError,
   } = useOutlets();
-
-  // State
   const [salesData, setSalesData] = useState<SalesReportData>({});
   const [filters, setFilters] = useState<SalesReportParams>({
     period: (initialPeriod as ReportPeriod) || "daily",
     startDate: initialStartDate,
     endDate: initialEndDate,
-    outletId: initialOutletId,
+    outletId:
+      userRole === "OUTLET_ADMIN" && userOutletId
+        ? Number(userOutletId)
+        : initialOutletId,
     page: initialPage,
     limit: initialLimit,
   });
 
-  // Set breadcrumb
   useEffect(() => {
     const roleName = role === "super-admin" ? "Super Admin" : "Outlet Admin";
     setBreadcrumbItems([
@@ -73,7 +73,6 @@ export function SalesReportClient({
     ]);
   }, [role, setBreadcrumbItems]);
 
-  // Fetch outlets on component mount
   useEffect(() => {
     const fetchOutlets = async () => {
       try {
@@ -92,18 +91,15 @@ export function SalesReportClient({
     fetchOutlets();
   }, []);
 
-  // Fetch sales report when filters change
   useEffect(() => {
     const fetchSalesReport = async () => {
       try {
-        // Only fetch if we have date range
         if (filters.startDate && filters.endDate) {
           const result = await getSalesReport(filters);
           if (result && result.data) {
             setSalesData(result.data);
           }
         } else if (!filters.startDate && !filters.endDate) {
-          // If no date range, set default (last 30 days)
           const endDate = new Date().toISOString().split("T")[0];
           const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
             .toISOString()
@@ -117,6 +113,12 @@ export function SalesReportClient({
           const params = new URLSearchParams(window.location.search);
           params.set("startDate", startDate);
           params.set("endDate", endDate);
+
+          // For OUTLET_ADMIN, ensure their outlet ID is in the URL
+          if (userRole === "OUTLET_ADMIN" && userOutletId) {
+            params.set("outletId", userOutletId);
+          }
+
           router.push(`${window.location.pathname}?${params.toString()}`, {
             scroll: false,
           });
@@ -139,37 +141,28 @@ export function SalesReportClient({
     setFilters((prev) => ({ ...prev, ...newFilters }));
   };
 
-  // Handle export to CSV
-  const handleExport = () => {
-    // Format data for CSV
-    const csvRows = [
-      ["Date", "Sales Amount"],
-      ...Object.entries(salesData).map(([date, amount]) => [
-        date,
-        amount.toString(),
-      ]),
-    ];
+  // Get current outlet name if outletId is set
+  const currentOutletName =
+    outlets && filters.outletId
+      ? outlets.find((o) => o.id === filters.outletId)?.outletName ||
+        "All Outlets"
+      : "All Outlets";
 
-    // Convert to CSV string
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      csvRows.map((row) => row.join(",")).join("\n");
-
-    // Create download link
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute(
-      "download",
-      `sales_report_${filters.period}_${
-        new Date().toISOString().split("T")[0]
-      }.csv`
-    );
-    document.body.appendChild(link);
-
-    // Trigger download and cleanup
-    link.click();
-    document.body.removeChild(link);
+  // Configure export options
+  const exportConfig: ExportConfig = {
+    title: "Sales Report",
+    period: filters.period,
+    startDate: filters.startDate,
+    endDate: filters.endDate,
+    additionalInfo: {
+      Outlet: currentOutletName,
+      "Report Generated": new Date().toLocaleString(),
+    },
+    columnMapping: {
+      key: "Date",
+      value: "Sales Amount",
+    },
+    currencyColumns: ["value"], // Mark 'value' column to be formatted as IDR
   };
 
   // Render error state
@@ -188,29 +181,38 @@ export function SalesReportClient({
   }
 
   return (
-    <>
-      <div className="flex justify-end">
-        <Button
-          variant="outline"
-          onClick={handleExport}
-          disabled={loading || Object.keys(salesData).length === 0}
-        >
-          <Download className="mr-2 h-4 w-4" />
-          Export CSV
-        </Button>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold">Sales Report</h2>
+        <ReportExportMenu
+          data={salesData}
+          config={exportConfig}
+          chartRef={chartRef}
+          isDisabled={loading}
+        />
       </div>
 
       <ReportFilter
         outlets={outlets || []}
         showPeriodFilter={true}
         onFilterChange={handleFilterChange}
+        userRole={userRole}
+        userOutletId={userOutletId}
       />
 
-      <SalesReportChart
-        data={salesData}
-        period={filters.period || "daily"}
-        isLoading={loading}
-      />
-    </>
+      <div className="mt-6" ref={chartRef}>
+        <div className="p-4 bg-white rounded-lg shadow">
+          <h3 className="mb-2 text-sm font-medium text-gray-500">
+            {currentOutletName} • {filters.period} data • {filters.startDate} to{" "}
+            {filters.endDate}
+          </h3>
+          <SalesReportChart
+            data={salesData}
+            period={filters.period || "daily"}
+            isLoading={loading}
+          />
+        </div>
+      </div>
+    </div>
   );
 }

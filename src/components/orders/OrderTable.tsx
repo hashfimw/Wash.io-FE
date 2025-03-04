@@ -1,5 +1,5 @@
 // src/components/orders/OrderTable.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -10,13 +10,14 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye } from "lucide-react";
+import { Eye, ChevronRight, ChevronLeft } from "lucide-react";
 import { Order, OrderStatus } from "@/types/order";
 import { TableSkeleton } from "../ui/table-skeleton";
 import { OrderFilters } from "./OrderFilters";
 import { TablePagination } from "../shared/usePagination";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
+import SwipeIndicator from "../swipeIndicator";
 
 // Update OrderTable props
 interface OrderTableProps {
@@ -45,11 +46,11 @@ export function OrderTable({
 
   return (
     <div className="space-y-4">
-      {/* Replace Select component with OrderFilters */}
-
-      <div className="rounded-md border">
+      {/* Mobile swipe indicator - only shown on mobile */}
+      {/* Table container with horizontal scroll on mobile */}
+      <div className="rounded-md border overflow-x-auto">
+        <SwipeIndicator className="md:hidden" />
         <Table>
-          {/* Table content remains the same */}
           <TableHeader>
             <TableRow>
               <TableHead>Order ID</TableHead>
