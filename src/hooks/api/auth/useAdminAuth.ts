@@ -4,7 +4,7 @@ import axios from "axios";
 import { User } from "@/types/customer";
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api",
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
 
 api.interceptors.request.use((config) => {
@@ -23,6 +23,12 @@ interface LoginRequest {
 interface LoginResponse {
   message: string;
   token: string;
+}
+
+// Helper function untuk menghapus cookie
+function deleteCookie(name: string) {
+  document.cookie =
+    name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; samesite=strict";
 }
 
 export const useAdminAuth = () => {
@@ -92,7 +98,6 @@ export const useAdminAuth = () => {
       // Get user details using ID
       const response = await api.get(`/users/${decoded.id}`);
       const userData = response.data.user;
-      console.log("User data fetched:", userData); // Debug log
       setUser(userData);
       return userData;
     } catch (err) {
@@ -111,13 +116,23 @@ export const useAdminAuth = () => {
   };
 
   const logout = (): void => {
+    // Hapus token dari localStorage
     localStorage.removeItem("token");
+
+    // Hapus token dari cookies
+    deleteCookie("token");
+
+    // Reset user state
     setUser(null);
+
+    // Redirect sesuai dengan role user
     if (user?.role === "SUPER_ADMIN" || user?.role === "OUTLET_ADMIN") {
       window.location.href = "/login-admin";
     } else if (user?.role === "DRIVER" || user?.role === "WORKER") {
       window.location.href = "/login-employee";
-    } else window.location.href = "/";
+    } else {
+      window.location.href = "/";
+    }
   };
 
   const checkAuth = (): boolean => {

@@ -36,7 +36,10 @@ export function OrderTrackingDialog({
         ) : (
           <div className="space-y-6">
             <div className="grid gap-4">
-              <Timeline timeline={tracking?.timeline || []} />
+              <Timeline
+                timeline={tracking?.timeline || []}
+                orderId={tracking?.order.id}
+              />
             </div>
           </div>
         )}

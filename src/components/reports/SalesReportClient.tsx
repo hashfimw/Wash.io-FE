@@ -6,11 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useReports } from "@/hooks/api/reports/useReports";
 import { useOutlets } from "@/hooks/api/outlets/useOutlets";
 import { useBreadcrumb } from "@/context/BreadcrumbContext";
-import {
-  ReportPeriod,
-  SalesReportData,
-  SalesReportParams,
-} from "@/types/reports";
+import { ReportPeriod, SalesReportData, SalesReportParams } from "@/types/reports";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { SalesReportChart } from "./salesReportChart";
@@ -45,21 +41,13 @@ export function SalesReportClient({
   const chartRef = useRef<HTMLDivElement>(null);
   const userRole = role === "super-admin" ? "SUPER_ADMIN" : "OUTLET_ADMIN";
   const { getSalesReport, loading, error: reportError } = useReports();
-  const {
-    getOutlets,
-    outlets,
-    loading: outletsLoading,
-    error: outletsError,
-  } = useOutlets();
+  const { getOutlets, outlets, loading: outletsLoading, error: outletsError } = useOutlets();
   const [salesData, setSalesData] = useState<SalesReportData>({});
   const [filters, setFilters] = useState<SalesReportParams>({
     period: (initialPeriod as ReportPeriod) || "daily",
     startDate: initialStartDate,
     endDate: initialEndDate,
-    outletId:
-      userRole === "OUTLET_ADMIN" && userOutletId
-        ? Number(userOutletId)
-        : initialOutletId,
+    outletId: userRole === "OUTLET_ADMIN" && userOutletId ? Number(userOutletId) : initialOutletId,
     page: initialPage,
     limit: initialLimit,
   });
@@ -101,9 +89,7 @@ export function SalesReportClient({
           }
         } else if (!filters.startDate && !filters.endDate) {
           const endDate = new Date().toISOString().split("T")[0];
-          const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-            .toISOString()
-            .split("T")[0];
+          const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
 
           // Update filters and URL
           const newFilters = { ...filters, startDate, endDate };
@@ -144,8 +130,7 @@ export function SalesReportClient({
   // Get current outlet name if outletId is set
   const currentOutletName =
     outlets && filters.outletId
-      ? outlets.find((o) => o.id === filters.outletId)?.outletName ||
-        "All Outlets"
+      ? outlets.find((o) => o.id === filters.outletId)?.outletName || "All Outlets"
       : "All Outlets";
 
   // Configure export options
@@ -172,9 +157,7 @@ export function SalesReportClient({
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Error</AlertTitle>
         <AlertDescription>
-          {reportError ||
-            outletsError ||
-            "An error occurred while loading the report."}
+          {reportError || outletsError || "An error occurred while loading the report."}
         </AlertDescription>
       </Alert>
     );
@@ -184,12 +167,7 @@ export function SalesReportClient({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Sales Report</h2>
-        <ReportExportMenu
-          data={salesData}
-          config={exportConfig}
-          chartRef={chartRef}
-          isDisabled={loading}
-        />
+        <ReportExportMenu data={salesData} config={exportConfig} chartRef={chartRef} isDisabled={loading} />
       </div>
 
       <ReportFilter
@@ -202,15 +180,8 @@ export function SalesReportClient({
 
       <div className="mt-6" ref={chartRef}>
         <div className="p-4 bg-white rounded-lg shadow">
-          <h3 className="mb-2 text-sm font-medium text-gray-500">
-            {currentOutletName} • {filters.period} data • {filters.startDate} to{" "}
-            {filters.endDate}
-          </h3>
-          <SalesReportChart
-            data={salesData}
-            period={filters.period || "daily"}
-            isLoading={loading}
-          />
+          <h3 className="mb-2 text-sm font-medium text-gray-500">• {filters.period} data</h3>
+          <SalesReportChart data={salesData} period={filters.period || "daily"} isLoading={loading} />
         </div>
       </div>
     </div>

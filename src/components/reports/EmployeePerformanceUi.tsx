@@ -3,10 +3,7 @@
 import React, { RefObject } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import {
-  EmployeePerformanceData,
-  EmployeePerformanceParams,
-} from "@/types/reports";
+import { EmployeePerformanceData, EmployeePerformanceParams } from "@/types/reports";
 import { ReportFilter } from "./reportFilter";
 import { EmployeePerformanceTable } from "./employeePerformanceTable";
 import { TablePagination } from "../shared/usePagination";
@@ -66,8 +63,7 @@ export function EmployeePerformancePart2({
   // Get current outlet name
   const currentOutletName =
     outlets && filters.outletId
-      ? outlets.find((o) => o.id === filters.outletId)?.outletName ||
-        "All Outlets"
+      ? outlets.find((o) => o.id === filters.outletId)?.outletName || "All Outlets"
       : "All Outlets";
 
   const getExportData = () => {
@@ -102,15 +98,12 @@ export function EmployeePerformancePart2({
   };
 
   const exportConfig: ExportConfig = {
-    title: `Employee Performance - ${
-      activeTab === "workers" ? "Workers" : "Drivers"
-    }`,
+    title: `Employee Performance - ${activeTab === "workers" ? "Workers" : "Drivers"}`,
     startDate: filters.startDate,
     endDate: filters.endDate,
     additionalInfo: {
       Outlet: currentOutletName,
-      "Report Type":
-        activeTab === "workers" ? "Workers Performance" : "Drivers Performance",
+      "Report Type": activeTab === "workers" ? "Workers Performance" : "Drivers Performance",
       "Report Generated": new Date().toLocaleString(),
     },
     columnMapping:
@@ -152,16 +145,13 @@ export function EmployeePerformancePart2({
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Error</AlertTitle>
         <AlertDescription>
-          {reportError ||
-            outletsError ||
-            "An error occurred while loading the report."}
+          {reportError || outletsError || "An error occurred while loading the report."}
         </AlertDescription>
       </Alert>
     );
   }
 
-  const hasData =
-    performanceData.workers.length > 0 || performanceData.drivers.length > 0;
+  const hasData = performanceData.workers.length > 0 || performanceData.drivers.length > 0;
 
   return (
     <div className="space-y-4">

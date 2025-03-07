@@ -1,74 +1,295 @@
 import React, { useRef, useState, useEffect } from "react";
-import { Search, MapPin, Clock, ChevronDown } from "lucide-react";
+import {
+  Search,
+  Locate,
+  MapPin,
+  Clock,
+  ChevronDown,
+  AlertCircle,
+} from "lucide-react";
 import Link from "next/link";
 
+import { usePublicOutlets } from "@/hooks/api/outlets/usePublicOutlets";
+import { Outlet, OutletParams } from "@/types/outlet";
+import { useLocation } from "@/context/LocationContext";
+
 export default function LaundrySearchBar() {
-  const [outletLocations, setOutletLocations] = useState<string[]>([]);
+  const {
+    outlets,
+    loading: apiLoading,
+    error: apiError,
+    getPublicOutlets,
+  } = usePublicOutlets();
+  const {
+    location,
+    permissionStatus,
+    error: locationError,
+    isLoading: locationLoading,
+    requestLocation,
+    clearError,
+    calculateDistance,
+  } = useLocation();
+
   const [searchValues, setSearchValues] = useState({
     location: "",
     service_type: "",
   });
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
-  const [isLocationOpen, setIsLocationOpen] = useState(false);
-  const [isServiceOpen, setIsServiceOpen] = useState(false);
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const suggestionRef = useRef<HTMLDivElement | null>(null);
-  const serviceRef = useRef<HTMLDivElement | null>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [searchResults, setSearchResults] = useState<
+    (Outlet & { distance?: number })[]
+  >([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [outletLocations, setOutletLocations] = useState<string[]>([]);
+  const [searchType, setSearchType] = useState<"text" | "location">("text");
+  const [lastSearchParams, setLastSearchParams] = useState<OutletParams | null>(
+    null
+  );
 
-  const serviceOptions = [
-    { value: "", label: "Quick Service" },
-    { value: "express", label: "Express (2 hours)" },
-    { value: "same_day", label: "Same Day" },
-    { value: "next_day", label: "Next Day" },
-  ];
+  // Maximum distance in kilometers to show outlets
+  const MAX_DISTANCE_KM = 30;
 
-  useEffect(() => {
-    // Fetch nearby outlets dynamically (Simulated API Call)
-    setOutletLocations([
-      "Downtown",
-      "Central Park",
-      "East Side",
-      "Greenwood",
-      "Riverdale",
-    ]);
-  }, []);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      const target = event.target as Node;
+    // Close dropdown when clicking outside
+    const handleClickOutside = (event: MouseEvent) => {
       if (
-        suggestionRef.current &&
-        !suggestionRef.current.contains(target) &&
-        inputRef.current &&
-        !inputRef.current.contains(target)
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
       ) {
-        setIsLocationOpen(false);
+        setShowDropdown(false);
       }
-      if (serviceRef.current && !serviceRef.current.contains(target)) {
-        setIsServiceOpen(false);
-      }
-    }
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchValues({ ...searchValues, location: value });
+  // Initial fetch of outlets on component mount
+  useEffect(() => {
+    fetchInitialOutlets();
+  }, []);
 
-    if (value.trim()) {
-      const matches = outletLocations.filter((location) =>
-        location.toLowerCase().includes(value.toLowerCase())
-      );
-      setFilteredSuggestions(matches);
-      setIsLocationOpen(true);
-    } else {
-      setIsLocationOpen(false);
+  // Update search results with distance when location changes
+  useEffect(() => {
+    if (
+      location &&
+      searchType === "location" &&
+      outlets &&
+      outlets.length > 0
+    ) {
+      updateOutletsWithDistance(outlets, location.latitude, location.longitude);
+    }
+  }, [location, outlets, searchType]);
+
+  // Extract unique locations from outlets for search suggestions
+  useEffect(() => {
+    if (outlets && outlets.length > 0) {
+      // Extract unique location names from outlets
+      const locations = outlets
+        .map(
+          (outlet) =>
+            [
+              outlet.outletAddress.province,
+              outlet.outletAddress.regency,
+              outlet.outletAddress.district,
+            ].filter(Boolean)[0] || ""
+        )
+        .filter((location) => location.trim() !== "")
+        .filter((value, index, self) => self.indexOf(value) === index); // Get unique values
+
+      setOutletLocations(locations);
+    }
+  }, [outlets]);
+
+  // Filter suggestions based on search input
+  useEffect(() => {
+    if (searchValues.location.trim() === "") {
+      setFilteredSuggestions([]);
+      setShowDropdown(false);
+      return;
+    }
+
+    // Only show suggestions if we're not currently showing search results
+    if (searchResults.length > 0) {
+      return;
+    }
+
+    // Filter locations that match search term
+    const filtered = outletLocations.filter((location) =>
+      location.toLowerCase().includes(searchValues.location.toLowerCase())
+    );
+
+    setFilteredSuggestions(filtered);
+    setShowDropdown(filtered.length > 0);
+  }, [searchValues.location, outletLocations, searchResults.length]);
+
+  const fetchInitialOutlets = async () => {
+    try {
+      // Get initial outlet data
+      await getPublicOutlets({ limit: 100 });
+    } catch (error) {
+      console.error("Error fetching initial outlets:", error);
     }
   };
 
-  const handleSearch = () => {
-    console.log("Searching nearby outlets:", searchValues);
+  const updateOutletsWithDistance = (
+    outletData: Outlet[],
+    latitude: number,
+    longitude: number
+  ) => {
+    // Calculate distance for each outlet
+    const outletsWithDistance = outletData.map((outlet) => {
+      // Parse latitude and longitude values
+      const outletLat = parseFloat(outlet.outletAddress.latitude || "0");
+      const outletLng = parseFloat(outlet.outletAddress.longitude || "0");
+
+      // Skip distance calculation if outlet coordinates are not available
+      if (outletLat === 0 && outletLng === 0) {
+        return { ...outlet, distance: undefined };
+      }
+
+      // Calculate distance using the Haversine formula
+      const distance = calculateDistance(
+        latitude,
+        longitude,
+        outletLat,
+        outletLng
+      );
+
+      return { ...outlet, distance };
+    });
+
+    // Filter out outlets without valid coordinates and outside MAX_DISTANCE_KM
+    const nearbyOutlets = outletsWithDistance.filter(
+      (outlet) =>
+        outlet.distance !== undefined && outlet.distance <= MAX_DISTANCE_KM
+    );
+
+    // Sort by distance
+    const sortedOutlets = nearbyOutlets.sort(
+      (a, b) => (a.distance || Infinity) - (b.distance || Infinity)
+    );
+
+    setSearchResults(sortedOutlets);
+
+    // Update search input to reflect the number of nearby outlets found
+    setSearchValues({
+      ...searchValues,
+      location: `${sortedOutlets.length} outlets within ${MAX_DISTANCE_KM}km`,
+    });
+
+    // Show "no results" message in dropdown if no nearby outlets found
+    setShowDropdown(true);
+  };
+
+  const handleRequestLocation = async () => {
+    clearError(); // Clear any previous errors
+    setSearchType("location");
+
+    try {
+      setIsLoading(true);
+
+      // Request user's location
+      const userLocation = await requestLocation();
+
+      if (userLocation) {
+        // If we already have outlets, update distances
+        if (outlets && outlets.length > 0) {
+          updateOutletsWithDistance(
+            outlets,
+            userLocation.latitude,
+            userLocation.longitude
+          );
+        } else {
+          // Otherwise fetch outlets and then update distances
+          const params: OutletParams = { limit: 100 };
+          const response = await getPublicOutlets(params);
+
+          if (response && response.data) {
+            updateOutletsWithDistance(
+              response.data,
+              userLocation.latitude,
+              userLocation.longitude
+            );
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error using location:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSearch = async () => {
+    if (searchValues.location.trim() === "") return;
+
+    try {
+      setIsLoading(true);
+      setSearchType("text");
+
+      // Search parameters
+      const params: OutletParams = {
+        search: searchValues.location,
+        limit: 100, // Increased limit to get more potential nearby results
+      };
+
+      setLastSearchParams(params);
+
+      // Fetch outlets with search parameters
+      const response = await getPublicOutlets(params);
+
+      if (response && response.data) {
+        // If we have user location, add distance information and filter by distance
+        if (location) {
+          updateOutletsWithDistance(
+            response.data,
+            location.latitude,
+            location.longitude
+          );
+        } else {
+          // If no location data, show search results without distance filtering
+          setSearchResults(response.data);
+          setShowDropdown(true);
+        }
+      }
+    } catch (error) {
+      console.error("Error searching outlets:", error);
+      setSearchResults([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSuggestionSelect = (suggestion: string) => {
+    setSearchValues({ ...searchValues, location: suggestion });
+    setShowDropdown(false);
+
+    // Trigger search with the selected suggestion
+    setTimeout(() => {
+      handleSearch();
+    }, 100);
+  };
+
+  const handleOutletSelect = (outlet: Outlet) => {
+    // Navigate to outlet detail page or handle selection
+    console.log("Selected outlet:", outlet);
+    setShowDropdown(false);
+
+    // You can add navigation here, for example:
+    // router.push(`/outlets/${outlet.id}`);
+  };
+
+  // Format the full address from outlet address components
+  const getFormattedAddress = (outlet: Outlet): string => {
+    const { addressLine, village, district, regency, province } =
+      outlet.outletAddress;
+    return [addressLine, village, district, regency, province]
+      .filter((part) => part && part.trim() !== "")
+      .join(", ");
   };
 
   const [isScrolled, setIsScrolled] = useState(false);
@@ -86,21 +307,92 @@ export default function LaundrySearchBar() {
     <div
       className={`transition-all duration-300 ${
         isScrolled ? "max-w-4xl" : "max-w-6xl"
-      } mx-auto`}
+      } mx-auto relative`}
     >
       <div
         className={`flex items-center transition-all duration-500 ${
-          isScrolled ? "gap-6" : "flex-col gap-6"
+          isScrolled ? "gap-6" : "flex-col gap-2"
         }`}
       >
+        <div
+          className={`mx-auto p-4 flex items-center gap-4 bg-white rounded-full transition-all duration-1000 ${
+            isScrolled ? "shadow-none" : "shadow-md"
+          } w-full`}
+        >
+          <div className="relative flex-1">
+            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-blue-400">
+              <MapPin className="w-5 h-5" />
+            </div>
+            <input
+              ref={inputRef}
+              type="text"
+              value={searchValues.location}
+              onChange={(e) =>
+                setSearchValues({ ...searchValues, location: e.target.value })
+              }
+              placeholder="Find outlets nearby..."
+              className="w-full pl-12 pr-12 py-3 border rounded-full outline-none focus:ring-2 focus:ring-blue-300 transition-shadow"
+              onFocus={() => {
+                if (
+                  searchValues.location.trim() !== "" &&
+                  filteredSuggestions.length > 0
+                ) {
+                  setShowDropdown(true);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSearch();
+                }
+              }}
+            />
+            <button
+              onClick={handleRequestLocation}
+              disabled={locationLoading}
+              className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-full 
+                hover:bg-gray-100 focus:outline-none transition-colors
+                ${
+                  permissionStatus === "denied"
+                    ? "text-red-500"
+                    : "text-gray-500"
+                }
+              `}
+              title={
+                permissionStatus === "denied"
+                  ? "Location permission denied. Click to try again."
+                  : "Use my current location to find outlets within 30km"
+              }
+            >
+              <Locate
+                className={`w-5 h-5 ${
+                  locationLoading ? "animate-pulse text-blue-500" : ""
+                }`}
+              />
+            </button>
+          </div>
+          <div className="h-8 w-px bg-gray-300"></div>
+          <button
+            onClick={handleSearch}
+            disabled={isLoading || apiLoading}
+            className={`px-3 py-3 bg-orange-500 text-white rounded-full 
+    hover:bg-orange-600 transition-colors flex items-center gap-2
+    ${isLoading || apiLoading ? "opacity-70 " : ""}
+  `}
+          >
+            {isLoading || apiLoading || locationLoading ? (
+              <>
+                <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              </>
+            ) : (
+              <Search className="w-5 h-5" />
+            )}
+          </button>
+        </div>
         <nav className="space-x-6">
           <Link href="/" className="hover:text-orange-500">
             Home
           </Link>
-          <Link href="/services" className="hover:text-orange-500">
-            Teams
-          </Link>
-          <Link href="/locations" className="hover:text-orange-500">
+          <Link href="/outlets" className="hover:text-orange-500">
             Outlets
           </Link>
           <Link href="/about" className="hover:text-orange-500">
@@ -110,98 +402,102 @@ export default function LaundrySearchBar() {
             Contact
           </Link>
         </nav>
-        <div
-          className={`mx-auto p-4 flex items-center gap-4 transition-all duration-1000 ${
-            isScrolled ? "bg-transparent" : "bg-white shadow-md rounded-full"
-          }`}
-        >
-          {/* Location Search with Icon */}
-          <div className="relative flex-1">
-            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-blue-400">
-              <MapPin className="w-5 h-5" />
-            </div>
-            <input
-              ref={inputRef}
-              type="text"
-              value={searchValues.location}
-              onChange={handleLocationChange}
-              placeholder="Find outlets nearby..."
-              className="w-full pl-12 pr-4 py-3 border rounded-full outline-none focus:ring-2 focus:ring-blue-300 transition-shadow"
-              onFocus={() => setIsLocationOpen(true)}
-            />
-            {isLocationOpen && filteredSuggestions.length > 0 && (
-              <div
-                ref={suggestionRef}
-                className="absolute z-10 w-full bg-white border border-gray-200 shadow-lg rounded-md mt-1 max-h-40 overflow-y-auto"
-              >
-                {filteredSuggestions.map((suggestion, idx) => (
-                  <div
-                    key={idx}
-                    className="p-3 hover:bg-blue-50 cursor-pointer"
-                    onClick={() => {
-                      setSearchValues({
-                        ...searchValues,
-                        location: suggestion,
-                      });
-                      setIsLocationOpen(false);
-                    }}
-                  >
-                    {suggestion}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="h-8 w-px bg-gray-300"></div>
-
-          {/* Custom Service Type Dropdown */}
-          <div className="relative" ref={serviceRef}>
-            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-blue-400">
-              <Clock className="w-5 h-5" />
-            </div>
-            <button
-              className="w-48 pl-12 pr-4 py-3 border rounded-full outline-none focus:ring-2 focus:ring-blue-300 bg-transparent text-left flex items-center justify-between"
-              onClick={() => setIsServiceOpen(!isServiceOpen)}
-            >
-              <span>
-                {serviceOptions.find(
-                  (opt) => opt.value === searchValues.service_type
-                )?.label || "Quick Service"}
-              </span>
-              <ChevronDown className="w-4 h-4" />
-            </button>
-
-            {isServiceOpen && (
-              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 shadow-lg rounded-md overflow-hidden">
-                {serviceOptions.map((option) => (
-                  <div
-                    key={option.value}
-                    className="px-4 py-2 hover:bg-blue-300 hover:text-white cursor-pointer transition-colors"
-                    onClick={() => {
-                      setSearchValues({
-                        ...searchValues,
-                        service_type: option.value,
-                      });
-                      setIsServiceOpen(false);
-                    }}
-                  >
-                    {option.label}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Search Button */}
-          <button
-            onClick={handleSearch}
-            className="px-3 py-3 bg-birtu text-white rounded-full hover:bg-orange-400 transition-colors flex items-center gap-2"
-          >
-            <Search className="w-5 h-5" />
-          </button>
-        </div>
       </div>
+
+      {/* Dropdown for search suggestions and results */}
+      {showDropdown && (
+        <div
+          ref={dropdownRef}
+          className="absolute mt-2 w-full max-w-2xl bg-white rounded-lg shadow-lg z-10 overflow-hidden left-1/2 transform -translate-x-1/2"
+        >
+          {isLoading || apiLoading || locationLoading ? (
+            <div className="p-4 text-center">
+              <div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+              <p className="mt-2 text-gray-600">
+                {searchType === "location"
+                  ? "Finding outlets nearby..."
+                  : "Searching outlets..."}
+              </p>
+            </div>
+          ) : filteredSuggestions.length > 0 && searchResults.length === 0 ? (
+            <div className="p-2">
+              <h3 className="text-xs text-gray-500 px-3 py-1">Suggestions</h3>
+              <ul>
+                {filteredSuggestions.map((suggestion, index) => (
+                  <li key={index}>
+                    <button
+                      onClick={() => handleSuggestionSelect(suggestion)}
+                      className="w-full text-left px-3 py-2 hover:bg-gray-100 transition-colors flex items-center gap-2"
+                    >
+                      <MapPin className="w-4 h-4 text-gray-400" />
+                      {suggestion}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : searchResults.length > 0 ? (
+            <div className="p-2">
+              <h3 className="text-xs text-gray-500 px-3 py-1">
+                {searchType === "location"
+                  ? `Outlets Within ${MAX_DISTANCE_KM}km`
+                  : "Outlets Found"}
+                {searchResults.length > 0 && (
+                  <span className="ml-1">({searchResults.length})</span>
+                )}
+              </h3>
+              <ul className="divide-y divide-gray-100">
+                {searchResults.map((outlet, index) => (
+                  <li key={outlet.id || index}>
+                    <button
+                      onClick={() => handleOutletSelect(outlet)}
+                      className="w-full text-left px-3 py-2 hover:bg-gray-100 transition-colors"
+                    >
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium">{outlet.outletName}</span>
+                        {outlet.distance !== undefined && (
+                          <span className="text-sm text-gray-500">
+                            {outlet.distance < 1
+                              ? `${(outlet.distance * 1000).toFixed(0)} m`
+                              : `${outlet.distance.toFixed(1)} km`}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-sm text-gray-600 truncate">
+                        {getFormattedAddress(outlet)}
+                      </div>
+                      {/* Operating hours UI - placeholder since your Outlet type doesn't have this */}
+                      <div className="flex items-center text-sm text-gray-500 mt-1">
+                        <Clock className="w-3 h-3 mr-1" />
+                        24 Hours {/* Default hours */}
+                      </div>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : locationError || apiError ? (
+            <div className="p-4 flex flex-col items-center text-center">
+              <AlertCircle className="w-6 h-6 text-red-500 mb-2" />
+              <p className="text-red-500 font-medium">
+                {locationError || apiError}
+              </p>
+              {permissionStatus === "denied" && (
+                <p className="text-sm text-gray-600 mt-2">
+                  Please enable location services in your browser settings to
+                  use this feature.
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="p-4 text-center text-gray-500">
+              {searchType === "location"
+                ? "No outlets found within 30km of your location"
+                : "No results found"}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

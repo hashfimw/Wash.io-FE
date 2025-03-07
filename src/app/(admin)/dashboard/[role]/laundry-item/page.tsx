@@ -36,7 +36,6 @@ export default function LaundryItemPage() {
     createLaundryItem,
     updateLaundryItem,
     deleteLaundryItem,
-    loading,
     error,
   } = useLaundryItems();
 

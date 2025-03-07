@@ -12,10 +12,7 @@ export const exportToExcel = (data: ExportData, config: ExportConfig) => {
 
     if (config.period) headerRows.push(["Period", config.period]);
     if (config.startDate && config.endDate)
-      headerRows.push([
-        "Date Range",
-        `${config.startDate} to ${config.endDate}`,
-      ]);
+      headerRows.push(["Date Range", `${config.startDate} to ${config.endDate}`]);
 
     // Add any additional info
     if (config.additionalInfo) {
@@ -44,9 +41,7 @@ export const exportToExcel = (data: ExportData, config: ExportConfig) => {
     XLSX.utils.book_append_sheet(wb, ws, config.title);
     XLSX.writeFile(
       wb,
-      `${config.title.toLowerCase().replace(/\s+/g, "_")}_${
-        new Date().toISOString().split("T")[0]
-      }.xlsx`
+      `${config.title.toLowerCase().replace(/\s+/g, "_")}_${new Date().toISOString().split("T")[0]}.xlsx`
     );
 
     toast({

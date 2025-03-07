@@ -2,21 +2,12 @@
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { toast } from "@/components/ui/use-toast";
-import {
-  ExportData,
-  ExportConfig,
-  prepareDataRows,
-  truncateText,
-} from "./types";
+import { ExportData, ExportConfig, prepareDataRows, truncateText } from "./types";
 
 /**
  * Exports chart and data to PDF format
  */
-export const exportToPDF = async (
-  chartElement: HTMLElement,
-  data: ExportData,
-  config: ExportConfig
-) => {
+export const exportToPDF = async (chartElement: HTMLElement, data: ExportData, config: ExportConfig) => {
   if (!chartElement) {
     toast({
       variant: "destructive",
@@ -57,11 +48,7 @@ export const exportToPDF = async (
       }
 
       if (config.startDate && config.endDate) {
-        pdf.text(
-          `Date Range: ${config.startDate} to ${config.endDate}`,
-          20,
-          yPos
-        );
+        pdf.text(`Date Range: ${config.startDate} to ${config.endDate}`, 20, yPos);
         yPos += 5;
       }
 
@@ -109,10 +96,7 @@ export const exportToPDF = async (
 
     if (config.columnWidths) {
       // Calculate total ratio sum
-      const totalRatio = Object.values(config.columnWidths).reduce(
-        (sum, ratio) => sum + ratio,
-        0
-      );
+      const totalRatio = Object.values(config.columnWidths).reduce((sum, ratio) => sum + ratio, 0);
 
       // Calculate each column width based on its ratio
       colWidths = columnKeys.map((key) => {
@@ -167,10 +151,7 @@ export const exportToPDF = async (
       // Draw row values
       xPosition = margins;
       rowValues.forEach((cellValue, cellIndex) => {
-        const displayValue = truncateText(
-          cellValue.toString(),
-          Math.floor(colWidths[cellIndex] / 2)
-        );
+        const displayValue = truncateText(cellValue.toString(), Math.floor(colWidths[cellIndex] / 2));
         pdf.text(displayValue, xPosition, yPosition);
         xPosition += colWidths[cellIndex];
       });
@@ -182,18 +163,12 @@ export const exportToPDF = async (
     // Add note about data truncation if needed
     if (dataEntries.length > maxRowsPerPage) {
       pdf.setFontSize(8);
-      pdf.text(
-        `Showing all ${dataEntries.length} entries across pages`,
-        20,
-        285
-      );
+      pdf.text(`Showing all ${dataEntries.length} entries across pages`, 20, 285);
     }
 
     // Save the PDF file
     pdf.save(
-      `${config.title.toLowerCase().replace(/\s+/g, "_")}_${
-        new Date().toISOString().split("T")[0]
-      }.pdf`
+      `${config.title.toLowerCase().replace(/\s+/g, "_")}_${new Date().toISOString().split("T")[0]}.pdf`
     );
 
     toast({

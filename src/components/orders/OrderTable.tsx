@@ -1,5 +1,5 @@
 // src/components/orders/OrderTable.tsx
-import { useState, useEffect } from "react";
+import { useCallback } from "react";
 import {
   Table,
   TableBody,
@@ -10,10 +10,9 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye, ChevronRight, ChevronLeft } from "lucide-react";
+import { Eye } from "lucide-react";
 import { Order, OrderStatus } from "@/types/order";
 import { TableSkeleton } from "../ui/table-skeleton";
-import { OrderFilters } from "./OrderFilters";
 import { TablePagination } from "../shared/usePagination";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
@@ -41,12 +40,22 @@ export function OrderTable({
   totalPages,
   onPageChange,
 }: OrderTableProps) {
+  // Optimasi dengan useCallback
+  const handleTrack = useCallback(
+    (orderId: number) => {
+      onTrackOrder(orderId);
+    },
+    [onTrackOrder]
+  );
+
+  // Tampilkan skeleton saat loading
   if (loading) return <TableSkeleton columns={7} rows={5} />;
+
+  // Tampilkan error jika ada
   if (error) return <div className="text-red-500 p-4">{error}</div>;
 
   return (
     <div className="space-y-4">
-      {/* Mobile swipe indicator - only shown on mobile */}
       {/* Table container with horizontal scroll on mobile */}
       <div className="rounded-md border overflow-x-auto">
         <SwipeIndicator className="md:hidden" />
@@ -89,7 +98,7 @@ export function OrderTable({
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => onTrackOrder(order.id)}
+                      onClick={() => handleTrack(order.id)}
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
@@ -111,6 +120,7 @@ export function OrderTable({
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={onPageChange}
+          disabled={loading}
         />
       </div>
     </div>

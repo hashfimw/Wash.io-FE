@@ -11,12 +11,14 @@ interface TablePaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  disabled?: boolean;
 }
 
 export function TablePagination({
   currentPage,
   totalPages,
   onPageChange,
+  disabled = false,
 }: TablePaginationProps) {
   return (
     <Pagination>

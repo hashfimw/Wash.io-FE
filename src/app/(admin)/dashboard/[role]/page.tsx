@@ -1,290 +1,330 @@
-"use client";
-
-import { useBreadcrumb } from "@/context/BreadcrumbContext";
-import { useEffect, useState } from "react";
+// File: app/dashboard/[role]/page.tsx
+import { Metadata } from "next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Store, Users, Shirt, Waves, Calendar, BarChart } from "lucide-react";
+import { Waves } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useOutlets } from "@/hooks/api/outlets/useOutlets";
-import { usePendingOrders } from "@/hooks/api/orders/usePendingOrders";
-import { useOrders } from "@/hooks/api/orders/useOrders";
-import { useAdminAuth } from "@/hooks/api/auth/useAdminAuth";
 import Link from "next/link";
-import { useUsers } from "@/hooks/api/users/getUser";
-import { Role } from "@/types/employee";
-import { useRouter } from "next/navigation";
 
-export default function Dashboard() {
-  const { setBreadcrumbItems } = useBreadcrumb();
-  const { getOutlets } = useOutlets();
-  const { getUsers } = useUsers();
-  const { getPendingOrders } = usePendingOrders();
-  const { getAllOrders } = useOrders();
-  const { user } = useAdminAuth();
-  const router = useRouter();
-  // State variables
-  const [outletsCount, setOutletsCount] = useState<number>(0);
-  const [customersCount, setCustomersCount] = useState<number>(0);
-  const [pendingOrdersCount, setPendingOrdersCount] = useState<number>(0);
-  const [todayOrdersCount, setTodayOrdersCount] = useState<number>(0);
-  const [newOutletsThisMonth, setNewOutletsThisMonth] = useState<number>(0);
-  const [newCustomersThisMonth, setNewCustomersThisMonth] = useState<number>(0);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+import { cookies } from "next/headers";
+import DashboardWrapper from "@/components/admin/OverviewWrapper";
 
-  // Determine user role and routing info
-  const isSuperAdmin = user?.role === Role.SUPER_ADMIN;
-  const userRoleForPath = isSuperAdmin ? "super-admin" : "outlet-admin";
+// Metadata untuk halaman
+export const metadata: Metadata = {
+  title: "Dashboard - Wash.io Laundry",
+  description: "Your all-in-one laundry management solution",
+};
 
-  useEffect(() => {
-    if (user) {
-      // Set breadcrumb
-      setBreadcrumbItems([
-        {
-          label: isSuperAdmin ? "Super Admin" : "Outlet Admin",
-          href: `/${userRoleForPath}/dashboard`,
-        },
-        { label: "Dashboard" },
-      ]);
+// Helper function untuk mendapatkan auth token dari cookies
+function getAuthToken() {
+  const cookieStore = cookies();
+  let token = cookieStore.get("token")?.value;
+  return token;
+}
 
-      fetchDashboardData();
+// Service functions untuk mengambil data langsung dari API
+async function getOutlets() {
+  const token = getAuthToken();
+
+  if (!token) {
+    console.error("No auth token available for API request");
+    return { data: [] };
+  }
+
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/adm-outlets`, {
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      console.error(`Failed to fetch outlets: ${res.status} ${res.statusText}`, errorData);
+      return { data: [] };
     }
-  }, [user, setBreadcrumbItems, isSuperAdmin, userRoleForPath]);
 
-  const fetchDashboardData = async () => {
+    return res.json();
+  } catch (error) {
+    console.error("Error fetching outlets:", error);
+    return { data: [] };
+  }
+}
+
+async function getUsers() {
+  const token = getAuthToken();
+
+  if (!token) {
+    console.error("No auth token available for API request");
+    return { users: [], totalCustomers: 0 };
+  }
+
+  try {
+    // Get the first page to get pagination info
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      console.error(`Failed to fetch users: ${res.status} ${res.statusText}`, errorData);
+      return { users: [], totalCustomers: 0 };
+    }
+
+    const data = await res.json();
+
+    // Hitung total customer dari informasi pagination yang tersedia
+    // totalCustomers = total_page * limit
+    const totalCustomers = data.total_page * data.limit;
+
+    // Tambahkan ke data yang sudah ada
+    return { ...data, totalCustomers };
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return { users: [], totalCustomers: 0 };
+  }
+}
+
+// Fungsi khusus untuk menghitung customer baru bulan ini
+async function getNewCustomersThisMonth() {
+  const token = getAuthToken();
+
+  if (!token) {
+    console.error("No auth token available for API request");
+    return 0;
+  }
+
+  try {
+    // Tentukan tanggal awal bulan ini
+    const firstDayOfMonth = new Date();
+    firstDayOfMonth.setDate(1);
+    firstDayOfMonth.setHours(0, 0, 0, 0);
+
+    // Parameter untuk mengambil data sebanyak mungkin (limit tinggi)
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users?limit=1000`, {
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      console.error(`Failed to fetch users for monthly count`);
+      return 0;
+    }
+
+    const data = await res.json();
+
+    // Filter users yang dibuat bulan ini
+    const newCustomers = data.users.filter((user: any) => new Date(user.createdAt) >= firstDayOfMonth);
+
+    return newCustomers.length;
+  } catch (error) {
+    console.error("Error counting new customers this month:", error);
+    return 0;
+  }
+}
+
+async function getPendingOrders() {
+  const allOrdersResponse = await getAllOrders();
+
+  try {
+    const allOrders = extractOrdersArray(allOrdersResponse);
+
+    const pendingOrders = allOrders.filter((order) => order.orderStatus === "ARRIVED_AT_OUTLET");
+
+    return pendingOrders;
+  } catch (error) {
+    console.error("Error processing pending orders:", error);
+    return [];
+  }
+}
+
+async function getAllOrders() {
+  const token = getAuthToken();
+
+  if (!token) {
+    console.error("No auth token available for API request");
+    return { data: [] };
+  }
+
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/show-order`, {
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      console.error(errorData);
+      return { data: [] };
+    }
+
+    return res.json();
+  } catch (error) {
+    console.error("Error fetching all orders:", error);
+    return { data: [] };
+  }
+}
+
+// Helper function untuk menghitung item baru bulan ini
+function getItemsCreatedThisMonth(items: any[]) {
+  const firstDayOfMonth = new Date();
+  firstDayOfMonth.setDate(1);
+  firstDayOfMonth.setHours(0, 0, 0, 0);
+
+  return items.filter((item) => new Date(item.createdAt) >= firstDayOfMonth).length;
+}
+
+// Helper function untuk menghitung order hari ini
+function getOrdersCreatedToday(orders: any[]) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return orders.filter((order) => {
+    if (!order?.createdAt) return false;
     try {
-      setIsLoading(true);
+      const orderDate = new Date(order.createdAt);
+      const orderDay = orderDate.getDate();
+      const orderMonth = orderDate.getMonth();
+      const orderYear = orderDate.getFullYear();
 
-      // Fetch outlets
-      const outletsResponse = await getOutlets();
-      setOutletsCount(outletsResponse.data.length);
+      const todayDay = today.getDate();
+      const todayMonth = today.getMonth();
+      const todayYear = today.getFullYear();
 
-      // Calculate new outlets this month
-      const firstDayOfMonth = new Date();
-      firstDayOfMonth.setDate(1);
-      firstDayOfMonth.setHours(0, 0, 0, 0);
-
-      const newOutlets = outletsResponse.data.filter(
-        (outlet) => new Date(outlet.createdAt) >= firstDayOfMonth
-      ).length;
-      setNewOutletsThisMonth(newOutlets);
-
-      // Fetch customers (users with CUSTOMER role)
-      const customersResponse = await getUsers();
-      setCustomersCount(customersResponse.users.length);
-
-      // Calculate new customers this month
-      const newCustomers = customersResponse.users.filter(
-        (user) => new Date(user.createdAt) >= firstDayOfMonth
-      ).length;
-      setNewCustomersThisMonth(newCustomers);
-
-      // Fetch pending orders
-      const pendingOrders = await getPendingOrders();
-      if (Array.isArray(pendingOrders)) {
-        setPendingOrdersCount(pendingOrders.length);
-      } else {
-        console.error("Unexpected pendingOrders type:", pendingOrders);
-      }
-
-      // Fetch today's orders
-      const ordersResponse = await getAllOrders();
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      // Debug the orders response structure
-      console.log(
-        "Orders response structure:",
-        JSON.stringify(ordersResponse).slice(0, 200) + "..."
-      );
-
-      // More flexible approach to accessing order data
-      let allOrders: any[] = [];
-      if (ordersResponse?.data?.data?.data) {
-        // Handle nested data.data.data structure
-        allOrders = ordersResponse.data.data.data;
-      } else if (ordersResponse?.data?.data) {
-        // Handle nested data.data structure
-        allOrders = Array.isArray(ordersResponse.data.data)
-          ? ordersResponse.data.data
-          : [];
-      } else if (Array.isArray(ordersResponse?.data)) {
-        // Handle direct data array
-        allOrders = ordersResponse.data;
-      }
-
-      console.log(`Found ${allOrders.length} total orders`);
-
-      const todayOrders = allOrders.filter((order) => {
-        if (!order?.createdAt) return false;
-        try {
-          const orderDate = new Date(order.createdAt);
-          const orderDay = orderDate.getDate();
-          const orderMonth = orderDate.getMonth();
-          const orderYear = orderDate.getFullYear();
-
-          const todayDay = today.getDate();
-          const todayMonth = today.getMonth();
-          const todayYear = today.getFullYear();
-
-          return (
-            orderDay === todayDay &&
-            orderMonth === todayMonth &&
-            orderYear === todayYear
-          );
-        } catch (e) {
-          console.error("Error parsing date:", e);
-          return false;
-        }
-      });
-
-      console.log(`Found ${todayOrders.length} orders for today`);
-      setTodayOrdersCount(todayOrders.length);
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error);
-    } finally {
-      setIsLoading(false);
+      return orderDay === todayDay && orderMonth === todayMonth && orderYear === todayYear;
+    } catch (e) {
+      console.error("Error parsing date:", e);
+      return false;
     }
-  };
+  });
+}
 
-  return (
-    <div className="space-y-6 p-4 sm:p-6">
-      {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-birtu to-birmud rounded-lg p-6 text-oren shadow-lg">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold mb-2 text-putih">
-              Welcome to Wash.io Laundry
-            </h1>
-            <p className="text-lg text-putbir opacity-90">
-              Your all-in-one laundry management solution
-            </p>
+// Untuk fleksibilitas dalam ekstraksi bentuk data
+function extractOrdersArray(ordersResponse: any): any[] {
+  if (ordersResponse?.data?.data?.data) {
+    return ordersResponse.data.data.data;
+  } else if (ordersResponse?.data?.data) {
+    return Array.isArray(ordersResponse.data.data) ? ordersResponse.data.data : [];
+  } else if (Array.isArray(ordersResponse?.data)) {
+    return ordersResponse.data;
+  }
+  return [];
+}
+
+// Komponen Dashboard utama
+export default async function Dashboard({ params }: { params?: { role?: string } }) {
+  try {
+    // Get auth token for debugging
+    const token = getAuthToken();
+
+    // Jika tidak ada token, tampilkan pesan login
+    if (!token) {
+      return (
+        <div className="space-y-6 p-4 sm:p-6">
+          <div className="bg-gradient-to-r from-birtu to-birmud rounded-lg p-6 text-oren shadow-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold mb-2 text-putih">Welcome to Wash.io Laundry</h1>
+                <p className="text-lg text-putbir opacity-90">Your all-in-one laundry management solution</p>
+              </div>
+              <Waves className="h-16 w-16 text-birtu" />
+            </div>
           </div>
-          <Waves className="h-16 w-16 text-birtu" />
+
+          <Card>
+            <CardContent className="p-6">
+              <p className="text-center py-4">Please login to view your dashboard</p>
+              <div className="flex justify-center">
+                <Link href="/login-admin">
+                  <Button>Login</Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-      </div>
+      );
+    }
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              {isSuperAdmin ? "Active Outlets" : "Your Outlet"}
-            </CardTitle>
-            <Store className="h-6 w-6 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="h-6 bg-gray-200 animate-pulse rounded"></div>
-            ) : (
-              <>
-                <div className="text-2xl font-bold">{outletsCount}</div>
-                {isSuperAdmin && (
-                  <p className="text-xs text-green-600">
-                    +{newOutletsThisMonth} this month
-                  </p>
-                )}
-              </>
-            )}
-          </CardContent>
-        </Card>
+    // Mengambil semua data dari API secara paralel
+    const [
+      outletsResponse,
+      customersResponse,
+      pendingOrders,
+      ordersResponse,
+      newCustomersCount, // Tambahkan perhitungan customer baru
+    ] = await Promise.all([
+      getOutlets(),
+      getUsers(),
+      getPendingOrders(),
+      getAllOrders(),
+      getNewCustomersThisMonth(), // Gunakan fungsi baru untuk menghitung customer baru
+    ]);
 
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Total Customers
-            </CardTitle>
-            <Users className="h-6 w-6 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="h-6 bg-gray-200 animate-pulse rounded"></div>
-            ) : (
-              <>
-                <div className="text-2xl font-bold">{customersCount}</div>
-                <p className="text-xs text-green-600">
-                  +{newCustomersThisMonth} new customers
-                </p>
-              </>
-            )}
-          </CardContent>
-        </Card>
+    // Memproses data
+    const outletsData = outletsResponse?.data || [];
+    const outletsCount = outletsData.length;
+    const newOutletsThisMonth = getItemsCreatedThisMonth(outletsData);
 
-        <Card
-          className="hover:shadow-md transition-shadow cursor-pointer"
-          onClick={() =>
-            router.push(`/dashboard/${userRoleForPath}/orders/process`)
-          }
-        >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Pending Orders
-            </CardTitle>
-            <Shirt className="h-6 w-6 text-orange-500" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="h-6 bg-gray-200 animate-pulse rounded"></div>
-            ) : (
-              <>
-                <div className="text-2xl font-bold">{pendingOrdersCount}</div>
-                {pendingOrdersCount > 0 && (
-                  <p className="text-xs text-yellow-600">Requires attention</p>
-                )}
-              </>
-            )}
-          </CardContent>
-        </Card>
+    const customersData = customersResponse?.users || [];
+    // Gunakan totalCustomers jika tersedia, jika tidak gunakan panjang array
+    const customersCount = customersResponse?.totalCustomers || customersData.length;
+    // Gunakan hasil perhitungan dari fungsi khusus
+    const newCustomersThisMonth = newCustomersCount;
 
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Today's Orders
-            </CardTitle>
-            <Calendar className="h-6 w-6 text-purple-500" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="h-6 bg-gray-200 animate-pulse rounded"></div>
-            ) : (
-              <>
-                <div className="text-2xl font-bold">{todayOrdersCount}</div>
-                <p className="text-xs text-gray-600">Scheduled today</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+    const pendingOrdersCount = Array.isArray(pendingOrders) ? pendingOrders.length : 0;
 
-      {/* Quick Actions */}
-      <div className="mt-6">
+    const allOrders = extractOrdersArray(ordersResponse);
+    const todayOrders = getOrdersCreatedToday(allOrders);
+    const todayOrdersCount = todayOrders.length;
+
+    // Mengambil role dari params atau default ke super-admin
+    const userRoleForPath = params?.role || "super-admin";
+
+    // Mengumpulkan data untuk diteruskan ke client component
+    const initialData = {
+      outletsCount,
+      newOutletsThisMonth,
+      customersCount,
+      newCustomersThisMonth,
+      pendingOrdersCount,
+      todayOrdersCount,
+    };
+
+    // Render dashboard wrapper yang bisa di-refresh
+    return <DashboardWrapper initialData={initialData} userRoleForPath={userRoleForPath} />;
+  } catch (error) {
+    console.error("Error in Dashboard component:", error);
+
+    // Fallback UI jika terjadi error
+    return (
+      <div className="space-y-6 p-4 sm:p-6">
+        <div className="bg-gradient-to-r from-birtu to-birmud rounded-lg p-6 text-oren shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold mb-2 text-putih">Welcome to Wash.io Laundry</h1>
+              <p className="text-lg text-putbir opacity-90">Your all-in-one laundry management solution</p>
+            </div>
+            <Waves className="h-16 w-16 text-birtu" />
+          </div>
+        </div>
+
         <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-4">
-            <Link href={`/dashboard/${userRoleForPath}/orders`}>
-              <Button variant="outline">
-                <Shirt className="mr-2 h-4 w-4" /> Orders List
-              </Button>
-            </Link>
-            <Link href={`/dashboard/${userRoleForPath}/outlets`}>
-              <Button variant="outline">
-                <Store className="mr-2 h-4 w-4" /> Manage Outlets
-              </Button>
-            </Link>
-            <Link href={`/dashboard/${userRoleForPath}/employees`}>
-              <Button variant="outline">
-                <Users className="mr-2 h-4 w-4" /> Employee Management
-              </Button>
-            </Link>
-            <Link href={`/dashboard/${userRoleForPath}/reports/sales`}>
-              <Button variant="outline">
-                <BarChart className="mr-2 h-4 w-4" /> Sales Reports
-              </Button>
-            </Link>
+          <CardContent className="p-6">
+            <p>Dashboard data is currently unavailable. Please try again later.</p>
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    );
+  }
 }

@@ -6,10 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useReports } from "@/hooks/api/reports/useReports";
 import { useOutlets } from "@/hooks/api/outlets/useOutlets";
 import { useBreadcrumb } from "@/context/BreadcrumbContext";
-import {
-  EmployeePerformanceData,
-  EmployeePerformanceParams,
-} from "@/types/reports";
+import { EmployeePerformanceData, EmployeePerformanceParams } from "@/types/reports";
 import { EmployeePerformancePart2 } from "./EmployeePerformanceUi";
 
 interface EmployeePerformanceClientProps {
@@ -33,17 +30,11 @@ export function EmployeePerformanceClient({
   const tableRef = useRef<HTMLDivElement>(null);
   const userRole = role === "super-admin" ? "SUPER_ADMIN" : "OUTLET_ADMIN";
   const { getEmployeePerformance, loading, error: reportError } = useReports();
-  const {
-    getOutlets,
-    outlets,
-    loading: outletsLoading,
-    error: outletsError,
-  } = useOutlets();
-  const [performanceData, setPerformanceData] =
-    useState<EmployeePerformanceData>({
-      workers: [],
-      drivers: [],
-    });
+  const { getOutlets, outlets, loading: outletsLoading, error: outletsError } = useOutlets();
+  const [performanceData, setPerformanceData] = useState<EmployeePerformanceData>({
+    workers: [],
+    drivers: [],
+  });
   const [workerCurrentPage, setWorkerCurrentPage] = useState(1);
   const [workerTotalPages, setWorkerTotalPages] = useState(1);
   const [driverCurrentPage, setDriverCurrentPage] = useState(1);
@@ -52,10 +43,7 @@ export function EmployeePerformanceClient({
   const [filters, setFilters] = useState<EmployeePerformanceParams>({
     startDate: initialStartDate,
     endDate: initialEndDate,
-    outletId:
-      userRole === "OUTLET_ADMIN" && userOutletId
-        ? Number(userOutletId)
-        : initialOutletId,
+    outletId: userRole === "OUTLET_ADMIN" && userOutletId ? Number(userOutletId) : initialOutletId,
     page: 1,
     limit: 10,
   });
@@ -103,9 +91,7 @@ export function EmployeePerformanceClient({
           }
         } else {
           const endDate = new Date().toISOString().split("T")[0];
-          const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-            .toISOString()
-            .split("T")[0];
+          const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
 
           // Update filter and URL
           const newFilters = {
@@ -128,8 +114,7 @@ export function EmployeePerformanceClient({
         toast({
           variant: "destructive",
           title: "Error",
-          description:
-            "Failed to load employee performance report. Please try again.",
+          description: "Failed to load employee performance report. Please try again.",
         });
       }
     };

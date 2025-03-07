@@ -1,44 +1,81 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { OrderTable } from "@/components/orders/OrderTable";
+import { useEffect, useState, useCallback } from "react";
+
 import { OrderFilters } from "@/components/orders/OrderFilters";
 import { useOrders } from "@/hooks/api/orders/useOrders";
-import { useOutlets } from "@/hooks/api/outlets/useOutlets";
 import { Order, OrderStatus, OrderTrackingResponse } from "@/types/order";
 import { useBreadcrumb } from "@/context/BreadcrumbContext";
 import { OrderTrackingDialog } from "@/components/orders/order-tracking/OrderTrackigDialog";
-import { useParams } from "next/navigation";
+import { useParams, useRouter, usePathname, useSearchParams } from "next/navigation";
 import { endOfDay, startOfDay } from "date-fns";
+import { OrderTable } from "@/components/orders/OrderTable";
 
 export default function OrdersPage() {
   const params = useParams();
   const role = params.role as string;
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   // State for pagination
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(() => Number(searchParams.get("page")) || 1);
   const [totalPages, setTotalPages] = useState(0);
 
   // State for filters
   const [orders, setOrders] = useState<Order[]>([]);
-  const [selectedOutletId, setSelectedOutletId] = useState<number | null>(null);
-  const [selectedStatus, setSelectedStatus] = useState<OrderStatus | "">("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [trackingData, setTrackingData] =
-    useState<OrderTrackingResponse | null>(null);
+  const [selectedOutletId, setSelectedOutletId] = useState<number | null>(() =>
+    searchParams.get("outletId") ? Number(searchParams.get("outletId")) : null
+  );
+  const [selectedStatus, setSelectedStatus] = useState<OrderStatus | "">(
+    () => (searchParams.get("status") as OrderStatus | "") || ""
+  );
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get("search") || "");
+  const [trackingData, setTrackingData] = useState<OrderTrackingResponse | null>(null);
   const [isTrackingOpen, setIsTrackingOpen] = useState(false);
   const [dateRange, setDateRange] = useState<{
     startDate: Date;
     endDate: Date;
-  } | null>(null);
+  } | null>(() => {
+    const startDate = searchParams.get("startDate");
+    const endDate = searchParams.get("endDate");
 
-  const { getAllOrders, trackOrder, loading, error } = useOrders();
-  const { outlets, getOutlets } = useOutlets();
+    if (startDate && endDate) {
+      return {
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+      };
+    }
+
+    return null;
+  });
+  const [localLoading, setLocalLoading] = useState(true);
+  const { getAllOrders, trackOrder, loading: apiLoading_, error } = useOrders();
   const { setBreadcrumbItems } = useBreadcrumb();
+
+  // Update URL with filters
+  const updateUrl = useCallback(
+    (newParams: Record<string, string | null>) => {
+      const params = new URLSearchParams(searchParams.toString());
+
+      // Update params
+      Object.entries(newParams).forEach(([key, value]) => {
+        if (value === null || value === "") {
+          params.delete(key);
+        } else {
+          params.set(key, value);
+        }
+      });
+
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [pathname, router, searchParams]
+  );
 
   // Fetch orders when filters or page changes
   useEffect(() => {
     const fetchOrders = async () => {
+      setLocalLoading(true);
       try {
         const requestParams: any = {
           outletId: selectedOutletId || undefined,
@@ -52,12 +89,9 @@ export default function OrdersPage() {
         // Menambahkan tanggal awal dan akhir jika ada dateRange
         if (dateRange) {
           // Menggunakan startOfDay dan endOfDay untuk memastikan rentang penuh hari dipilih
-          requestParams.startDate = startOfDay(
-            dateRange.startDate
-          ).toISOString();
+          requestParams.startDate = startOfDay(dateRange.startDate).toISOString();
           requestParams.endDate = endOfDay(dateRange.endDate).toISOString();
         }
-
         const response = await getAllOrders(requestParams);
 
         if (response.data && Array.isArray(response.data.data)) {
@@ -70,19 +104,35 @@ export default function OrdersPage() {
         }
       } catch (error) {
         console.error("Error fetching orders:", error);
+      } finally {
+        setLocalLoading(false); // Set loading ke false setelah fetch
       }
     };
 
     fetchOrders();
-  }, [selectedOutletId, selectedStatus, searchQuery, dateRange, currentPage]);
+  }, [selectedOutletId, selectedStatus, searchQuery, dateRange, currentPage, getAllOrders]);
+
+  // Update URL when filters change
+  useEffect(() => {
+    const urlParams: Record<string, string | null> = {
+      page: currentPage.toString(),
+      status: selectedStatus || null,
+      outletId: selectedOutletId?.toString() || null,
+      search: searchQuery || null,
+    };
+
+    if (dateRange) {
+      urlParams.startDate = dateRange.startDate.toISOString();
+      urlParams.endDate = dateRange.endDate.toISOString();
+    }
+
+    updateUrl(urlParams);
+  }, [currentPage, selectedStatus, selectedOutletId, searchQuery, dateRange, updateUrl]);
 
   // Set breadcrumb based on role
   useEffect(() => {
     const roleName = role === "super-admin" ? "Super Admin" : "Outlet Admin";
-    setBreadcrumbItems([
-      { label: roleName, href: `/dashboard/${role}` },
-      { label: "Orders" },
-    ]);
+    setBreadcrumbItems([{ label: roleName, href: `/dashboard/${role}` }, { label: "Orders" }]);
   }, [setBreadcrumbItems, role]);
 
   // Handlers for filters
@@ -101,9 +151,7 @@ export default function OrdersPage() {
     setCurrentPage(1);
   };
 
-  const handleDateRangeChange = (
-    range: { startDate: Date; endDate: Date } | null
-  ) => {
+  const handleDateRangeChange = (range: { startDate: Date; endDate: Date } | null) => {
     setDateRange(range);
     setCurrentPage(1);
   };
@@ -126,9 +174,7 @@ export default function OrdersPage() {
     <div className="container mx-auto p-4 sm:p-6 space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div className="flex-1 min-w-0">
-          <h1 className="text-xl sm:text-2xl font-bold truncate">
-            All Orders and Tracking Orders
-          </h1>
+          <h1 className="text-xl sm:text-2xl font-bold truncate">All Orders and Tracking Orders</h1>
         </div>
       </div>
 
@@ -147,7 +193,7 @@ export default function OrdersPage() {
           {/* Table section */}
           <OrderTable
             orders={orders}
-            loading={loading}
+            loading={localLoading || apiLoading_}
             error={error}
             isAdmin={role === "super-admin"}
             onTrackOrder={handleTrackOrder}
@@ -165,7 +211,6 @@ export default function OrdersPage() {
           setTrackingData(null);
         }}
         tracking={trackingData}
-        loading={loading}
       />
     </div>
   );

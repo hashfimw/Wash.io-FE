@@ -1,21 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -31,11 +18,7 @@ interface EmployeePerformanceTableProps {
   onTabChange?: (tab: "workers" | "drivers") => void;
 }
 
-export function EmployeePerformanceTable({
-  data,
-  isLoading,
-  onTabChange,
-}: EmployeePerformanceTableProps) {
+export function EmployeePerformanceTable({ data, isLoading, onTabChange }: EmployeePerformanceTableProps) {
   const [activeTab, setActiveTab] = useState<"workers" | "drivers">("workers");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -68,28 +51,19 @@ export function EmployeePerformanceTable({
     switch (station) {
       case "WASHING":
         return (
-          <Badge
-            variant="outline"
-            className="bg-blue-50 text-blue-700 border-blue-200"
-          >
+          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
             Washing
           </Badge>
         );
       case "IRONING":
         return (
-          <Badge
-            variant="outline"
-            className="bg-orange-50 text-orange-700 border-orange-200"
-          >
+          <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
             Ironing
           </Badge>
         );
       case "PACKING":
         return (
-          <Badge
-            variant="outline"
-            className="bg-green-50 text-green-700 border-green-200"
-          >
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
             Packing
           </Badge>
         );
@@ -103,9 +77,7 @@ export function EmployeePerformanceTable({
       <Card>
         <CardHeader>
           <CardTitle>Employee Performance</CardTitle>
-          <CardDescription>
-            View the total jobs handled by each employee
-          </CardDescription>
+          <CardDescription>View the total jobs handled by each employee</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="animate-pulse space-y-4">
@@ -121,24 +93,17 @@ export function EmployeePerformanceTable({
     );
   }
 
-  const noWorkersData =
-    !data?.workers || data.workers.length === 0 || filteredWorkers.length === 0;
-  const noDriversData =
-    !data?.drivers || data.drivers.length === 0 || filteredDrivers.length === 0;
+  const noWorkersData = !data?.workers || data.workers.length === 0 || filteredWorkers.length === 0;
+  const noDriversData = !data?.drivers || data.drivers.length === 0 || filteredDrivers.length === 0;
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Employee Performance</CardTitle>
-        <CardDescription>
-          View the total jobs handled by each employee
-        </CardDescription>
+        <CardDescription>View the total jobs handled by each employee</CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs
-          value={activeTab}
-          onValueChange={(v) => handleTabChange(v as "workers" | "drivers")}
-        >
+        <Tabs value={activeTab} onValueChange={(v) => handleTabChange(v as "workers" | "drivers")}>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
             <TabsList>
               <TabsTrigger value="workers">Workers</TabsTrigger>
@@ -162,8 +127,7 @@ export function EmployeePerformanceTable({
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>No Worker Data Available</AlertTitle>
                 <AlertDescription>
-                  There is no worker performance data available for the selected
-                  filters.
+                  There is no worker performance data available for the selected filters.
                   {searchQuery && " Try clearing your search query."}
                 </AlertDescription>
               </Alert>
@@ -182,14 +146,10 @@ export function EmployeePerformanceTable({
                   <TableBody>
                     {filteredWorkers.map((worker) => (
                       <TableRow key={worker.workerId}>
-                        <TableCell className="font-medium">
-                          {worker.workerName}
-                        </TableCell>
+                        <TableCell className="font-medium">{worker.workerName}</TableCell>
                         <TableCell>{worker.outletName}</TableCell>
                         <TableCell>{getStationBadge(worker.station)}</TableCell>
-                        <TableCell className="text-right">
-                          {worker.totalJobs}
-                        </TableCell>
+                        <TableCell className="text-right">{worker.totalJobs}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -204,8 +164,7 @@ export function EmployeePerformanceTable({
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>No Driver Data Available</AlertTitle>
                 <AlertDescription>
-                  There is no driver performance data available for the selected
-                  filters.
+                  There is no driver performance data available for the selected filters.
                   {searchQuery && " Try clearing your search query."}
                 </AlertDescription>
               </Alert>
@@ -223,13 +182,9 @@ export function EmployeePerformanceTable({
                   <TableBody>
                     {filteredDrivers.map((driver) => (
                       <TableRow key={driver.driverId}>
-                        <TableCell className="font-medium">
-                          {driver.driverName}
-                        </TableCell>
+                        <TableCell className="font-medium">{driver.driverName}</TableCell>
                         <TableCell>{driver.outletName}</TableCell>
-                        <TableCell className="text-right">
-                          {driver.totalJobs}
-                        </TableCell>
+                        <TableCell className="text-right">{driver.totalJobs}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

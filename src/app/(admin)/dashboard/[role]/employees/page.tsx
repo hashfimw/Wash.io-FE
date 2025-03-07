@@ -1,8 +1,7 @@
 // src/app/(dashboard)/super-admin/employees/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-
+import { useEffect, useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { EmployeeTable } from "@/components/employees/EmployeeTable";
@@ -20,28 +19,50 @@ export default function EmployeesPage() {
   const params = useParams();
   const role = params.role as string;
 
+  // Reference to the employee table for refresh operations
+  const tableRefreshRef = useRef<(() => void) | null>(null);
+
+  // Optimasi dengan useEffect untuk mengurangi re-rendering
   useEffect(() => {
+    // Set correct breadcrumb based on the role
     const roleName = role === "super-admin" ? "Super Admin" : "Outlet Admin";
     setBreadcrumbItems([
       { label: roleName, href: `/dashboard/${role}` },
-      { label: "Bypass Requests" },
+      { label: "Employees", href: `/${role}/employees` },
     ]);
   }, [role, setBreadcrumbItems]);
 
-  const handleEdit = (employee: Employee) => {
+  // Optimasi dengan useCallback untuk fungsi handler
+  const handleEdit = useCallback((employee: Employee) => {
     setSelectedEmployee(employee);
     setIsFormOpen(true);
-  };
+  }, []);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setIsFormOpen(false);
     setSelectedEmployee(undefined);
-  };
+  }, []);
 
-  const handleSuccess = () => {
-    // Refresh table data
+  const handleSuccess = useCallback(() => {
+    // Refresh table data using the refresh function from the hook
+    if (tableRefreshRef.current) {
+      // Tambahkan timeout kecil untuk mencegah race condition
+      setTimeout(() => {
+        tableRefreshRef.current?.();
+      }, 100);
+    }
     handleClose();
-  };
+  }, [handleClose]);
+
+  // Function to set the refresh function from the table component - dengan useCallback
+  const setTableRefresh = useCallback((refreshFn: () => void) => {
+    tableRefreshRef.current = refreshFn;
+  }, []);
+
+  // Tombol Add optimasi dengan useCallback
+  const handleAddButtonClick = useCallback(() => {
+    setIsFormOpen(true);
+  }, []);
 
   return (
     <div className="container mx-auto p-4 sm:p-6 space-y-6">
@@ -51,12 +72,15 @@ export default function EmployeesPage() {
           <h1 className="text-xl sm:text-2xl font-bold truncate">
             Manage Employees
           </h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Add, edit, and manage your employees
+          </p>
         </div>
         <div className="w-full sm:w-auto">
           <Button
-            onClick={() => setIsFormOpen(true)}
+            onClick={handleAddButtonClick}
             className="w-full sm:w-auto"
-            variant={"oren"}
+            variant="oren"
           >
             <Plus className="h-4 w-4 mr-2" />
             Add New Employee
@@ -65,9 +89,9 @@ export default function EmployeesPage() {
       </div>
 
       {/* Main Content */}
-      <div className=" rounded-lg shadow-sm">
+      <div className="rounded-lg shadow-sm bg-white">
         <div className="p-4 sm:p-6">
-          <EmployeeTable onEdit={handleEdit} />
+          <EmployeeTable onEdit={handleEdit} onRefreshReady={setTableRefresh} />
         </div>
       </div>
 

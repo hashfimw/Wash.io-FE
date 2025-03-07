@@ -27,9 +27,7 @@ export const formatToIDR = (value: number | string): string => {
 // Helper to truncate text with ellipsis
 export const truncateText = (text: string, maxLength: number): string => {
   if (!text) return "";
-  return text.length <= maxLength
-    ? text
-    : text.substring(0, maxLength - 3) + "...";
+  return text.length <= maxLength ? text : text.substring(0, maxLength - 3) + "...";
 };
 
 // Helper to prepare data rows for export

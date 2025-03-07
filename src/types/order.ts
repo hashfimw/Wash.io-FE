@@ -81,7 +81,6 @@ export enum OrderStatus {
   RECEIVED_BY_CUSTOMER = "RECEIVED_BY_CUSTOMER",
   COMPLETED = "COMPLETED",
   CANCELLED_BY_CUSTOMER = "CANCELLED_BY_CUSTOMER",
-  CANCELLED_BY_OUTLET = "CANCELLED_BY_OUTLET",
 }
 
 export enum WorkerStation {
@@ -131,6 +130,7 @@ export interface OrderParams {
 }
 
 export interface OrderResponse {
+  [x: string]: any;
   filter(arg0: (order: { orderStatus: string }) => boolean): unknown;
   data: Order[];
   meta: {
