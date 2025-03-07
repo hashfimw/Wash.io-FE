@@ -1,17 +1,10 @@
 // src/components/orders/OrderTable.tsx
 import { useCallback } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Eye } from "lucide-react";
-import { Order, OrderStatus } from "@/types/order";
+import { Order } from "@/types/order";
 import { TableSkeleton } from "../ui/table-skeleton";
 import { TablePagination } from "../shared/usePagination";
 import { format } from "date-fns";
@@ -34,7 +27,6 @@ export function OrderTable({
   orders,
   loading,
   error,
-  isAdmin,
   onTrackOrder,
   currentPage,
   totalPages,
@@ -95,11 +87,7 @@ export function OrderTable({
                     })}
                   </TableCell>
                   <TableCell className="text-center">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleTrack(order.id)}
-                    >
+                    <Button variant="ghost" size="icon" onClick={() => handleTrack(order.id)}>
                       <Eye className="h-4 w-4" />
                     </Button>
                   </TableCell>

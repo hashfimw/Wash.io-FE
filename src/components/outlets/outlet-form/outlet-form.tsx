@@ -4,12 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { OutletFormValues, outletFormSchema } from "./schema";
 import { OutletFormFields } from "./outlet-form-fields";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
@@ -24,12 +19,7 @@ interface OutletFormProps {
   onSuccess?: () => void;
 }
 
-export function OutletForm({
-  open,
-  onClose,
-  outlet,
-  onSuccess,
-}: OutletFormProps) {
+export function OutletForm({ open, onClose, outlet, onSuccess }: OutletFormProps) {
   const [loading, setLoading] = useState(false);
   const { createOutlet, updateOutlet } = useOutlets();
 
@@ -116,6 +106,7 @@ export function OutletForm({
         description: "Failed to save outlet",
         variant: "destructive",
       });
+      console.log("Failed to save outlet:", error);
     } finally {
       setLoading(false);
     }

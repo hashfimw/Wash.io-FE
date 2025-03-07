@@ -1,12 +1,7 @@
 // src/hooks/api/employees/useEmployees.ts
 import { useState, useCallback, useRef } from "react";
 import axios from "axios";
-import {
-  Employee,
-  CreateEmployeeInput,
-  UpdateEmployeeInput,
-} from "@/types/employee";
-import { ApiResponse } from "@/types/outlet";
+import { CreateEmployeeInput, UpdateEmployeeInput } from "@/types/employee";
 
 // Buat axios instance
 const api = axios.create({
@@ -59,12 +54,9 @@ export const useEmployees = () => {
         if (params.role) queryParams.append("role", params.role);
         if (params.sortBy) queryParams.append("sortBy", params.sortBy);
         if (params.sortOrder) queryParams.append("sortOrder", params.sortOrder);
-        if (params.outletName)
-          queryParams.append("outletName", params.outletName);
+        if (params.outletName) queryParams.append("outletName", params.outletName);
 
-        const url = `/adm-employees${
-          queryParams.toString() ? `?${queryParams.toString()}` : ""
-        }`;
+        const url = `/adm-employees${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
 
         // Buat cache key
         const cacheKey = url;
@@ -146,27 +138,24 @@ export const useEmployees = () => {
     }
   }, []);
 
-  const updateEmployee = useCallback(
-    async (id: number, data: UpdateEmployeeInput) => {
-      try {
-        setLoading(true);
-        const response = await api.put(`/adm-employees/${id}`, data);
+  const updateEmployee = useCallback(async (id: number, data: UpdateEmployeeInput) => {
+    try {
+      setLoading(true);
+      const response = await api.put(`/adm-employees/${id}`, data);
 
-        // Invalidate cache setelah update
-        cache.employees.clear();
-        cache.timestamp.clear();
+      // Invalidate cache setelah update
+      cache.employees.clear();
+      cache.timestamp.clear();
 
-        return response.data;
-      } catch (err) {
-        setError("Failed to update employee");
-        throw err;
-      } finally {
-        // Pastikan loading state selalu false setelah operasi selesai
-        setLoading(false);
-      }
-    },
-    []
-  );
+      return response.data;
+    } catch (err) {
+      setError("Failed to update employee");
+      throw err;
+    } finally {
+      // Pastikan loading state selalu false setelah operasi selesai
+      setLoading(false);
+    }
+  }, []);
 
   const deleteEmployee = useCallback(async (id: number) => {
     try {

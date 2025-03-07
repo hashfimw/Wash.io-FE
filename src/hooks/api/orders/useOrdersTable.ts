@@ -4,13 +4,13 @@ import { useOrders } from "./useOrders";
 import { Order, OrderResponse, OrderStatus } from "@/types/order";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
-interface OrderTableParams {
-  orderStatus?: OrderStatus;
-  outletId?: number | null;
-  startDate?: string;
-  endDate?: string;
-  sortOrder?: string;
-}
+// interface OrderTableParams {
+//   orderStatus?: OrderStatus;
+//   outletId?: number | null;
+//   startDate?: string;
+//   endDate?: string;
+//   sortOrder?: string;
+// }
 
 interface UseOrderTableProps {
   pageSize?: number;
@@ -29,9 +29,7 @@ export function useOrderTable({ pageSize = 10 }: UseOrderTableProps = {}) {
   // State
   const [orders, setOrders] = useState<Order[]>([]);
   const [totalPages, setTotalPages] = useState(0);
-  const [currentPage, setCurrentPage] = useState(
-    Number(searchParams.get("page")) || 1
-  );
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1);
 
   // Filter states
   const [status, setStatus] = useState<OrderStatus | "">(
@@ -134,16 +132,7 @@ export function useOrderTable({ pageSize = 10 }: UseOrderTableProps = {}) {
     } catch (error) {
       console.error("Error fetching orders:", error);
     }
-  }, [
-    currentPage,
-    pageSize,
-    status,
-    selectedOutlet,
-    dateRange,
-    sortOrder,
-    getAllOrders,
-    orders.length,
-  ]);
+  }, [currentPage, pageSize, status, selectedOutlet, dateRange, sortOrder, getAllOrders, orders.length]);
 
   // Effect untuk menandai component mounted
   useEffect(() => {
@@ -176,20 +165,17 @@ export function useOrderTable({ pageSize = 10 }: UseOrderTableProps = {}) {
     setCurrentPage(1); // Reset to page 1 when filter changes
   }, []);
 
-  const handleDateRangeChange = useCallback(
-    (range: { startDate: Date; endDate: Date } | null) => {
-      if (!range) {
-        setDateRange({ startDate: null, endDate: null });
-      } else {
-        setDateRange({
-          startDate: range.startDate.toISOString(),
-          endDate: range.endDate.toISOString(),
-        });
-      }
-      setCurrentPage(1);
-    },
-    []
-  );
+  const handleDateRangeChange = useCallback((range: { startDate: Date; endDate: Date } | null) => {
+    if (!range) {
+      setDateRange({ startDate: null, endDate: null });
+    } else {
+      setDateRange({
+        startDate: range.startDate.toISOString(),
+        endDate: range.endDate.toISOString(),
+      });
+    }
+    setCurrentPage(1);
+  }, []);
 
   const handleOutletChange = useCallback((outletId: number | null) => {
     setSelectedOutlet(outletId);

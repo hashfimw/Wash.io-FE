@@ -24,13 +24,12 @@ export function EmployeePerformanceClient({
   initialOutletId,
   userOutletId,
 }: EmployeePerformanceClientProps) {
-  const router = useRouter();
   const { toast } = useToast();
   const { setBreadcrumbItems } = useBreadcrumb();
   const tableRef = useRef<HTMLDivElement>(null);
   const userRole = role === "super-admin" ? "SUPER_ADMIN" : "OUTLET_ADMIN";
   const { getEmployeePerformance, loading, error: reportError } = useReports();
-  const { getOutlets, outlets, loading: outletsLoading, error: outletsError } = useOutlets();
+  const { getOutlets, outlets, loading: outletsLoading_, error: outletsError } = useOutlets();
   const [performanceData, setPerformanceData] = useState<EmployeePerformanceData>({
     workers: [],
     drivers: [],

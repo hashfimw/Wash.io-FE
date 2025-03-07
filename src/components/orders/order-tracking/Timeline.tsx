@@ -11,7 +11,7 @@ interface TimelineProps {
 // Define all possible stages in order
 const ALL_STAGES = ["PICKUP", "WASHING", "IRONING", "PACKING", "DELIVERY"];
 
-export function Timeline({ timeline, orderId }: TimelineProps) {
+export function Timeline({ timeline }: TimelineProps) {
   // Create a map of existing stages from the timeline
   const existingStages = new Map<string, TimelineType>();
 
@@ -48,18 +48,12 @@ export function Timeline({ timeline, orderId }: TimelineProps) {
                   : "bg-gray-300"
               )}
             />
-            {index !== completeTimeline.length - 1 && (
-              <div className="w-0.5 h-full bg-gray-200" />
-            )}
+            {index !== completeTimeline.length - 1 && <div className="w-0.5 h-full bg-gray-200" />}
           </div>
           <div className="flex-1 pb-4">
             <p className="font-medium">{item?.stage.replace(/_/g, " ")}</p>
-            {item?.worker && (
-              <p className="text-sm text-gray-500">Worker: {item?.worker}</p>
-            )}
-            {item?.driver && (
-              <p className="text-sm text-gray-500">Driver: {item?.driver}</p>
-            )}
+            {item?.worker && <p className="text-sm text-gray-500">Worker: {item?.worker}</p>}
+            {item?.driver && <p className="text-sm text-gray-500">Driver: {item?.driver}</p>}
             {item?.status !== "Pending" && (
               <p className="text-sm text-gray-500">
                 {item?.timestamp && new Date(item.timestamp).toLocaleString()}

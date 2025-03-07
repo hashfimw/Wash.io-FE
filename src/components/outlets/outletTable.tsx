@@ -1,13 +1,6 @@
 "use client";
-import { useEffect, useState, useCallback, useMemo } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { useState, useCallback, useMemo } from "react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
@@ -72,6 +65,7 @@ export function OutletTable({ onEdit, initialData }: OutletTableProps) {
         description: "Failed to delete outlet",
         variant: "destructive",
       });
+      console.log("Failed to delete outlet:", error);
     } finally {
       setDeleteLoading(false);
     }
@@ -82,26 +76,13 @@ export function OutletTable({ onEdit, initialData }: OutletTableProps) {
     return (
       outlets?.map((outlet: Outlet) => (
         <TableRow key={outlet.id}>
-          <TableCell className="font-medium whitespace-nowrap">
-            {outlet.outletName}
-          </TableCell>
-          <TableCell className="max-w-[200px] truncate">
-            {outlet.outletAddress?.addressLine}
-          </TableCell>
-          <TableCell className="whitespace-nowrap">
-            {outlet.outletAddress?.province}
-          </TableCell>
-          <TableCell className="whitespace-nowrap">
-            {outlet.outletAddress?.district}
-          </TableCell>
+          <TableCell className="font-medium whitespace-nowrap">{outlet.outletName}</TableCell>
+          <TableCell className="max-w-[200px] truncate">{outlet.outletAddress?.addressLine}</TableCell>
+          <TableCell className="whitespace-nowrap">{outlet.outletAddress?.province}</TableCell>
+          <TableCell className="whitespace-nowrap">{outlet.outletAddress?.district}</TableCell>
           <TableCell className="text-right p-2">
             <div className="flex justify-end gap-1 sm:gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => onEdit(outlet)}
-              >
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(outlet)}>
                 <Edit className="h-4 w-4" />
               </Button>
               <Button
@@ -139,23 +120,15 @@ export function OutletTable({ onEdit, initialData }: OutletTableProps) {
           <TableHeader>
             <TableRow>
               <TableHead>Outlet Name </TableHead>
-              <TableHead className="cursor-pointer whitespace-nowrap min-w-[200px]">
-                Address
-              </TableHead>
+              <TableHead className="cursor-pointer whitespace-nowrap min-w-[200px]">Address</TableHead>
               <TableHead
                 className="cursor-pointer whitespace-nowrap min-w-[120px]"
                 onClick={() => onSortChange("province")}
               >
-                Province{" "}
-                {sortBy.field === "province" &&
-                  (sortBy.direction === "asc" ? "↑" : "↓")}
+                Province {sortBy.field === "province" && (sortBy.direction === "asc" ? "↑" : "↓")}
               </TableHead>
-              <TableHead className="cursor-pointer whitespace-nowrap min-w-[120px]">
-                District
-              </TableHead>
-              <TableHead className="text-right whitespace-nowrap min-w-[100px]">
-                Actions
-              </TableHead>
+              <TableHead className="cursor-pointer whitespace-nowrap min-w-[120px]">District</TableHead>
+              <TableHead className="text-right whitespace-nowrap min-w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

@@ -1,14 +1,7 @@
 // src/hooks/api/outlets/useOutlets.ts
 import { useState, useCallback, useRef } from "react";
 import axios from "axios";
-import {
-  Outlet,
-  CreateOutletInput,
-  UpdateOutletInput,
-  OutletParams,
-  OutletResponse,
-  ApiResponse,
-} from "@/types/outlet";
+import { Outlet, CreateOutletInput, UpdateOutletInput, OutletParams, ApiResponse } from "@/types/outlet";
 
 // Buat axios instance yang hanya untuk client-side
 const api = axios.create({
@@ -28,7 +21,7 @@ api.interceptors.request.use((config) => {
 const cache = {
   outlets: new Map(),
   timestamp: new Map(),
-  cacheDuration: 3600000,
+  cacheDuration: 120000,
 };
 
 interface ApiResponseType {
@@ -63,9 +56,7 @@ export const useOutlets = () => {
         if (params.sortBy) queryParams.append("sortBy", params.sortBy);
         if (params.sortList) queryParams.append("sortOrder", params.sortList);
 
-        const url = `/adm-outlets${
-          queryParams.toString() ? `?${queryParams.toString()}` : ""
-        }`;
+        const url = `/adm-outlets${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
 
         // Buat cache key
         const cacheKey = url;
@@ -118,41 +109,29 @@ export const useOutlets = () => {
     [outlets]
   );
 
-  const createOutlet = useCallback(
-    async (data: CreateOutletInput): Promise<ApiResponse<Outlet>> => {
-      try {
-        setLoading(true);
-        const response = await api.post<ApiResponse<Outlet>>(
-          "/adm-outlets",
-          data
-        );
+  const createOutlet = useCallback(async (data: CreateOutletInput): Promise<ApiResponse<Outlet>> => {
+    try {
+      setLoading(true);
+      const response = await api.post<ApiResponse<Outlet>>("/adm-outlets", data);
 
-        // Invalidate cache
-        cache.outlets.clear();
-        cache.timestamp.clear();
+      // Invalidate cache
+      cache.outlets.clear();
+      cache.timestamp.clear();
 
-        return response.data;
-      } catch (err) {
-        setError("Failed to create outlet");
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    },
-    []
-  );
+      return response.data;
+    } catch (err) {
+      setError("Failed to create outlet");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const updateOutlet = useCallback(
-    async (
-      id: number,
-      data: UpdateOutletInput
-    ): Promise<ApiResponse<Outlet>> => {
+    async (id: number, data: UpdateOutletInput): Promise<ApiResponse<Outlet>> => {
       try {
         setLoading(true);
-        const response = await api.put<ApiResponse<Outlet>>(
-          `/adm-outlets/${id}`,
-          data
-        );
+        const response = await api.put<ApiResponse<Outlet>>(`/adm-outlets/${id}`, data);
 
         // Invalidate cache
         cache.outlets.clear();
@@ -169,65 +148,55 @@ export const useOutlets = () => {
     []
   );
 
-  const deleteOutlet = useCallback(
-    async (id: number): Promise<ApiResponse<void>> => {
-      try {
-        setLoading(true);
-        const response = await api.delete<ApiResponse<void>>(
-          `/adm-outlets/${id}`
-        );
+  const deleteOutlet = useCallback(async (id: number): Promise<ApiResponse<void>> => {
+    try {
+      setLoading(true);
+      const response = await api.delete<ApiResponse<void>>(`/adm-outlets/${id}`);
 
-        // Invalidate cache
-        cache.outlets.clear();
-        cache.timestamp.clear();
+      // Invalidate cache
+      cache.outlets.clear();
+      cache.timestamp.clear();
 
-        return response.data;
-      } catch (err) {
-        setError("Failed to delete outlet");
-        throw err;
-      } finally {
-        setLoading(false);
+      return response.data;
+    } catch (err) {
+      setError("Failed to delete outlet");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const getOutletById = useCallback(async (id: number): Promise<Outlet | null> => {
+    try {
+      setLoading(true);
+
+      // Cek cache untuk outlet detail
+      const cacheKey = `adm-outlets/${id}`;
+      const now = Date.now();
+
+      if (
+        cache.outlets.has(cacheKey) &&
+        cache.timestamp.has(cacheKey) &&
+        now - cache.timestamp.get(cacheKey)! < cache.cacheDuration
+      ) {
+        return cache.outlets.get(cacheKey).data;
       }
-    },
-    []
-  );
 
-  const getOutletById = useCallback(
-    async (id: number): Promise<Outlet | null> => {
-      try {
-        setLoading(true);
+      const response = await api.get<ApiResponse<Outlet>>(`adm-outlets/${id}`);
 
-        // Cek cache untuk outlet detail
-        const cacheKey = `adm-outlets/${id}`;
-        const now = Date.now();
+      // Simpan ke cache
+      cache.outlets.set(cacheKey, response.data);
+      cache.timestamp.set(cacheKey, now);
 
-        if (
-          cache.outlets.has(cacheKey) &&
-          cache.timestamp.has(cacheKey) &&
-          now - cache.timestamp.get(cacheKey)! < cache.cacheDuration
-        ) {
-          return cache.outlets.get(cacheKey).data;
-        }
-
-        const response = await api.get<ApiResponse<Outlet>>(
-          `adm-outlets/${id}`
-        );
-
-        // Simpan ke cache
-        cache.outlets.set(cacheKey, response.data);
-        cache.timestamp.set(cacheKey, now);
-
-        return response.data.data;
-      } catch (err) {
-        console.error(`Failed to fetch outlet with ID ${id}:`, err);
-        setError(`Failed to fetch outlet details`);
-        return null;
-      } finally {
-        setLoading(false);
-      }
-    },
-    []
-  );
+      return response.data.data;
+    } catch (err) {
+      console.error(`Failed to fetch outlet with ID ${id}:`, err);
+      setError(`Failed to fetch outlet details`);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   return {
     outlets,

@@ -48,7 +48,7 @@ export const Breadcrumb = ({ items }: BreadcrumbProps) => {
 
       {/* Desktop view - show all items */}
       {!isMobile &&
-        items.map((item, index) => (
+        items.map((item, index_) => (
           <div key={item.label} className="flex items-center min-w-0">
             <ChevronRight className="h-4 w-4 text-slate-800 flex-shrink-0 mx-1" />
 
@@ -60,9 +60,7 @@ export const Breadcrumb = ({ items }: BreadcrumbProps) => {
                 {item.label}
               </Link>
             ) : (
-              <span className="text-slate-800 hover:text-putih font-medium truncate">
-                {item.label}
-              </span>
+              <span className="text-slate-800 hover:text-putih font-medium truncate">{item.label}</span>
             )}
           </div>
         ))}

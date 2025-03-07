@@ -21,12 +21,7 @@ interface CreateItemDialogProps {
   items: OrderItem[]; // Add items prop for validation
 }
 
-export function CreateItemDialog({
-  open,
-  onOpenChange,
-  onSubmit,
-  items,
-}: CreateItemDialogProps) {
+export function CreateItemDialog({ open, onOpenChange, onSubmit, items }: CreateItemDialogProps) {
   const [itemName, setItemName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -41,9 +36,7 @@ export function CreateItemDialog({
     }
 
     // Check if an item with this name already exists
-    const existingItem = items.find(
-      (item) => item.orderItemName.toLowerCase() === itemName.toLowerCase()
-    );
+    const existingItem = items.find((item) => item.orderItemName.toLowerCase() === itemName.toLowerCase());
 
     if (existingItem) {
       setError("An item with this name already exists");
@@ -64,9 +57,14 @@ export function CreateItemDialog({
         title: "Success",
         description: "Laundry item created successfully.",
       });
-    } catch (err: string | any) {
+    } catch (err: string | unknown) {
       // Check if error is due to duplicate item
-      if (err.response?.data?.message?.includes("already exists")) {
+      if (
+        err instanceof Error &&
+        (err as Error & { response?: { data?: { message?: string } } }).response?.data?.message?.includes(
+          "already exists"
+        )
+      ) {
         setError("An item with this name already exists");
         toast({
           variant: "destructive",
@@ -74,9 +72,7 @@ export function CreateItemDialog({
           description: "An item with this name already exists.",
         });
       } else {
-        setError(
-          "An error occurred while creating the item. Please try again."
-        );
+        setError("An error occurred while creating the item. Please try again.");
         toast({
           variant: "destructive",
           title: "Error",
@@ -101,9 +97,7 @@ export function CreateItemDialog({
       <DialogContent className="w-[95%] max-w-md mx-auto p-4 sm:p-6">
         <form onSubmit={handleSubmit}>
           <DialogHeader className="space-y-2">
-            <DialogTitle className="text-lg sm:text-xl">
-              Create New Laundry Item
-            </DialogTitle>
+            <DialogTitle className="text-lg sm:text-xl">Create New Laundry Item</DialogTitle>
             <DialogDescription className="text-sm">
               Add a new laundry item that can be selected in orders.
             </DialogDescription>
@@ -111,10 +105,7 @@ export function CreateItemDialog({
 
           <div className="grid gap-4 py-3 sm:py-4">
             <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-1 sm:gap-4">
-              <Label
-                htmlFor="itemName"
-                className="sm:text-right text-sm sm:text-base mb-1 sm:mb-0"
-              >
+              <Label htmlFor="itemName" className="sm:text-right text-sm sm:text-base mb-1 sm:mb-0">
                 Item Name
               </Label>
               <Input

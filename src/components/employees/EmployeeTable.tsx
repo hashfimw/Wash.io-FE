@@ -1,19 +1,11 @@
 // src/components/employees/EmployeeTable.tsx
 import { useState, useEffect, useCallback, useMemo } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { useToast } from "@/components/ui/use-toast";
-import { Employee, Role } from "@/types/employee";
-
+import { Employee } from "@/types/employee";
 import { useEmployeeTable } from "@/hooks/api/employees/useEmployeeTable";
 import { EmployeeTableFilters } from "./employee-form/employee-table-filters";
 import { EmployeeDeleteAlert } from "./employee-form/employee-delete-alert";
@@ -80,6 +72,7 @@ export function EmployeeTable({ onEdit, onRefreshReady }: EmployeeTableProps) {
         description: "Failed to delete employee",
         variant: "destructive",
       });
+      console.log("Error deleting employee:", error);
     } finally {
       setDeleteLoading(false);
     }
@@ -90,8 +83,7 @@ export function EmployeeTable({ onEdit, onRefreshReady }: EmployeeTableProps) {
     (field: string) => {
       setSortBy({
         field,
-        direction:
-          sortBy.field === field && sortBy.direction === "asc" ? "desc" : "asc",
+        direction: sortBy.field === field && sortBy.direction === "asc" ? "desc" : "asc",
       });
     },
     [sortBy, setSortBy]
@@ -121,34 +113,22 @@ export function EmployeeTable({ onEdit, onRefreshReady }: EmployeeTableProps) {
         </TableCell>
         <TableCell>
           {employee.Employee?.workShift
-            ? employee.Employee.workShift
-                .toLowerCase()
-                .replace(/^\w|\s\w/g, (c) => c.toUpperCase())
+            ? employee.Employee.workShift.toLowerCase().replace(/^\w|\s\w/g, (c) => c.toUpperCase())
             : ""}
         </TableCell>
 
         <TableCell>
           {employee.Employee?.station
-            ? employee.Employee.station
-                .toLowerCase()
-                .replace(/^\w|\s\w/g, (c) => c.toUpperCase())
+            ? employee.Employee.station.toLowerCase().replace(/^\w|\s\w/g, (c) => c.toUpperCase())
             : ""}
         </TableCell>
         <TableCell>{employee.Employee?.outlet?.outletName}</TableCell>
         <TableCell className="text-right">
           <div className="flex justify-end gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onEdit(employee)}
-            >
+            <Button variant="ghost" size="icon" onClick={() => onEdit(employee)}>
               <Edit className="h-4 w-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setDeleteEmployeeId(employee.id)}
-            >
+            <Button variant="ghost" size="icon" onClick={() => setDeleteEmployeeId(employee.id)}>
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
@@ -179,8 +159,7 @@ export function EmployeeTable({ onEdit, onRefreshReady }: EmployeeTableProps) {
     if (employees.length > 0 && !loading) {
       return (
         <>
-          Showing {employees.length}{" "}
-          {employees.length === 1 ? "employee" : "employees"}{" "}
+          Showing {employees.length} {employees.length === 1 ? "employee" : "employees"}{" "}
           {totalItems > 0 ? `of ${totalItems}` : ""}
         </>
       );
@@ -210,32 +189,17 @@ export function EmployeeTable({ onEdit, onRefreshReady }: EmployeeTableProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead
-                  className="cursor-pointer"
-                  onClick={() => handleSort("fullName")}
-                >
-                  Name{" "}
-                  {sortBy.field === "fullName" &&
-                    (sortBy.direction === "asc" ? "↑" : "↓")}
+                <TableHead className="cursor-pointer" onClick={() => handleSort("fullName")}>
+                  Name {sortBy.field === "fullName" && (sortBy.direction === "asc" ? "↑" : "↓")}
                 </TableHead>
                 <TableHead className="px-16">Email</TableHead>
-                <TableHead
-                  className="cursor-pointer"
-                  onClick={() => handleSort("role")}
-                >
-                  Role{" "}
-                  {sortBy.field === "role" &&
-                    (sortBy.direction === "asc" ? "↑" : "↓")}
+                <TableHead className="cursor-pointer" onClick={() => handleSort("role")}>
+                  Role {sortBy.field === "role" && (sortBy.direction === "asc" ? "↑" : "↓")}
                 </TableHead>
                 <TableHead>Work Shift</TableHead>
                 <TableHead>Station</TableHead>
-                <TableHead
-                  className="cursor-pointer"
-                  onClick={() => handleSort("outletName")}
-                >
-                  Outlet{" "}
-                  {sortBy.field === "outletName" &&
-                    (sortBy.direction === "asc" ? "↑" : "↓")}
+                <TableHead className="cursor-pointer" onClick={() => handleSort("outletName")}>
+                  Outlet {sortBy.field === "outletName" && (sortBy.direction === "asc" ? "↑" : "↓")}
                 </TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>

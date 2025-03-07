@@ -31,7 +31,7 @@ export function EmployeePerformanceTable({ data, isLoading, onTabChange }: Emplo
 
   // Filter workers based on search query
   const filteredWorkers =
-    data?.workers?.filter(
+    data.workers?.filter(
       (worker) =>
         worker.workerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         worker.outletName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -40,7 +40,7 @@ export function EmployeePerformanceTable({ data, isLoading, onTabChange }: Emplo
 
   // Filter drivers based on search query
   const filteredDrivers =
-    data?.drivers?.filter(
+    data.drivers?.filter(
       (driver) =>
         driver.driverName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         driver.outletName.toLowerCase().includes(searchQuery.toLowerCase())
@@ -93,8 +93,8 @@ export function EmployeePerformanceTable({ data, isLoading, onTabChange }: Emplo
     );
   }
 
-  const noWorkersData = !data?.workers || data.workers.length === 0 || filteredWorkers.length === 0;
-  const noDriversData = !data?.drivers || data.drivers.length === 0 || filteredDrivers.length === 0;
+  const noWorkersData = !data.workers || data.workers.length === 0 || filteredWorkers.length === 0;
+  const noDriversData = !data.drivers || data.drivers.length === 0 || filteredDrivers.length === 0;
 
   return (
     <Card>

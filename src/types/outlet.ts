@@ -1,12 +1,6 @@
 // src/types/outlet.ts
 // Field yang bisa di-sort
-export type OutletSortField =
-  | "outletName"
-  | "addressLine"
-  | "province"
-  | "district"
-  | "regency"
-  | "village";
+export type OutletSortField = "outletName" | "addressLine" | "province" | "district" | "regency" | "village";
 
 export interface SortConfig {
   field: OutletSortField;
@@ -42,8 +36,15 @@ export interface Outlet {
   };
 }
 
+export interface MetaData {
+  page: number;
+  limit: number;
+  total: number;
+  totalRecords: number;
+}
+
 export interface ApiResponse<T> {
-  meta: any;
+  meta: MetaData;
   success: boolean;
   data: T;
   message: string;
@@ -60,10 +61,5 @@ export interface OutletParams {
 export interface OutletResponse {
   message: string;
   data: Outlet[];
-  meta: {
-    page: number;
-    limit: number;
-    total: number;
-    totalRecords: number;
-  };
+  meta: MetaData;
 }

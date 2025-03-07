@@ -9,12 +9,15 @@ import { EmployeePerformanceTable } from "./employeePerformanceTable";
 import { TablePagination } from "../shared/usePagination";
 import { ExportConfig } from "@/utils/exportReport/types";
 import { ReportExportMenu } from "./reportExportMenu";
+import { Outlet } from "@/types/outlet";
+
+// Define a more specific type for outlets
 
 interface EmployeePerformancePart2Props {
   activeTab: "workers" | "drivers";
   performanceData: EmployeePerformanceData;
   filters: EmployeePerformanceParams;
-  outlets: any[] | null;
+  outlets: Outlet[] | null;
   tableRef: RefObject<HTMLDivElement>;
   loading: boolean;
   reportError: string | null;
@@ -72,7 +75,7 @@ export function EmployeePerformancePart2({
     const maxStationLength = 15;
 
     if (activeTab === "workers") {
-      const workersExportData: Record<string, any> = {};
+      const workersExportData: Record<string, Record<string, string | number>> = {};
       performanceData.workers.forEach((worker, index) => {
         workersExportData[index] = {
           id: worker.workerId,
@@ -84,11 +87,11 @@ export function EmployeePerformancePart2({
       });
       return workersExportData;
     } else {
-      const driversExportData: Record<string, any> = {};
+      const driversExportData: Record<string, Record<string, string | number>> = {};
       performanceData.drivers.forEach((driver, index) => {
         driversExportData[index] = {
           id: driver.driverId,
-          name: truncateText(driver.driverName, maxNameLength),
+          name: truncateText(driver.driverName, maxOutletLength),
           outlet: truncateText(driver.outletName, maxOutletLength),
           totalJobs: driver.totalJobs,
         };

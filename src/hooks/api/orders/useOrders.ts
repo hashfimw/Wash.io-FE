@@ -3,7 +3,6 @@ import { useCallback, useState, useRef } from "react";
 import axios from "axios";
 import {
   ApiResponse,
-  Order,
   OrderParams,
   OrderResponse,
   OrderTrackingResponse,

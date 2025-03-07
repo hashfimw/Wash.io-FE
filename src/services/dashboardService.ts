@@ -1,29 +1,28 @@
-// File: app/api/dashboard-data/route.ts
+// File: services/dashboardService.ts
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
 
 // Definisikan interface untuk data yang dibutuhkan
-interface User {
+export interface User {
   id: string;
-  createdAt: string;
+  createdAt: string | Date;
   // tambahkan properti lain yang diperlukan
 }
 
-interface Outlet {
+export interface Outlet {
   id: string;
-  createdAt: string;
+  createdAt: string | Date;
   // tambahkan properti lain yang diperlukan
 }
 
-interface Order {
+export interface Order {
   id: string;
-  createdAt: string;
+  createdAt: string | Date;
   orderStatus: string;
   // tambahkan properti lain yang diperlukan
 }
 
-interface OrdersResponse {
-  data?:
+export interface OrdersResponse {
+  data:
     | {
         data?:
           | Order[]
@@ -34,26 +33,26 @@ interface OrdersResponse {
     | Order[];
 }
 
-interface OutletsResponse {
+export interface OutletsResponse {
   data: Outlet[];
 }
 
-interface UsersResponse {
+export interface UsersResponse {
   users: User[];
   totalCustomers?: number;
   total_page?: number;
   limit?: number;
 }
 
-// Helper function to get auth token from cookies
-function getAuthToken(): string | undefined {
+// Helper function untuk mendapatkan auth token dari cookies
+export function getAuthToken() {
   const cookieStore = cookies();
   const token = cookieStore.get("token")?.value;
   return token;
 }
 
-// Service functions to fetch data directly from API
-async function getOutlets(): Promise<OutletsResponse> {
+// Service functions untuk mengambil data langsung dari API
+export async function getOutlets(): Promise<OutletsResponse> {
   const token = getAuthToken();
 
   if (!token) {
@@ -83,7 +82,7 @@ async function getOutlets(): Promise<OutletsResponse> {
   }
 }
 
-async function getUsers(): Promise<UsersResponse> {
+export async function getUsers(): Promise<UsersResponse> {
   const token = getAuthToken();
 
   if (!token) {
@@ -122,7 +121,7 @@ async function getUsers(): Promise<UsersResponse> {
 }
 
 // Fungsi khusus untuk menghitung customer baru bulan ini
-async function getNewCustomersThisMonth(): Promise<number> {
+export async function getNewCustomersThisMonth(): Promise<number> {
   const token = getAuthToken();
 
   if (!token) {
@@ -137,7 +136,7 @@ async function getNewCustomersThisMonth(): Promise<number> {
     firstDayOfMonth.setHours(0, 0, 0, 0);
 
     // Parameter untuk mengambil data sebanyak mungkin (limit tinggi)
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users?limit=50`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users?limit=1000`, {
       cache: "no-store",
       headers: {
         "Content-Type": "application/json",
@@ -162,18 +161,14 @@ async function getNewCustomersThisMonth(): Promise<number> {
   }
 }
 
-// Get pending orders
-// Menggunakan logika yang sama dengan hook usePendingOrders
-async function getPendingOrders(): Promise<Order[]> {
-  // Kita akan memanggil getAllOrders dan memfilter hasilnya
+export async function getPendingOrders(): Promise<Order[]> {
   const allOrdersResponse = await getAllOrders();
 
   try {
-    // Ekstrak data orders dari response
     const allOrders = extractOrdersArray(allOrdersResponse);
 
-    // Filter untuk status ARRIVED_AT_OUTLET sama seperti di hook
     const pendingOrders = allOrders.filter((order) => order.orderStatus === "ARRIVED_AT_OUTLET");
+
     return pendingOrders;
   } catch (error) {
     console.error("Error processing pending orders:", error);
@@ -181,12 +176,12 @@ async function getPendingOrders(): Promise<Order[]> {
   }
 }
 
-async function getAllOrders(): Promise<OrdersResponse> {
+export async function getAllOrders(): Promise<OrdersResponse> {
   const token = getAuthToken();
 
   if (!token) {
     console.error("No auth token available for API request");
-    return { data: [] };
+    return { data: {} };
   }
 
   try {
@@ -201,18 +196,18 @@ async function getAllOrders(): Promise<OrdersResponse> {
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({}));
       console.error(errorData);
-      return { data: [] };
+      return { data: {} };
     }
 
     return res.json();
   } catch (error) {
     console.error("Error fetching all orders:", error);
-    return { data: [] };
+    return { data: {} };
   }
 }
 
-// Helper function to calculate new items this month
-function getItemsCreatedThisMonth<T extends { createdAt: string | Date }>(items: T[]): number {
+// Helper function untuk menghitung item baru bulan ini
+export function getItemsCreatedThisMonth<T extends { createdAt: string | Date }>(items: T[]): number {
   const firstDayOfMonth = new Date();
   firstDayOfMonth.setDate(1);
   firstDayOfMonth.setHours(0, 0, 0, 0);
@@ -220,8 +215,8 @@ function getItemsCreatedThisMonth<T extends { createdAt: string | Date }>(items:
   return items.filter((item) => new Date(item.createdAt) >= firstDayOfMonth).length;
 }
 
-// Helper function to calculate today's orders
-function getOrdersCreatedToday(orders: Order[]): Order[] {
+// Helper function untuk menghitung order hari ini
+export function getOrdersCreatedToday(orders: Order[]): Order[] {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -245,86 +240,21 @@ function getOrdersCreatedToday(orders: Order[]): Order[] {
   });
 }
 
-// For flexibility in data shape extraction
-function extractOrdersArray(ordersResponse: OrdersResponse): Order[] {
-  if (
-    ordersResponse?.data &&
-    typeof ordersResponse.data === "object" &&
-    !Array.isArray(ordersResponse.data)
-  ) {
-    if (ordersResponse.data.data) {
-      if (
-        typeof ordersResponse.data.data === "object" &&
-        !Array.isArray(ordersResponse.data.data) &&
-        "data" in ordersResponse.data.data
-      ) {
-        return (ordersResponse.data.data as { data: Order[] }).data;
-      }
-      if (Array.isArray(ordersResponse.data.data)) {
-        return ordersResponse.data.data;
-      }
+export function extractOrdersArray(ordersResponse: OrdersResponse): Order[] {
+  if (ordersResponse?.data) {
+    // Cek jika data.data adalah array
+    if (Array.isArray((ordersResponse.data as any).data)) {
+      return (ordersResponse.data as any).data;
     }
-  } else if (Array.isArray(ordersResponse?.data)) {
-    return ordersResponse.data as Order[];
+    // Cek jika data adalah array
+    else if (Array.isArray(ordersResponse.data)) {
+      return ordersResponse.data;
+    }
+    // Cek jika data.data.data ada
+    else if ((ordersResponse.data as any).data?.data) {
+      return (ordersResponse.data as any).data.data;
+    }
   }
+
   return [];
-}
-
-// Definisikan interface untuk response data
-interface DashboardData {
-  outletsCount: number;
-  newOutletsThisMonth: number;
-  customersCount: number;
-  newCustomersThisMonth: number;
-  pendingOrdersCount: number;
-  todayOrdersCount: number;
-}
-
-export async function GET(): Promise<NextResponse<DashboardData | { error: string }>> {
-  try {
-    // Fetch all data from API concurrently
-    const [
-      outletsResponse,
-      customersResponse,
-      pendingOrders,
-      ordersResponse,
-      newCustomersCount, // Tambahkan perhitungan customer baru
-    ] = await Promise.all([
-      getOutlets(),
-      getUsers(),
-      getPendingOrders(),
-      getAllOrders(),
-      getNewCustomersThisMonth(), // Gunakan fungsi baru untuk menghitung customer baru
-    ]);
-
-    // Process data
-    const outletsData = outletsResponse?.data || [];
-    const outletsCount = outletsData.length;
-    const newOutletsThisMonth = getItemsCreatedThisMonth(outletsData);
-
-    const customersData = customersResponse?.users || [];
-    // Gunakan totalCustomers dari hasil perhitungan pagination
-    const customersCount = customersResponse?.totalCustomers || customersData.length;
-    // Gunakan hasil perhitungan dari fungsi khusus untuk customer baru bulan ini
-    const newCustomersThisMonth = newCustomersCount;
-
-    const pendingOrdersCount = Array.isArray(pendingOrders) ? pendingOrders.length : 0;
-
-    const allOrders = extractOrdersArray(ordersResponse);
-    const todayOrders = getOrdersCreatedToday(allOrders);
-    const todayOrdersCount = todayOrders.length;
-
-    // Return aggregated data
-    return NextResponse.json({
-      outletsCount,
-      newOutletsThisMonth,
-      customersCount,
-      newCustomersThisMonth,
-      pendingOrdersCount,
-      todayOrdersCount,
-    });
-  } catch (error) {
-    console.error("Error fetching dashboard data:", error);
-    return NextResponse.json({ error: "Failed to fetch dashboard data" }, { status: 500 });
-  }
 }

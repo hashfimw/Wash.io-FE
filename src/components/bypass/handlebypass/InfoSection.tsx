@@ -2,15 +2,9 @@
 import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
-import { User, Home, Box } from "lucide-react";
+import { User, Home } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BypassRequest, ByPassStatus, WorkerStation } from "@/types/bypass";
 
 interface InfoSectionProps {
@@ -24,42 +18,26 @@ export function InfoSection({ bypassRequest }: InfoSectionProps) {
       <Card>
         <CardHeader>
           <CardTitle>Order Information</CardTitle>
-          <CardDescription>
-            Details of the order associated with this bypass request
-          </CardDescription>
+          <CardDescription>Details of the order associated with this bypass request</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">
-                Order ID
-              </p>
+              <p className="text-sm font-medium text-muted-foreground">Order ID</p>
               <p className="font-medium">#{bypassRequest.order.id}</p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">
-                Order Status
-              </p>
-              <p className="font-medium">
-                {formatOrderStatus(bypassRequest.order.orderStatus)}
-              </p>
+              <p className="text-sm font-medium text-muted-foreground">Order Status</p>
+              <p className="font-medium">{formatOrderStatus(bypassRequest.order.orderStatus)}</p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">
-                Station
-              </p>
+              <p className="text-sm font-medium text-muted-foreground">Station</p>
               <div>{getStationBadge(bypassRequest.station)}</div>
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">
-                Request Date
-              </p>
+              <p className="text-sm font-medium text-muted-foreground">Request Date</p>
               <p className="font-medium">
-                {format(
-                  new Date(bypassRequest.createdAt),
-                  "dd MMMM yyyy HH:mm",
-                  { locale: enUS }
-                )}
+                {format(new Date(bypassRequest.createdAt), "dd MMMM yyyy HH:mm", { locale: enUS })}
               </p>
             </div>
           </div>
@@ -84,23 +62,15 @@ export function InfoSection({ bypassRequest }: InfoSectionProps) {
                     src={bypassRequest.worker.user.avatar}
                     alt={bypassRequest.worker.user.fullName}
                   />
-                  <AvatarFallback>
-                    {bypassRequest.worker.user.fullName[0]}
-                  </AvatarFallback>
+                  <AvatarFallback>{bypassRequest.worker.user.fullName[0]}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-medium">
-                    {bypassRequest.worker.user.fullName}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {bypassRequest.worker.user.email}
-                  </p>
+                  <p className="font-medium">{bypassRequest.worker.user.fullName}</p>
+                  <p className="text-sm text-muted-foreground">{bypassRequest.worker.user.email}</p>
                 </div>
               </div>
             ) : (
-              <p className="text-muted-foreground">
-                Worker information not available
-              </p>
+              <p className="text-muted-foreground">Worker information not available</p>
             )}
           </CardContent>
         </Card>
@@ -116,17 +86,11 @@ export function InfoSection({ bypassRequest }: InfoSectionProps) {
           <CardContent>
             {bypassRequest.worker?.outlet ? (
               <div>
-                <p className="font-medium">
-                  {bypassRequest.worker.outlet.outletName}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Outlet ID: {bypassRequest.worker.outlet.id}
-                </p>
+                <p className="font-medium">{bypassRequest.worker.outlet.outletName}</p>
+                <p className="text-sm text-muted-foreground">Outlet ID: {bypassRequest.worker.outlet.id}</p>
               </div>
             ) : (
-              <p className="text-muted-foreground">
-                Outlet information not available
-              </p>
+              <p className="text-muted-foreground">Outlet information not available</p>
             )}
           </CardContent>
         </Card>
@@ -140,28 +104,19 @@ function getStationBadge(station: WorkerStation) {
   switch (station) {
     case WorkerStation.WASHING:
       return (
-        <Badge
-          variant="outline"
-          className="bg-blue-50 text-blue-700 border-blue-200"
-        >
+        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
           Washing
         </Badge>
       );
     case WorkerStation.IRONING:
       return (
-        <Badge
-          variant="outline"
-          className="bg-orange-50 text-orange-700 border-orange-200"
-        >
+        <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
           Ironing
         </Badge>
       );
     case WorkerStation.PACKING:
       return (
-        <Badge
-          variant="outline"
-          className="bg-green-50 text-green-700 border-green-200"
-        >
+        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
           Packing
         </Badge>
       );
@@ -170,38 +125,29 @@ function getStationBadge(station: WorkerStation) {
   }
 }
 
-// Get badge for status
-function getStatusBadge(status: ByPassStatus | null) {
-  if (status === null) {
-    return (
-      <Badge
-        variant="outline"
-        className="bg-yellow-50 text-yellow-700 border-yellow-200"
-      >
-        Pending
-      </Badge>
-    );
-  } else if (status === ByPassStatus.ACCEPTED) {
-    return (
-      <Badge
-        variant="outline"
-        className="bg-green-50 text-green-700 border-green-200"
-      >
-        Approved
-      </Badge>
-    );
-  } else if (status === ByPassStatus.REJECTED) {
-    return (
-      <Badge
-        variant="outline"
-        className="bg-red-50 text-red-700 border-red-200"
-      >
-        Rejected
-      </Badge>
-    );
-  }
-  return <Badge variant="outline">{status}</Badge>;
-}
+// // Get badge for status
+// function getStatusBadge(status: ByPassStatus | null) {
+//   if (status === null) {
+//     return (
+//       <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+//         Pending
+//       </Badge>
+//     );
+//   } else if (status === ByPassStatus.ACCEPTED) {
+//     return (
+//       <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+//         Approved
+//       </Badge>
+//     );
+//   } else if (status === ByPassStatus.REJECTED) {
+//     return (
+//       <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+//         Rejected
+//       </Badge>
+//     );
+//   }
+//   return <Badge variant="outline">{status}</Badge>;
+// }
 
 // Format the order status from UPPERCASE_WITH_UNDERSCORES to Title Case
 function formatOrderStatus(status: string): string {

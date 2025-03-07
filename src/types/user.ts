@@ -9,7 +9,7 @@ export interface User {
   createdAt: Date;
   updatedAt: Date;
 }
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface UserResponse {
   meta: any;
   total_page: number;

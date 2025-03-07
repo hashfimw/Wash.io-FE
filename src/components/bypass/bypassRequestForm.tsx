@@ -18,13 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertCircle } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useBypassRequest } from "@/hooks/api/bypassrequest/useBypass";
 import { WorkerStation } from "@/types/bypass";
 
@@ -62,7 +56,7 @@ export function BypassRequestForm({
 
   async function onSubmit(values: BypassFormValues) {
     try {
-      const response = await requestBypass({
+      const response_ = await requestBypass({
         laundryJobId,
         byPassNote: values.byPassNote,
       });
@@ -76,14 +70,12 @@ export function BypassRequestForm({
       if (onRequestSuccess) {
         onRequestSuccess();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error submitting bypass request:", error);
       toast({
         variant: "destructive",
         title: "Failed to submit request",
-        description:
-          error.response?.data?.message ||
-          "An error occurred while submitting your bypass request. Please try again.",
+        description: "An error occurred while submitting your bypass request. Please try again.",
       });
     }
   }
@@ -97,14 +89,13 @@ export function BypassRequestForm({
             Bypass Request Pending
           </CardTitle>
           <CardDescription>
-            Your bypass request for Order #{orderId} has been submitted and is
-            awaiting admin approval.
+            Your bypass request for Order #{orderId} has been submitted and is awaiting admin approval.
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
           <p className="text-sm text-muted-foreground">
-            You will be notified once the admin responds to your request. If
-            approved, you can proceed to the next station.
+            You will be notified once the admin responds to your request. If approved, you can proceed to the
+            next station.
           </p>
         </CardContent>
       </Card>
@@ -132,8 +123,8 @@ export function BypassRequestForm({
           Process Blocked
         </CardTitle>
         <CardDescription>
-          Please request bypass approval from admin to continue the{" "}
-          {getStationName(station)} process for Order #{orderId}.
+          Please request bypass approval from admin to continue the {getStationName(station)} process for
+          Order #{orderId}.
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">

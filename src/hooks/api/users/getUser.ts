@@ -1,7 +1,7 @@
 // src/hooks/api/customers/useUsers.ts
 import { useState, useCallback, useRef } from "react";
 import axios from "axios";
-import { UserResponse, UserSearchParams, User } from "@/types/user";
+import { UserResponse, UserSearchParams } from "@/types/user";
 
 // Buat axios instance
 const api = axios.create({

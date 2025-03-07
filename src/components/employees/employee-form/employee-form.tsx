@@ -4,12 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { employeeFormSchema, EmployeeFormValues } from "./schema";
 import { EmployeeFormFields } from "./employee-form-field";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
@@ -31,12 +26,7 @@ interface EmployeeFormProps {
   onSuccess?: () => void;
 }
 
-export function EmployeeForm({
-  open,
-  onClose,
-  employee,
-  onSuccess,
-}: EmployeeFormProps) {
+export function EmployeeForm({ open, onClose, employee, onSuccess }: EmployeeFormProps) {
   const [loading, setLoading] = useState(false);
   const { createEmployee, updateEmployee } = useEmployees();
   const { toast } = useToast();
@@ -46,8 +36,7 @@ export function EmployeeForm({
         fullName: employee.fullName || "",
         email: employee.email || "",
         role: employee.role as Role, // Cast ke Role enum
-        workShift:
-          (employee.Employee?.workShift as EmployeeWorkShift) || undefined,
+        workShift: (employee.Employee?.workShift as EmployeeWorkShift) || undefined,
         station: (employee.Employee?.station as WorkerStation) || undefined,
         outletId: employee.Employee?.outlet?.id || 0,
       }
@@ -73,8 +62,7 @@ export function EmployeeForm({
         fullName: employee.fullName || "",
         email: employee.email || "",
         role: employee.role as Role,
-        workShift:
-          (employee.Employee?.workShift as EmployeeWorkShift) || undefined,
+        workShift: (employee.Employee?.workShift as EmployeeWorkShift) || undefined,
         station: (employee.Employee?.station as WorkerStation) || undefined,
         outletId: employee.Employee?.outlet?.id || 0,
       });
@@ -144,6 +132,7 @@ export function EmployeeForm({
         description: "Failed to save employee",
         variant: "destructive",
       });
+      console.error("Failed to save employee:", error);
     } finally {
       setLoading(false);
     }
@@ -153,9 +142,7 @@ export function EmployeeForm({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] sm:max-w-[600px] overflow-y-auto max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>
-            {employee?.id ? "Edit Employee" : "Add New Employee"}
-          </DialogTitle>
+          <DialogTitle>{employee?.id ? "Edit Employee" : "Add New Employee"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

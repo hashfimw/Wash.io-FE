@@ -19,12 +19,7 @@ interface DeleteItemDialogProps {
   onConfirm: () => Promise<void>;
 }
 
-export function DeleteItemDialog({
-  open,
-  onOpenChange,
-  item,
-  onConfirm,
-}: DeleteItemDialogProps) {
+export function DeleteItemDialog({ open, onOpenChange, item, onConfirm }: DeleteItemDialogProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleConfirm = async () => {
@@ -44,9 +39,8 @@ export function DeleteItemDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete the laundry item{" "}
-            <strong>"{item.orderItemName}"</strong>. This action cannot be
-            undone.
+            This will permanently delete the laundry item <strong>&ldquo;{item.orderItemName}&rdquo;</strong>.
+            This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

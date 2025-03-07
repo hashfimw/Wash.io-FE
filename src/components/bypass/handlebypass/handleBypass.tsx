@@ -3,11 +3,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { format } from "date-fns";
-import { enUS } from "date-fns/locale";
-
 import { useToast } from "@/components/ui/use-toast";
-import { BypassRequest, ByPassStatus, WorkerStation } from "@/types/bypass";
+import { BypassRequest } from "@/types/bypass";
 import { useBypassRequest } from "@/hooks/api/bypassrequest/useBypass";
 import { InfoSection } from "./InfoSection";
 import { ActionSection } from "./ActionAction";
@@ -17,19 +14,14 @@ interface BypassRequestDetailProps {
   onProcessed?: () => void;
 }
 
-export function BypassRequestDetail({
-  bypassRequest,
-  onProcessed,
-}: BypassRequestDetailProps) {
+export function BypassRequestDetail({ bypassRequest, onProcessed }: BypassRequestDetailProps) {
   const router = useRouter();
   const { toast } = useToast();
-  const { handleBypassRequest, loading } = useBypassRequest();
+  const { handleBypassRequest } = useBypassRequest();
 
   const [adminNote, setAdminNote] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentAction, setCurrentAction] = useState<
-    "approve" | "reject" | null
-  >(null);
+  const [currentAction, setCurrentAction] = useState<"approve" | "reject" | null>(null);
 
   const handleProcessRequest = async (decision: "approve" | "reject") => {
     setCurrentAction(decision);
@@ -43,10 +35,7 @@ export function BypassRequestDetail({
       });
 
       toast({
-        title:
-          decision === "approve"
-            ? "Bypass request approved"
-            : "Bypass request rejected",
+        title: decision === "approve" ? "Bypass request approved" : "Bypass request rejected",
         description: `You have ${
           decision === "approve" ? "approved" : "rejected"
         } the bypass request for Order #${bypassRequest.order.id}.`,
@@ -60,17 +49,10 @@ export function BypassRequestDetail({
         router.refresh();
       }
     } catch (error: any) {
-      console.error(
-        `Error ${
-          decision === "approve" ? "approving" : "rejecting"
-        } bypass request:`,
-        error
-      );
+      console.error(`Error ${decision === "approve" ? "approving" : "rejecting"} bypass request:`, error);
       toast({
         variant: "destructive",
-        title: `Failed to ${
-          decision === "approve" ? "approve" : "reject"
-        } request`,
+        title: `Failed to ${decision === "approve" ? "approve" : "reject"} request`,
         description:
           error.response?.data?.message ||
           `An error occurred while ${

@@ -8,7 +8,7 @@ import LightBeam from "@/components/animations/LightBeam";
 import CSSWave from "@/components/animations/Waves";
 
 const Loading = () => {
-  const [showFullContent, setShowFullContent] = useState(false);
+  const [showFullContent_, setShowFullContent] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -84,9 +84,7 @@ const Loading = () => {
             repeatType: "reverse",
             times: [0, 0.33, 0.66, 1],
           }}
-          className={`absolute ${
-            isMobile ? "-top-20 right-0" : "-top-36 right-0"
-          }`}
+          className={`absolute ${isMobile ? "-top-20 right-0" : "-top-36 right-0"}`}
         >
           <WashingMachine size={isMobile ? 80 : 100} className="text-birtu" />
         </motion.div>
@@ -102,9 +100,7 @@ const Loading = () => {
             delay: 1,
             times: [0, 0.5, 1],
           }}
-          className={`absolute ${
-            isMobile ? "-top-20 -left-10" : "-top-32 -left-20"
-          }`}
+          className={`absolute ${isMobile ? "-top-20 -left-10" : "-top-32 -left-20"}`}
         >
           <Shirt size={isMobile ? 50 : 64} className="text-oren" />
         </motion.div>
@@ -122,11 +118,7 @@ const Loading = () => {
           }}
           className="absolute top-0 right-24"
         >
-          <Droplets
-            size={isMobile ? 32 : 42}
-            className="text-birmud"
-            strokeWidth={1.5}
-          />
+          <Droplets size={isMobile ? 32 : 42} className="text-birmud" strokeWidth={1.5} />
         </motion.div>
 
         {/* Main Text Animation */}
@@ -160,9 +152,7 @@ const Loading = () => {
           transition={{ delay: 3, duration: 1 }}
           className="text-center mt-2 mb-4"
         >
-          <span className="text-birtu text-sm sm:text-lg font-medium italic">
-            {tagline}
-          </span>
+          <span className="text-birtu text-sm sm:text-lg font-medium italic">{tagline}</span>
         </motion.div>
 
         {/* Animated Underline */}

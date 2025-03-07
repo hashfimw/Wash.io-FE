@@ -18,7 +18,12 @@ import { ReportPeriod } from "@/types/reports";
 interface ReportFilterProps {
   outlets: Outlet[];
   showPeriodFilter?: boolean;
-  onFilterChange: (filters: any) => void;
+  onFilterChange: (filters: {
+    outletId?: number;
+    startDate?: string;
+    endDate?: string;
+    period?: ReportPeriod;
+  }) => void;
   userRole: string; // User's role (SUPER_ADMIN or OUTLET_ADMIN)
   userOutletId?: string; // Outlet ID for OUTLET_ADMIN
 }

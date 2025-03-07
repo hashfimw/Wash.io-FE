@@ -41,27 +41,18 @@ export function useEmployeeTable({
   const [totalItems, setTotalItems] = useState(0);
 
   // State for filters
-  const [searchInput, setSearchInput] = useState(
-    searchParams.get("search") || ""
-  );
+  const [searchInput, setSearchInput] = useState(searchParams.get("search") || "");
   const debouncedSearch = useDebounce(searchInput, 600);
-  const [searchQuery, setSearchQuery] = useState(
-    searchParams.get("search") || ""
-  );
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
 
-  const [currentPage, setCurrentPage] = useState(
-    Number(searchParams.get("page")) || 1
-  );
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1);
 
   const [sortBy, setSortBy] = useState<SortConfig>({
     field: searchParams.get("sortBy") || initialSortField,
-    direction:
-      (searchParams.get("sortOrder") as "asc" | "desc") || initialSortDirection,
+    direction: (searchParams.get("sortOrder") as "asc" | "desc") || initialSortDirection,
   });
 
-  const [selectedRole, setSelectedRole] = useState<Role | "">(
-    (searchParams.get("role") as Role) || ""
-  );
+  const [selectedRole, setSelectedRole] = useState<Role | "">((searchParams.get("role") as Role) || "");
 
   const [selectedOutlet, setSelectedOutlet] = useState<number | null>(
     searchParams.get("outlet") ? Number(searchParams.get("outlet")) : null
@@ -183,7 +174,15 @@ export function useEmployeeTable({
       }
 
       // Prepare parameters untuk API call
-      const params: any = {
+      const params: {
+        page: number;
+        limit: number;
+        sortBy: string;
+        sortOrder: "asc" | "desc";
+        search?: string;
+        role?: Role;
+        outletName?: string;
+      } = {
         page: currentPage,
         limit: pageSize,
         sortBy: sortBy.field,
@@ -205,10 +204,7 @@ export function useEmployeeTable({
 
         // Hitung total halaman dan item
         if (response.meta && typeof response.meta.total === "number") {
-          console.log(
-            "Setting totalPages from meta.total:",
-            response.meta.total
-          );
+          console.log("Setting totalPages from meta.total:", response.meta.total);
           setTotalPages(response.meta.total);
 
           // Hitung perkiraan total item

@@ -101,6 +101,7 @@ export interface OrderItem {
   orderItemName: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ApiResponse<T> {
   success: boolean;
   data: {
@@ -128,7 +129,7 @@ export interface OrderParams {
   startDate?: string;
   endDate?: string;
 }
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface OrderResponse {
   [x: string]: any;
   filter(arg0: (order: { orderStatus: string }) => boolean): unknown;

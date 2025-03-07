@@ -72,7 +72,7 @@ export default function OrdersPage() {
     [pathname, router, searchParams]
   );
 
-  // Fetch orders when filters or page changes
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   useEffect(() => {
     const fetchOrders = async () => {
       setLocalLoading(true);
@@ -85,8 +85,6 @@ export default function OrdersPage() {
           limit: 10,
           sortOrder: "desc",
         };
-
-        // Menambahkan tanggal awal dan akhir jika ada dateRange
         if (dateRange) {
           // Menggunakan startOfDay dan endOfDay untuk memastikan rentang penuh hari dipilih
           requestParams.startDate = startOfDay(dateRange.startDate).toISOString();
