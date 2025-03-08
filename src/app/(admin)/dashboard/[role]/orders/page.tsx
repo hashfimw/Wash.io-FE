@@ -72,12 +72,11 @@ export default function OrdersPage() {
     [pathname, router, searchParams]
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   useEffect(() => {
     const fetchOrders = async () => {
       setLocalLoading(true);
       try {
-        const requestParams: any = {
+        const requestParams: Record<string, unknown> = {
           outletId: selectedOutletId || undefined,
           orderStatus: selectedStatus || undefined,
           search: searchQuery || undefined,

@@ -22,7 +22,7 @@ interface OrderFiltersProps {
 export function OrderFilters({ onStatusChange, onDateRangeChange, onOutletChange }: OrderFiltersProps) {
   const { user } = useAdminAuth(); // Get current user
   const [outlets, setOutlets] = useState<{ id: number; outletName: string }[]>([]);
-  const { getOutlets, loading: outletsLoading_ } = useOutlets();
+  const { getOutlets } = useOutlets();
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [datePickerOpen, setDatePickerOpen] = useState(false);

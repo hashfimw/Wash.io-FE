@@ -48,7 +48,7 @@ export const Breadcrumb = ({ items }: BreadcrumbProps) => {
 
       {/* Desktop view - show all items */}
       {!isMobile &&
-        items.map((item, index_) => (
+        items.map((item) => (
           <div key={item.label} className="flex items-center min-w-0">
             <ChevronRight className="h-4 w-4 text-slate-800 flex-shrink-0 mx-1" />
 

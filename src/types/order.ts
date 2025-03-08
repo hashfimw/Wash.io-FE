@@ -101,11 +101,16 @@ export interface OrderItem {
   orderItemName: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ApiResponse<T> {
   success: boolean;
   data: {
-    meta: any;
+    meta: {
+      page: number;
+      limit: number;
+      total: number;
+      total_page: number;
+      totalRecords: number;
+    };
     data: T;
   };
 }
@@ -129,10 +134,12 @@ export interface OrderParams {
   startDate?: string;
   endDate?: string;
 }
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface OrderResponse {
-  [x: string]: any;
-  filter(arg0: (order: { orderStatus: string }) => boolean): unknown;
+  map(
+    arg0: (order: OrderResponse) => { id: number; status: string }
+  ): import("react").SetStateAction<Order[]>;
+  id: number;
+  status: string;
   data: Order[];
   meta: {
     page: number;
@@ -140,4 +147,5 @@ export interface OrderResponse {
     total: number;
     totalRecords: number;
   };
+  filter(arg0: (order: { orderStatus: string }) => boolean): unknown;
 }

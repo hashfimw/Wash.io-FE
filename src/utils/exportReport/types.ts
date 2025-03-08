@@ -1,6 +1,5 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ExportData = {
-  [key: string]: any;
+  [key: string]: Record<string, string | number | boolean> | string | number | boolean;
 };
 
 export type ExportConfig = {
@@ -47,7 +46,9 @@ export const prepareDataRows = (data: ExportData, config: ExportConfig) => {
 
       // Format currency values if needed
       if (config.currencyColumns?.includes(dataKey)) {
-        cellValue = formatToIDR(cellValue);
+        if (typeof cellValue === "string" || typeof cellValue === "number") {
+          cellValue = formatToIDR(cellValue);
+        }
       }
 
       rowValues.push(cellValue);

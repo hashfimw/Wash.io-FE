@@ -9,10 +9,7 @@ interface PendingOrdersCardProps {
   userRoleForPath: string;
 }
 
-export function PendingOrdersCard({
-  count,
-  userRoleForPath,
-}: PendingOrdersCardProps) {
+export function PendingOrdersCard({ count, userRoleForPath }: PendingOrdersCardProps) {
   const router = useRouter();
 
   const handleClick = () => {
@@ -20,21 +17,14 @@ export function PendingOrdersCard({
   };
 
   return (
-    <Card
-      className="hover:shadow-md transition-shadow cursor-pointer"
-      onClick={handleClick}
-    >
+    <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={handleClick}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-gray-600">
-          Pending Orders
-        </CardTitle>
+        <CardTitle className="text-sm font-medium text-gray-600">Pending Orders</CardTitle>
         <Shirt className="h-6 w-6 text-orange-500" />
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{count}</div>
-        {count > 0 && (
-          <p className="text-xs text-yellow-600">Requires attention</p>
-        )}
+        {count > 0 && <p className="text-xs text-yellow-600">Requires attention</p>}
       </CardContent>
     </Card>
   );
@@ -45,10 +35,7 @@ interface TodayOrdersCardProps {
   userRoleForPath: string;
 }
 
-export function TodayOrdersCard({
-  count,
-  userRoleForPath,
-}: TodayOrdersCardProps) {
+export function TodayOrdersCard({ count, userRoleForPath }: TodayOrdersCardProps) {
   const router = useRouter();
 
   const handleClick = () => {
@@ -56,14 +43,9 @@ export function TodayOrdersCard({
   };
 
   return (
-    <Card
-      className="hover:shadow-md transition-shadow cursor-pointer"
-      onClick={handleClick}
-    >
+    <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={handleClick}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-gray-600">
-          Today's Orders
-        </CardTitle>
+        <CardTitle className="text-sm font-medium text-gray-600">Today&apos;s Orders</CardTitle>
         <Calendar className="h-6 w-6 text-purple-500" />
       </CardHeader>
       <CardContent>

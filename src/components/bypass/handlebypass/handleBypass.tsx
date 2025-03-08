@@ -48,13 +48,13 @@ export function BypassRequestDetail({ bypassRequest, onProcessed }: BypassReques
         router.push("/dashboard/bypass-requests");
         router.refresh();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(`Error ${decision === "approve" ? "approving" : "rejecting"} bypass request:`, error);
       toast({
         variant: "destructive",
         title: `Failed to ${decision === "approve" ? "approve" : "reject"} request`,
         description:
-          error.response?.data?.message ||
+          (error instanceof Error && error.message) ||
           `An error occurred while ${
             decision === "approve" ? "approving" : "rejecting"
           } the bypass request. Please try again.`,

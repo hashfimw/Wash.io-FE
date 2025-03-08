@@ -8,7 +8,7 @@ import LightBeam from "@/components/animations/LightBeam";
 import CSSWave from "@/components/animations/Waves";
 
 const Loading = () => {
-  const [showFullContent_, setShowFullContent] = useState(false);
+  const [_showFullContent, setShowFullContent] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {

@@ -26,7 +26,9 @@ export function EmployeePerformanceTable({ data, isLoading, onTabChange }: Emplo
   const handleTabChange = (tab: "workers" | "drivers") => {
     setActiveTab(tab);
     // Panggil onTabChange jika prop tersedia
-    onTabChange && onTabChange(tab);
+    if (onTabChange) {
+      onTabChange(tab);
+    }
   };
 
   // Filter workers based on search query

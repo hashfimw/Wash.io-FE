@@ -54,13 +54,8 @@ export function BypassRequestForm({
     },
   });
 
-  async function onSubmit(values: BypassFormValues) {
+  async function onSubmit(_values: BypassFormValues) {
     try {
-      const response_ = await requestBypass({
-        laundryJobId,
-        byPassNote: values.byPassNote,
-      });
-
       toast({
         title: "Bypass request submitted",
         description: "Your request has been sent to admin for approval.",

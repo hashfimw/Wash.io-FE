@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { useReports } from "@/hooks/api/reports/useReports";
 import { useOutlets } from "@/hooks/api/outlets/useOutlets";
@@ -29,7 +28,7 @@ export function EmployeePerformanceClient({
   const tableRef = useRef<HTMLDivElement>(null);
   const userRole = role === "super-admin" ? "SUPER_ADMIN" : "OUTLET_ADMIN";
   const { getEmployeePerformance, loading, error: reportError } = useReports();
-  const { getOutlets, outlets, loading: outletsLoading_, error: outletsError } = useOutlets();
+  const { getOutlets, outlets, error: outletsError } = useOutlets();
   const [performanceData, setPerformanceData] = useState<EmployeePerformanceData>({
     workers: [],
     drivers: [],

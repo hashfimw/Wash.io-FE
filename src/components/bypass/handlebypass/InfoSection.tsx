@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { User, Home } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BypassRequest, ByPassStatus, WorkerStation } from "@/types/bypass";
+import { BypassRequest, WorkerStation } from "@/types/bypass";
 
 interface InfoSectionProps {
   bypassRequest: BypassRequest;

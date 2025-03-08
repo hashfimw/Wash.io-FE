@@ -6,7 +6,7 @@ import { Order } from "@/types/order";
 // Versi yang lebih sederhana
 export const usePendingOrders = () => {
   const { loading: ordersLoading, error: ordersError, getAllOrders } = useOrders();
-  const [pendingOrders, setPendingOrders_] = useState<Order[]>([]);
+  const [pendingOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

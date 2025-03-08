@@ -1,6 +1,6 @@
 // File: app/api/dashboard-data/route.ts
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 // Definisikan interface untuk data yang dibutuhkan
 interface User {

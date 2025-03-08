@@ -1,4 +1,6 @@
-// src/types/customer.ts
+// src/types/customer.ts\
+
+import type { Metadata } from "next";
 export interface User {
   id: number;
   fullName: string | null;
@@ -9,9 +11,9 @@ export interface User {
   createdAt: Date;
   updatedAt: Date;
 }
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export interface UserResponse {
-  meta: any;
+  meta: Metadata;
   total_page: number;
   page: number;
   limit: number;

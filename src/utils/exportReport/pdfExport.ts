@@ -128,7 +128,7 @@ export const exportToPDF = async (chartElement: HTMLElement, data: ExportData, c
 
     const dataRows = prepareDataRows(data, config);
 
-    dataRows.forEach((rowValues, rowIndex_) => {
+    dataRows.forEach((rowValues) => {
       // Add new page if needed
       if (rowCount >= maxRowsPerPage) {
         pdf.addPage();

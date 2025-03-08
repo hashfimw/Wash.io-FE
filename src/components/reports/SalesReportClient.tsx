@@ -41,7 +41,7 @@ export function SalesReportClient({
   const chartRef = useRef<HTMLDivElement>(null);
   const userRole = role === "super-admin" ? "SUPER_ADMIN" : "OUTLET_ADMIN";
   const { getSalesReport, loading, error: reportError } = useReports();
-  const { getOutlets, outlets, loading: outletsLoading_, error: outletsError } = useOutlets();
+  const { getOutlets, outlets, error: outletsError } = useOutlets();
   const [salesData, setSalesData] = useState<SalesReportData>({});
   const [filters, setFilters] = useState<SalesReportParams>({
     period: (initialPeriod as ReportPeriod) || "daily",

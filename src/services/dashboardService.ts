@@ -243,16 +243,16 @@ export function getOrdersCreatedToday(orders: Order[]): Order[] {
 export function extractOrdersArray(ordersResponse: OrdersResponse): Order[] {
   if (ordersResponse?.data) {
     // Cek jika data.data adalah array
-    if (Array.isArray((ordersResponse.data as any).data)) {
-      return (ordersResponse.data as any).data;
+    if (Array.isArray((ordersResponse.data as { data?: Order[] }).data)) {
+      return (ordersResponse.data as { data?: Order[] }).data || [];
     }
     // Cek jika data adalah array
     else if (Array.isArray(ordersResponse.data)) {
       return ordersResponse.data;
     }
     // Cek jika data.data.data ada
-    else if ((ordersResponse.data as any).data?.data) {
-      return (ordersResponse.data as any).data.data;
+    else if ((ordersResponse.data as { data?: { data?: Order[] } }).data?.data) {
+      return (ordersResponse.data as { data?: { data?: Order[] } }).data?.data || [];
     }
   }
 

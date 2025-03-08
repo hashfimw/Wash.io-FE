@@ -7,7 +7,6 @@ export interface SortConfig {
   direction: "asc" | "desc";
 }
 
-// Interface lainnya tetap sama
 export interface CreateOutletInput {
   outletName: string;
   addressLine: string;
@@ -19,7 +18,16 @@ export interface CreateOutletInput {
   longitude?: string;
 }
 
-export interface UpdateOutletInput extends CreateOutletInput {}
+export interface UpdateOutletInput {
+  outletName: string;
+  addressLine: string;
+  province: string;
+  regency: string;
+  district: string;
+  village: string;
+  latitude?: string;
+  longitude?: string;
+}
 
 export interface Outlet {
   createdAt: string | number | Date;
