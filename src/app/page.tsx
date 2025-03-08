@@ -2,10 +2,8 @@ import Homepage from "@/components/app/homepage";
 
 export default function Home() {
   return (
-    <div className="container mx-auto max-w-full">
-      <main className="">
-        <Homepage />
-      </main>
-    </div>
+    <main className="container mx-auto max-w-full min-h-dvh">
+      <Homepage />
+    </main>
   );
 }
