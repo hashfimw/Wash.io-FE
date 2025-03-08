@@ -2,8 +2,11 @@ import React, { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useSession } from "@/hooks/useSession";
+import Avatar from "../app/avatar";
 
 export default function MobileNavbar() {
+  const { isAuth } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [navbarColor, setNavbarColor] = useState("#E7FAFE");
   const [hasShadow, setHasShadow] = useState(false);
@@ -50,35 +53,53 @@ export default function MobileNavbar() {
             ash<span className="text-orange-500">io</span>
           </Link>
         </div>
-        <div
-          className="text-gray-700 font-bold hover:cursor-pointer"
-          onClick={toggleMenu}
-        >
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
+
+        {/* Avatar atau Burger Menu */}
+        <div className="text-gray-700 font-bold hover:cursor-pointer flex items-center space-x-4">
+          {isOpen ? (
+            <X size={24} onClick={toggleMenu} />
+          ) : isAuth ? (
+            <Avatar />
+          ) : (
+            <Menu size={24} onClick={toggleMenu} />
+          )}
         </div>
       </div>
 
       {/* Dropdown Menu */}
-      {isOpen && (
-        <nav className="flex flex-col text-center space-y-4 bg-gray-100 p-6 text-gray-700">
-          <Link href={"/"} className="hover:text-orange-500">
-            Home
-          </Link>
-          <Link href={"/"} className="hover:text-orange-500">
-            Services
-          </Link>
-          <Link href={"/"} className="hover:text-orange-500">
-            Locations
-          </Link>
-          <Link href={"/"} className="hover:text-orange-500">
-            About
-          </Link>
-          <Link href={"/"} className="hover:text-orange-500">
-            Contact
-          </Link>
-          <Link href={"/"} className="hover:text-orange-500">
-            Sign In
-          </Link>
+      {isOpen && !isAuth && (
+        <nav
+          id="dropdown-menu"
+          className="absolute top-full right-0 w-full bg-white border border-gray-200 rounded-xl shadow-md z-50"
+        >
+          <ul className="space-y-4 py-5">
+            <li className="flex items-center justify-center">
+              <Link href={"/"} className="hover:text-orange-500">
+                Home
+              </Link>
+            </li>
+            <li className="flex items-center justify-center">
+              <Link href={"/outlets"} className="hover:text-orange-500">
+                Outlets
+              </Link>
+            </li>
+            <li className="flex items-center justify-center">
+              <Link href={"/about"} className="hover:text-orange-500">
+                About
+              </Link>
+            </li>
+            <li className="flex items-center justify-center">
+              <Link href={"/contact"} className="hover:text-orange-500">
+                Contact
+              </Link>
+            </li>
+            <hr className="my-2 border-t" />
+            <li className="flex items-center justify-center">
+              <Link href={"/login"} className="hover:text-green-800">
+                Sign In
+              </Link>
+            </li>
+          </ul>
         </nav>
       )}
     </div>
