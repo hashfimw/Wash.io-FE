@@ -31,7 +31,7 @@ import { WorkerStation } from "@/types/bypass";
 
 const bypassFormSchema = z.object({
   byPassNote: z.string().min(10, {
-    message: "Alasan bypass minimal 10 karakter.",
+    message: "Bypass note/reason is at least 10 characters.",
   }),
 });
 
@@ -69,9 +69,9 @@ export function BypassRequestForm({
       });
 
       toast({
-        title: "Permintaan bypass terkirim",
+        title: "Bypass request sent",
         description:
-          "Permintaan Anda telah dikirim ke admin untuk persetujuan.",
+          "Your request has been sent to admin to be confirmed.",
       });
 
       setRequestSent(true);
@@ -82,10 +82,10 @@ export function BypassRequestForm({
       console.error("Error mengajukan permintaan bypass:", error);
       toast({
         variant: "destructive",
-        title: "Gagal mengirim permintaan",
+        title: "Failed to send request",
         description:
           error.response?.data?.message ||
-          "Terjadi kesalahan saat mengajukan permintaan bypass. Silakan coba lagi.",
+          "Something wrong during request bypass process. Please try again.",
       });
     }
   }
@@ -114,22 +114,24 @@ export function BypassRequestForm({
   }
 
   function getStationName(station: WorkerStation): import("react").ReactNode {
-    throw new Error("Function not implemented.");
+    return station.toLowerCase().replace(/(?: |\b)(\w)/g, function (key) {
+      return key.toUpperCase();
+    });
   }
 
   return (
-    <Card className="border-2 border-red-200">
-      <CardHeader className="bg-red-50">
-        <CardTitle className="text-red-700 flex items-center gap-2">
-          <AlertCircle className="h-5 w-5" />
-          Proses Terblokir
-        </CardTitle>
-        <CardDescription>
-          Silakan minta persetujuan bypass dari admin untuk melanjutkan proses{" "}
-          {getStationName(station)} untuk Order #{orderId}.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="pt-6">
+  //   <Card className="border-2 border-red-200">
+  //     <CardHeader className="bg-red-50">
+  //       <CardTitle className="text-red-700 flex items-center gap-2">
+  //         <AlertCircle className="h-5 w-5" />
+  //         Proses Terblokir
+  //       </CardTitle>
+  //       <CardDescription>
+  //         Silakan minta persetujuan bypass dari admin untuk melanjutkan proses{" "}
+  //         {getStationName(station)} untuk Order #{orderId}.
+  //       </CardDescription>
+  //     </CardHeader>
+  //     <CardContent className="pt-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
@@ -137,28 +139,27 @@ export function BypassRequestForm({
               name="byPassNote"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Alasan Bypass</FormLabel>
+                  <FormLabel>Bypass reason</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Jelaskan mengapa Anda perlu bypass proses ini (mis. item hilang, masalah berat)"
+                      placeholder="Explain why you need to request bypass (eg. missing item(s), force majeur, etc.)"
                       className="resize-none"
                       {...field}
                     />
                   </FormControl>
                   <FormDescription>
-                    Berikan informasi detail untuk membantu admin membuat
-                    keputusan.
+                    Give detailed information to help the decision of admin.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={loading}>
-              {loading ? "Mengirim..." : "Ajukan Persetujuan Bypass"}
+            <Button variant="birtu" type="submit" disabled={loading}>
+              {loading ? "Sending..." : "Request bypass"}
             </Button>
           </form>
         </Form>
-      </CardContent>
-    </Card>
+    //   </CardContent>
+    // </Card>
   );
 }

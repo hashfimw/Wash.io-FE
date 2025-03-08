@@ -123,6 +123,7 @@ export default function AttendancesList() {
       });
       handleResetFilters();
       setIsSuccess(true);
+      setTimeout(() => handleAfterSuccessSubmit(), 1500);
     } else {
       toast({
         title: "Error",
@@ -134,7 +135,7 @@ export default function AttendancesList() {
 
   useEffect(() => {
     fetchCheckIsNull();
-  }, [isSuccess == true]);
+  }, []);
 
   useEffect(() => {
     handleNameChange(debouncedName);
@@ -154,11 +155,11 @@ export default function AttendancesList() {
 
   useEffect(() => {
     fetchAttendances();
-  }, [page, limit, sortBy, sortOrder, name, attendanceType, roleFilter, workShift, outletName, startDate, endDate, isSuccess == true]);
+  }, [page, limit, sortBy, sortOrder, name, attendanceType, roleFilter, workShift, outletName, startDate, endDate]);
 
   useEffect(() => {
     fetchEmployeeStatus();
-  }, [isSuccess == true]);
+  }, [isSuccess]);
 
   useEffect(() => {
     if (listError) {
@@ -256,6 +257,11 @@ export default function AttendancesList() {
   const handleSubmit = () => {
     setAlertOpen(false);
     submitAttendance(submitValue!);
+  };
+
+  const handleAfterSuccessSubmit = () => {
+    fetchCheckIsNull();
+    fetchAttendances();
   };
 
   const handleCloseModal = () => {

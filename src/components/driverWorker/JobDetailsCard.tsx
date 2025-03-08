@@ -7,12 +7,14 @@ interface JobDetailsCardProps {
   job: GetJobByIdResponse;
   isTakeLaundryJob: boolean;
   isValid: boolean;
+  isPending: boolean,
   inputBody: UpdateLaundryJobInputBody[];
   errors: string[];
   handleQtyChange: (orderItemId: number, newQty: number) => void;
 }
 
-export default function JobDetailsCard({ role, job, isTakeLaundryJob, isValid, inputBody, errors, handleQtyChange }: JobDetailsCardProps) {
+export default function JobDetailsCard({ role, job, isTakeLaundryJob, isValid, inputBody, errors, handleQtyChange, isPending }: JobDetailsCardProps) {
+  const isNotPending = !!(isTakeLaundryJob && !isPending)
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-3 text-sidebar-foreground">
@@ -60,6 +62,17 @@ export default function JobDetailsCard({ role, job, isTakeLaundryJob, isValid, i
             </span>
           </p>
         )}
+        <p>
+          <span className="text-muted-foreground">• Order Status </span>
+          <span className="font-medium text-white text-xs sm:text-sm saturate-[.8] rounded-full py-0.5 px-3 bg-black">
+            {job.orderStatus
+              .toLowerCase()
+              .replace(/_/g, " ")
+              .replace(/(?: |\b)(\w)/g, function (key) {
+                return key.toUpperCase();
+              })}
+          </span>
+        </p>
         <p>
           <span className="text-muted-foreground">• Handled by </span>
           <span className="font-medium">{job.employeeName ? job.employeeName : "-"}</span>
@@ -116,8 +129,8 @@ export default function JobDetailsCard({ role, job, isTakeLaundryJob, isValid, i
               {!job.isByPassRequested ? (
                 <span className="font-medium text-white text-xs sm:text-sm saturate-[.8] rounded-full py-0.5 px-3 bg-lime-600">No bypass</span>
               ) : job.isByPassRequested && !job.byPassStatus ? (
-                <span className="font-medium text-white text-xs sm:text-sm saturate-[.8] rounded-full py-0.5 px-3 bg-lime-600">
-                  Waiting for admin response
+                <span className="font-medium text-white text-xs sm:text-sm saturate-[.8] rounded-full py-0.5 px-3 bg-yellow-600">
+                  Pending
                 </span>
               ) : job.byPassStatus && job.byPassStatus === "ACCEPTED" ? (
                 <span className="font-medium text-white text-xs sm:text-sm saturate-[.8] rounded-full py-0.5 px-3 bg-lime-600">Accepted</span>
@@ -139,7 +152,7 @@ export default function JobDetailsCard({ role, job, isTakeLaundryJob, isValid, i
                       <td className="w-20">Num</td>
                       <td>Item name</td>
                       <td className="w-20">Qty</td>
-                      {isTakeLaundryJob && <td className="w-20">Input</td>}
+                      {isNotPending && <td className="w-20">Input</td>}
                     </tr>
                   </thead>
                   <tbody>
@@ -148,7 +161,7 @@ export default function JobDetailsCard({ role, job, isTakeLaundryJob, isValid, i
                         <td>{idx + 1}</td>
                         <td>{job.orderItem![idx].orderItemName}</td>
                         <td>{job.orderItem![idx].qty}</td>
-                        {isTakeLaundryJob && (
+                        {isNotPending && (
                           <td className="place-content-center">
                             <input
                               type="number"
@@ -164,7 +177,7 @@ export default function JobDetailsCard({ role, job, isTakeLaundryJob, isValid, i
                     ))}
                   </tbody>
                 </table>
-                {isTakeLaundryJob && (
+                {isNotPending && (
                   <>
                     {errors.length > 0 && (
                       <div className="px-4 py-2 bg-red-100 text-red-700 border-t-0 text-sm">
