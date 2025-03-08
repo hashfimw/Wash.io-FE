@@ -1,5 +1,3 @@
-import { WorkerStation } from "./employee";
-
 export enum EmployeeWorkShift {
   MORNING = "MORNING",
   NOON = "NOON",
@@ -50,7 +48,6 @@ export interface GetAttendancesResponse {
 export type AttendanceSortField = "id" | "date" | "attendanceType" | "name" | "role" | "workShift" | "outletName";
 
 export interface GetEmployeeStatusResponse {
-  data: {
     workShift: EmployeeWorkShift;
     isWorking: boolean;
     isPresent: boolean;
@@ -58,5 +55,4 @@ export interface GetEmployeeStatusResponse {
     canClockIn: boolean;
     isAttended: boolean;
     shiftStart: string
-  };
 }

@@ -6,8 +6,11 @@ import { useToast } from "../ui/use-toast";
 import { GetJobByIdResponse, UpdateLaundryJobInputBody } from "@/types/driverWorker";
 import { Button } from "../ui/button";
 import ProcessModal from "./ProcessModal";
-import { Input } from "../ui/input";
 import validateOrderItemInputs from "./validateTakeLaundryJobSchema";
+import { Separator } from "../ui/separator";
+import { Skeleton } from "../ui/skeleton";
+import ErrorTable from "./ErrorTable";
+import JobDetailsCard from "./JobDetailsCard";
 
 export default function JobDetails({ role, id }: { role: "driver" | "worker"; id: string }) {
   const { getJobById, updateJob: alterJob, loading: apiLoading, error } = useDriverWorker();
@@ -110,112 +113,91 @@ export default function JobDetails({ role, id }: { role: "driver" | "worker"; id
   );
 
   return (
-    <div className="mx-auto p-3 space-y-6 max-w-screen-lg">
-      <div className="sm:p-6 space-y-4 sm:bg-white sm:shadow sm:rounded-xl w-full items-center">
+    <div className="mx-auto space-y-6 max-w-screen-lg">
+      <div className="sm:p-5 sm:bg-white sm:shadow sm:rounded-xl w-full items-center">
         {loading ? (
-          <>Loading</>
+          <div className="flex flex-col gap-3 mt-4 sm:mt-0 w-full max-w-screen-sm">
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-6 w-48 mt-8" />
+            <Skeleton className="h-5" />
+            <Skeleton className="h-5" />
+            <Skeleton className="h-5" />
+            <Skeleton className="h-5" />
+            <Skeleton className="h-6 w-48 mt-8" />
+            <Skeleton className="h-5" />
+            <Skeleton className="h-5" />
+            <Skeleton className="h-5" />
+            <Skeleton className="h-5" />
+            <Skeleton className="h-5" />
+          </div>
         ) : error ? (
-          <>Error: error</>
+          <ErrorTable errorMessage={error} />
         ) : (
           job && (
             <>
-              <div className="flex justify-between items-center">
-                <h1 className="text-xl sm:text-2xl font-bold">
-                  {role === "driver" ? "Transport " : "Laundry "} Job #{id}
-                </h1>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center mt-4 sm:mt-0">
+                  <h1 className="text-xl sm:text-2xl font-bold">
+                    {role === "driver" ? "Transport " : "Laundry "} Job #{id}
+                  </h1>
+                  {isTakeLaundryJob ? (
+                    <div className="flex gap-3">
+                      <Button disabled={isValid || loading || !!error} variant="outline" size="lg" className="hidden sm:block">
+                        Bypass request
+                      </Button>
+                      <Button disabled={!canTakeLaundryJob} variant="birtu" size="lg" className="hidden sm:block" onClick={() => setAlertOpen(true)}>
+                        Take Job
+                      </Button>
+                    </div>
+                  ) : (
+                    !job.isCompleted && (
+                      <Button disabled={!!error || loading} variant="birtu" size="lg" className="hidden sm:block" onClick={() => setAlertOpen(true)}>
+                        {job.employeeName ? "Process Job" : "Take Job"}
+                      </Button>
+                    )
+                  )}
+                </div>
+                <Separator />
+                <JobDetailsCard
+                  role={role}
+                  job={job}
+                  isTakeLaundryJob={isTakeLaundryJob}
+                  isValid={isValid}
+                  inputBody={inputBody}
+                  errors={errors}
+                  handleQtyChange={handleQtyChange}
+                />
+              </div>
+              <div className="fixed w-[calc(100vw-32px)] bottom-5">
                 {isTakeLaundryJob ? (
-                  <div className="flex gap-3">
-                    <Button disabled={isValid} variant="outline" size="lg" className="hidden sm:block" onClick={() => setAlertOpen(true)}>
+                  <div className="flex flex-col gap-3">
+                    <Button disabled={isValid || loading || !!error} variant="outline" size="lg" className="block sm:hidden h-12">
                       Bypass request
                     </Button>
-                    <Button disabled={!canTakeLaundryJob} variant="birtu" size="lg" className="hidden sm:block" onClick={() => setAlertOpen(true)}>
+                    <Button
+                      disabled={!canTakeLaundryJob}
+                      variant="birtu"
+                      size="lg"
+                      className="block sm:hidden w-full h-12"
+                      onClick={() => setAlertOpen(true)}
+                    >
                       Take Job
                     </Button>
                   </div>
                 ) : (
                   !job.isCompleted && (
-                    <Button disabled={!!error || loading} variant="birtu" size="lg" className="hidden sm:block" onClick={() => setAlertOpen(true)}>
+                    <Button
+                      disabled={!!error || loading}
+                      variant="birtu"
+                      size="lg"
+                      className="block sm:hidden w-full h-12"
+                      onClick={() => setAlertOpen(true)}
+                    >
                       {job.employeeName ? "Process Job" : "Take Job"}
                     </Button>
                   )
                 )}
               </div>
-              <div className="flex flex-col gap-4">
-                <p>{role === "driver" ? <p>Transport type: {job.transportType}</p> : <p>Station: {job.station}</p>}</p>
-                {job.employeeId && <p>{job.isCompleted ? "Completed" : "In Progress"}</p>}
-                <p>Issue date: {job.createdAt}</p>
-                <p>Last updated date: {job.updatedAt}</p>
-                <p>Status: {job.orderStatus}</p>
-                {job.employeeName && <p>Handler: {job.employeeName}</p>}
-                {role === "driver" ? (
-                  <>
-                    <p>Customer: {job.customerName}</p>
-                    <p>Distance: {job.distance} km</p>
-                    {job.address && (
-                      <p>
-                        Address line: {job.address.addressLine}, {job.address.province}, {job.address.regency}, {job.address.district},{" "}
-                        {job.address.village}
-                      </p>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <p>Customer: {job.customerName}</p>
-                    <p>Weight: {job.laundryWeight} kg</p>
-                    {inputBody.map((item, idx) => (
-                      <div className="flex gap-3" key={item.orderItemId}>
-                        <p>
-                          {"#"}
-                          {idx + 1} {job.orderItem![idx].qty} x {job.orderItem![idx].orderItemName}
-                        </p>
-                        {isTakeLaundryJob && (
-                          <Input
-                            type="number"
-                            min="0"
-                            value={item.qty}
-                            onChange={(e) => handleQtyChange(item.orderItemId, parseInt(e.target.value) || 0)}
-                            required
-                          />
-                        )}
-                      </div>
-                    ))}
-                    {isTakeLaundryJob ? (
-                      <>
-                        {errors.length > 0 && (
-                          <div className="my-4 p-3 bg-red-100 text-red-700 rounded">
-                            <p className="font-bold">Validation Errors:</p>
-                            <ul className="list-disc ml-5">
-                              {errors.map((error, index) => (
-                                <li key={index}>{error}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                        {isValid && <div className="my-4 p-3 bg-green-100 text-green-700 rounded">All items match the expected values!</div>}
-                      </>
-                    ) : (
-                      <></>
-                    )}
-                  </>
-                )}
-              </div>
-              {isTakeLaundryJob ? (
-                <Button disabled={!canTakeLaundryJob} variant="birtu" size="lg" className="block sm:hidden w-full" onClick={() => setAlertOpen(true)}>
-                  Take Job
-                </Button>
-              ) : (
-                !job.isCompleted && (
-                  <Button
-                    disabled={!!error || loading}
-                    variant="birtu"
-                    size="lg"
-                    className="block sm:hidden w-full"
-                    onClick={() => setAlertOpen(true)}
-                  >
-                    {job.employeeName ? "Process Job" : "Take Job"}
-                  </Button>
-                )
-              )}
               <ProcessModal loading={loading} onClose={() => setAlertOpen(false)} onSubmit={() => updateJob()} open={isAlertOpen} />
             </>
           )

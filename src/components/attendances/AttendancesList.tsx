@@ -1,20 +1,23 @@
 "use client";
 
-import { useDebounce } from "use-debounce";
-import { AttendanceRecord, AttendanceSortField, AttendanceType, EmployeeWorkShift } from "@/types/attendance";
+import { AttendanceRecord, AttendanceSortField, AttendanceType, GetEmployeeStatusResponse } from "@/types/attendance";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useAttendance } from "../../hooks/api/attendances/useAttendance";
 import { DateRange } from "react-day-picker";
-import { useToast } from "../ui/use-toast";
+import { useDebounce } from "use-debounce";
+import { useToast } from "@/components/ui/use-toast";
+import { EmployeeWorkShift } from "@/types/employee";
 import { toLocalTimeString } from "@/utils/dateTime";
-import { TableSkeleton } from "../ui/table-skeleton";
-import AttendancesTable from "./AttendancesTable";
 import AttendancesFilters from "./AttendancesFilters";
-import ZeroFilteredResult from "../driverWorker/ZeroFilteredResult";
+import { TableSkeleton } from "../ui/table-skeleton";
+import ErrorTable from "../driverWorker/ErrorTable";
 import NullAttendance from "./NullAttendance";
+import ZeroFilteredResult from "../driverWorker/ZeroFilteredResult";
+import AttendancesTable from "./AttendancesTable";
+import AttendanceSubmission from "./AttendanceSubmission";
+import { useAttendance } from "@/hooks/api/attendances/useAttendance";
 
-export function AttendancesList() {
+export default function AttendancesList() {
   const params = useParams();
   const role = params.role as string;
 
@@ -37,7 +40,6 @@ export function AttendancesList() {
   const [debouncedName] = useDebounce(inputName, 500);
   const [inputOutletName, setInputOutletName] = useState<string>();
   const [debouncedOutletName] = useDebounce(inputOutletName, 500);
-
   const [date, setDate] = useState<DateRange | undefined>();
 
   const [isNull, setIsNull] = useState<boolean>(false);
@@ -45,42 +47,128 @@ export function AttendancesList() {
   const [totalPages, setTotalPages] = useState<number>(0);
   const [totalData, setTotalData] = useState<number>(0);
 
-  const { getAttendances, loading: apiLoading, error, checkIsNull } = useAttendance();
-  const [pageLoading, setPageLoading] = useState<boolean>(true);
-  const loading = !!(pageLoading || apiLoading);
+  const [employeeStatus, setEmployeeStatus] = useState<GetEmployeeStatusResponse>({
+    canClockIn: false,
+    isAttended: false,
+    isOnWorkShift: false,
+    isPresent: false,
+    isWorking: false,
+    shiftStart: new Date().toString(),
+    workShift: "MORNING" as EmployeeWorkShift,
+  });
+  const [isAlertOpen, setAlertOpen] = useState<boolean>(false);
+  const [submitValue, setSubmitValue] = useState<"CLOCK_IN" | "CLOCK_OUT">();
+  const [isSuccess, setIsSuccess] = useState<boolean>(false);
+
+  const {
+    getAttendances,
+    checkIsNull,
+    listLoading: apiListLoading,
+    listError,
+    getEmployeeStatus,
+    createAttendance,
+    submitLoading,
+    submitError,
+  } = useAttendance();
+  const [listPageLoading, setListPageLoading] = useState<boolean>(true);
+  const listLoading = !!(listPageLoading || apiListLoading);
+
   const { toast } = useToast();
 
   const fetchAttendances = async () => {
+    setListPageLoading(true);
     const response = await getAttendances({
       page,
       limit: +limit,
       sortBy,
       sortOrder: sortOrder as "asc" | "desc",
       attendanceType: attendanceType as AttendanceType,
-      name,
+      name: debouncedName,
       role: roleFilter as "DRIVER" | "WORKER",
       workShift: workShift as EmployeeWorkShift,
-      outletName,
+      outletName: debouncedOutletName,
       startDate: date?.from?.toISOString(),
       endDate: date?.to?.toISOString(),
     });
     setAttendances(response.data);
     setTotalPages(response.meta.total_pages);
     setTotalData(response.meta.total_data);
+    setListPageLoading(false);
   };
 
   const fetchCheckIsNull = async () => {
-    setPageLoading(true);
+    setListPageLoading(true);
     const response = await checkIsNull();
     const isNull = !!response.count;
 
     setIsNull(!isNull);
-    setPageLoading(false);
+    setListPageLoading(false);
+  };
+
+  const fetchEmployeeStatus = async () => {
+    const response = await getEmployeeStatus();
+
+    setEmployeeStatus(response.data);
+  };
+
+  const submitAttendance = async (attendanceType: "CLOCK_IN" | "CLOCK_OUT") => {
+    setIsSuccess(false);
+    const response = await createAttendance(attendanceType);
+
+    if (!submitError) {
+      toast({
+        title: "Submission success",
+        description: response,
+        variant: "default",
+      });
+      handleResetFilters();
+      setIsSuccess(true);
+    } else {
+      toast({
+        title: "Error",
+        description: submitError,
+        variant: "destructive",
+      });
+    }
   };
 
   useEffect(() => {
     fetchCheckIsNull();
-  }, []);
+  }, [isSuccess == true]);
+
+  useEffect(() => {
+    handleNameChange(debouncedName);
+  }, [debouncedName]);
+
+  useEffect(() => {
+    handleOutletNameChange(debouncedOutletName);
+  }, [debouncedOutletName]);
+
+  useEffect(() => {
+    let startDate;
+    let endDate;
+    if (date?.from) startDate = toLocalTimeString(date.from);
+    if (date?.to) endDate = toLocalTimeString(date.to);
+    handleDateRangeChange(startDate, endDate);
+  }, [date]);
+
+  useEffect(() => {
+    fetchAttendances();
+  }, [page, limit, sortBy, sortOrder, name, attendanceType, roleFilter, workShift, outletName, startDate, endDate, isSuccess == true]);
+
+  useEffect(() => {
+    fetchEmployeeStatus();
+  }, [isSuccess == true]);
+
+  useEffect(() => {
+    if (listError) {
+      toast({
+        title: "Error",
+        description: listError,
+        variant: "destructive",
+      });
+    }
+  }, [listError]);
 
   const updateUrlParams = (params: Record<string, string>) => {
     const url = new URL(window.location.href);
@@ -165,89 +253,131 @@ export function AttendancesList() {
     router.push(url.pathname + url.search);
   };
 
-  useEffect(() => {
-    handleNameChange(debouncedName);
-  }, [debouncedName]);
+  const handleSubmit = () => {
+    setAlertOpen(false);
+    submitAttendance(submitValue!);
+  };
 
-  useEffect(() => {
-    handleOutletNameChange(debouncedOutletName);
-  }, [debouncedOutletName]);
+  const handleCloseModal = () => {
+    setAlertOpen(false);
+  };
 
-  useEffect(() => {
-    let startDate;
-    let endDate;
-    if (date?.from) startDate = toLocalTimeString(date.from);
-    if (date?.to) endDate = toLocalTimeString(date.to);
-    handleDateRangeChange(startDate, endDate);
-  }, [date]);
+  const handleOpenModal = (value: "CLOCK_IN" | "CLOCK_OUT") => {
+    setSubmitValue(value);
+    setAlertOpen(true);
+  };
 
-  useEffect(() => {
-    setPageLoading(true);
-    fetchAttendances();
-    setPageLoading(false);
-  }, [page, limit, sortBy, sortOrder, name, attendanceType, roleFilter, workShift, outletName, startDate, endDate]);
+  const currentHour = new Date().getHours();
 
-  useEffect(() => {
-    if (error) {
-      toast({
-        title: "Error",
-        description: error,
-        variant: "destructive",
-      });
-    }
-  }, [error]);
+  const shiftStartHour = () => {
+    if (employeeStatus.workShift === "MORNING") return 6;
+    else if (employeeStatus.workShift === "NOON") return 14;
+    else return 22;
+  };
+
+  const shiftEndHour = () => {
+    if (employeeStatus.workShift === "MORNING") return 14;
+    else if (employeeStatus.workShift === "NOON") return 22;
+    else return 6;
+  };
+
+  const nextShiftHour = () => {
+    if (employeeStatus.workShift === "MORNING") return 5;
+    else if (employeeStatus.workShift === "NOON") return 13;
+    else return 21;
+  };
+
+  const conditions = {
+    isClockedOut: !!(!employeeStatus.canClockIn && !employeeStatus.isPresent && employeeStatus.isAttended),
+    isOffShift: !!(!employeeStatus.canClockIn && !employeeStatus.isPresent && !employeeStatus.isAttended),
+    canSubmit: !!(employeeStatus.canClockIn && !employeeStatus.isPresent),
+    isWaiting: !!(employeeStatus.isPresent && !employeeStatus.isOnWorkShift && currentHour < shiftStartHour()),
+    isIdling: !!(employeeStatus.isPresent && !employeeStatus.isWorking && employeeStatus.isOnWorkShift),
+    isBusy: !!(employeeStatus.isPresent && employeeStatus.isWorking),
+    isPresent: employeeStatus.isPresent,
+    isWorking: employeeStatus.isWorking,
+    canClockIn: employeeStatus.canClockIn,
+  };
+
+  const hours = {
+    shiftStart: shiftStartHour().toString(),
+    shiftEnd: shiftEndHour().toString(),
+    nextShift: nextShiftHour().toString(),
+  };
 
   const employee = !!(role === "driver" || role === "worker");
 
   return (
-    <div className={`${loading && "pointer-events-none"} sm:p-4  ${employee && "sm:p-6"} flex flex-col sm:bg-white sm:shadow sm:rounded-xl w-full`}>
-      {employee && (
-        <div className="mb-4">
+    <div className={`mx-auto p-3 space-y-6 ${employee && "max-w-screen-lg"}`}>
+      {!employee && (
+        <div>
           <h1 className="text-xl sm:text-2xl font-bold">Attendances History</h1>
-          <p className="text-muted-foreground">View list of your attendances history</p>
+          <p className="text-muted-foreground">{"View list of employees' attendances history"}</p>
         </div>
       )}
-      {!isNull && (
-        <AttendancesFilters
-          role={role}
-          attendanceType={attendanceType}
-          name={inputName}
-          roleFilter={roleFilter}
-          workShift={workShift}
-          outletName={inputOutletName}
-          date={date}
-          limit={limit}
-          onFiltersReset={handleResetFilters}
-          onAttendanceTypeChange={handleAttendanceTypeChange}
-          onNameChange={setInputName}
-          onRoleChange={handleRoleChange}
-          onWorkShiftChange={handleWorkShiftChange}
-          onOutletNameChange={setInputOutletName}
-          onDateChange={setDate}
-          onLimitChange={handleLimitChange}
+      {employee && (
+        <AttendanceSubmission
+          loading={submitLoading}
+          error={submitError}
+          conditions={conditions}
+          hours={hours}
+          isAlertOpen={isAlertOpen}
+          onOpenModal={handleOpenModal}
+          onCloseModal={handleCloseModal}
+          onSubmit={handleSubmit}
         />
       )}
-      {loading ? (
-        <TableSkeleton columns={role === "super-admin" ? 7 : role === "outlet-admin" ? 5 : 2} rows={5} />
-      ) : error ? (
-        <>Error</>
-      ) : isNull ? (
-        <NullAttendance />
-      ) : attendances.length === 0 ? (
-        <ZeroFilteredResult />
-      ) : (
-        <AttendancesTable
-          role={role}
-          attendances={attendances}
-          page={page}
-          totalPages={totalPages}
-          totalData={totalData}
-          sortBy={sortBy}
-          sortOrder={sortOrder}
-          onSortChange={handleSort}
-          onPageChange={handlePageChange}
-        />
-      )}
+      <div
+        className={`${listLoading && "pointer-events-none"} sm:p-4  ${employee && "sm:p-6"} flex flex-col sm:bg-white sm:shadow sm:rounded-xl w-full`}
+      >
+        {employee && (
+          <div className="mb-4">
+            <h1 className="text-xl sm:text-2xl font-bold">Attendances History</h1>
+            <p className="text-muted-foreground">View list of your attendances history</p>
+          </div>
+        )}
+        {!isNull && (
+          <AttendancesFilters
+            role={role}
+            attendanceType={attendanceType}
+            name={inputName}
+            roleFilter={roleFilter}
+            workShift={workShift}
+            outletName={inputOutletName}
+            date={date}
+            limit={limit}
+            onFiltersReset={handleResetFilters}
+            onAttendanceTypeChange={handleAttendanceTypeChange}
+            onNameChange={setInputName}
+            onRoleChange={handleRoleChange}
+            onWorkShiftChange={handleWorkShiftChange}
+            onOutletNameChange={setInputOutletName}
+            onDateChange={setDate}
+            onLimitChange={handleLimitChange}
+          />
+        )}
+        {listLoading ? (
+          <TableSkeleton columns={role === "super-admin" ? 7 : role === "outlet-admin" ? 5 : 2} rows={5} />
+        ) : listError ? (
+          <ErrorTable errorMessage={listError} />
+        ) : isNull ? (
+          <NullAttendance />
+        ) : attendances.length !== 0 ? (
+          <AttendancesTable
+            role={role}
+            attendances={attendances}
+            page={page}
+            totalPages={totalPages}
+            totalData={totalData}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSortChange={handleSort}
+            onPageChange={handlePageChange}
+          />
+        ) : (
+          <ZeroFilteredResult />
+        )}
+      </div>
     </div>
   );
 }

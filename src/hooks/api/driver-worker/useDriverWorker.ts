@@ -23,6 +23,7 @@ export const useDriverWorker = () => {
   const getJobs = async (params: GetJobsRequest) => {
     try {
       setLoading(true);
+      setError(null);
 
       const queryParams = new URLSearchParams();
       if (params.page) queryParams.append("page", params.page.toString());
@@ -52,6 +53,7 @@ export const useDriverWorker = () => {
   const getJobById = async (endPoint: "transport-jobs" | "laundry-jobs", jobId: number) => {
     try {
       setLoading(true);
+      setError(null);
 
       const response = await api.get<{ data: GetJobByIdResponse }>(`/${endPoint}/${jobId}`);
 
@@ -68,6 +70,7 @@ export const useDriverWorker = () => {
   const getOngoingJob = async (endPoint: "transport-jobs" | "laundry-jobs") => {
     try {
       setLoading(true);
+      setError(null);
 
       const response = await api.get<{ data: number }>(`/${endPoint}/ongoing`);
 
@@ -84,6 +87,7 @@ export const useDriverWorker = () => {
   const checkIsNull = async (endPoint: "transport-jobs" | "laundry-jobs", requestType: "request" | "history") => {
     try {
       setLoading(true);
+      setError(null);
 
       const response = await api.get<{ data: number }>(`/${endPoint}/check?requestType=${requestType}`);
 
@@ -92,12 +96,15 @@ export const useDriverWorker = () => {
       if (axios.isAxiosError(err)) setError(err.response?.data.message);
       else setError("Failed to fetch job");
       throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
   const updateJob = async (endPoint: "transport-jobs" | "laundry-jobs", jobId: number, inputBody?: UpdateLaundryJobInputBody[]) => {
     try {
       setLoading(true);
+      setError(null);
 
       const response = await api.patch<{ message: string }>(`/${endPoint}/${jobId}?tzo=${tzo}`, { orderItemInput: inputBody });
 

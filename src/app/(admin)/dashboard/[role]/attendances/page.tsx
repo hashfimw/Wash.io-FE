@@ -1,5 +1,6 @@
 "use client";
 
+import AttendancesList from "@/components/attendances/AttendancesList";
 import AttendancesPage from "@/components/attendances/AttendancesPage";
 import { useBreadcrumb } from "@/context/BreadcrumbContext";
 import { useParams } from "next/navigation";
@@ -17,7 +18,7 @@ export default function AdminAttendancesPage() {
   }, [role, setBreadcrumbItems]);
   return (
     <>
-      <AttendancesPage />
+      <AttendancesList />
     </>
   );
 }

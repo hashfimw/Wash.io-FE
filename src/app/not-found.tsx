@@ -304,8 +304,8 @@ export default function NotFound() {
               </h2>
             </div>
             <p className="text-gray-600 max-w-lg mx-auto text-center text-base sm:text-lg px-4">
-              Oops! It seems this item got lost in our laundry system. The page
-              you're looking for might have been misplaced or no longer exists.
+              {`Oops! It seems this item got lost in our laundry system. The page
+              you're looking for might have been misplaced or no longer exists.`}
             </p>
           </motion.div>
 

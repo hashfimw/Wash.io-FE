@@ -1,7 +1,6 @@
 "use client";
 
-import AttendancesPage from "@/components/attendances/AttendancesPage";
-import AttendanceSubmission from "@/components/attendances/AttendanceSubmission";
+import AttendancesList from "@/components/attendances/AttendancesList";
 import { useBreadcrumb } from "@/context/BreadcrumbContext";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
@@ -18,8 +17,7 @@ export default function EmployeeAttendancesPage() {
   }, [role, setBreadcrumbItems]);
   return (
     <>
-      <AttendanceSubmission />
-      <AttendancesPage />
+      <AttendancesList />
     </>
   );
 }

@@ -40,7 +40,7 @@ export default function AttendancesTable({
 
   return (
     <div className="flex flex-col items-center space-y-3">
-      <p className="text-muted-foreground place-self-start translate-y-1 text-sm">Click on the column's header to sort by column</p>
+      <p className="text-muted-foreground place-self-start translate-y-1 text-sm">{"Click on the column's header to sort by column"}</p>
       <div className="rounded-md border text-center w-full">
         <Table>
           <TableHeader>

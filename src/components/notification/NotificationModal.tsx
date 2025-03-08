@@ -131,10 +131,11 @@ export default function NotificationModal({ open, onClose }: NotificationModalPr
         </DialogHeader>
         <div className="bg-birmud/75 rounded-xl shadow-inner p-2 space-y-3">
           <div className="w-full flex text-center text-sm space-x-2">
-            {["Unread", "Read"].map((value) => {
+            {["Unread", "Read"].map((value, idx) => {
               const state = value.toLowerCase();
               return (
                 <button
+                  key={idx}
                   onClick={() => handleRequestType(state as NotificationRequestType)}
                   disabled={requestType == state || loading}
                   className={`${requestType == state ? "bg-birtu text-white shadow-md" : "text-birtu hover:bg-birtu/10 hover:shadow-inner"} ${

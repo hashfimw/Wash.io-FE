@@ -16,7 +16,7 @@ export default function NullAttendance() {
       </div>
       <p className="text-xl font-semibold text-black/75">No records found</p>
       <p className="text-muted-foreground font-medium text-center">
-        You have not submitted any attendances yet. It seems that you are new here, aren't you?
+        {"You have not submitted any attendances yet. It seems that you are new here, aren't you?"}
       </p>
     </div>
   );

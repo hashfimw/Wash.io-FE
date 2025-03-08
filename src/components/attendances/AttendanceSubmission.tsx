@@ -1,112 +1,45 @@
 "use client";
 
-import { useAttendance } from "@/hooks/api/attendances/useAttendance";
-import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { ClipboardCheck, ClipboardX, LoaderCircle } from "lucide-react";
-import { useToast } from "../ui/use-toast";
 import { Skeleton } from "../ui/skeleton";
-import { addDays, addHours, format } from "date-fns";
-import SubmissionModal from "./SubmissionModal";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 
-export default function AttendanceSubmission() {
-  const [isOnWorkShift, setIsOnWorkShift] = useState<boolean>(false);
-  const [isPresent, setIsPresent] = useState<boolean>(false);
-  const [isWorking, setIsWorking] = useState<boolean>(false);
-  const [canClockIn, setCanClockIn] = useState<boolean>(false);
-  const [isAttended, setIsAttended] = useState<boolean>(false);
-  const [isSuccess, setIsSuccess] = useState<boolean>(false);
-  const [shiftStart, setShiftStart] = useState<string>("");
-
-  const [isAlertOpen, setAlertOpen] = useState<boolean>(false);
-  const [submitValue, setSubmitValue] = useState<"CLOCK_IN" | "CLOCK_OUT">();
-
-  const { getEmployeeStatus, createAttendance, loading: apiLoading, error } = useAttendance();
-  const [pageLoading, setPageLoading] = useState<boolean>(true);
-  const loading = !!(pageLoading || apiLoading);
-  const { toast } = useToast();
-
-  const fetchEmployeeStatus = async () => {
-    setPageLoading(true);
-    const response = await getEmployeeStatus();
-
-    setIsOnWorkShift(response.isOnWorkShift);
-    setIsWorking(response.isWorking);
-    setIsPresent(response.isPresent);
-    setCanClockIn(response.canClockIn);
-    setIsAttended(response.isAttended);
-    setShiftStart(response.shiftStart);
-    setPageLoading(false);
+interface AttendanceSubmissionProps {
+  loading: boolean;
+  error: string | null;
+  conditions: {
+    isOffShift: boolean;
+    isClockedOut: boolean;
+    canSubmit: boolean;
+    isWaiting: boolean;
+    isIdling: boolean;
+    isBusy: boolean;
+    isPresent: boolean;
+    isWorking: boolean;
+    canClockIn: boolean;
   };
-
-  useEffect(() => {
-    fetchEmployeeStatus();
-  }, []);
-
-  useEffect(() => {
-    fetchEmployeeStatus();
-  }, [isSuccess == true]);
-
-  useEffect(() => {
-    if (error) {
-      toast({
-        title: "Error",
-        description: error,
-        variant: "destructive",
-      });
-    }
-  }, [error]);
-
-  const submitAttendance = async (attendanceType: "CLOCK_IN" | "CLOCK_OUT") => {
-    setAlertOpen(false);
-    setPageLoading(true);
-    setIsSuccess(false);
-    const response = createAttendance(attendanceType);
-
-    if (!error) {
-      toast({
-        title: "Submission success",
-        description: response,
-        variant: "default",
-      });
-      setIsSuccess(true);
-    }
+  hours: {
+    nextShift: string;
+    shiftStart: string;
+    shiftEnd: string;
   };
+  isAlertOpen: boolean;
+  onSubmit: () => void;
+  onOpenModal: (value: "CLOCK_IN" | "CLOCK_OUT") => void;
+  onCloseModal: () => void;
+}
 
-  const handleSubmit = () => {
-    if (submitValue) {
-      submitAttendance(submitValue);
-    }
-  };
-
-  const handleCloseModal = () => {
-    setAlertOpen(false);
-  };
-
-  const handleOpenModal = (value: "CLOCK_IN" | "CLOCK_OUT") => {
-    setSubmitValue(value);
-    setAlertOpen(true);
-  };
-
-  const handleShiftStart = () => {
-    return addHours(shiftStart, 1);
-  };
-
-  const handleShiftEnd = () => {
-    return addHours(shiftStart, 9);
-  };
-
-  const handleNextShift = () => {
-    return addDays(shiftStart, 1);
-  };
-
-  const isClockedOut = !!(!canClockIn && !isPresent && isAttended);
-  const isOffShift = !!(!canClockIn && !isPresent && !isAttended);
-  const canSubmit = !!(canClockIn && !isPresent);
-  const isWaiting = !!(isPresent && !isOnWorkShift && new Date() < handleShiftStart());
-  const isIdling = !!(isPresent && !isWorking && new Date() < handleShiftEnd());
-  const isBusy = !!(isPresent && isWorking);
-
+export default function AttendanceSubmission({
+  loading,
+  error,
+  conditions,
+  hours,
+  isAlertOpen,
+  onSubmit: handleSubmit,
+  onOpenModal: handleOpenModal,
+  onCloseModal: handleCloseModal,
+}: AttendanceSubmissionProps) {
   return (
     <div className="mx-auto p-3 space-y-6 max-w-screen-sm text-center">
       <div className="sm:p-6 flex flex-col space-y-4 sm:bg-white sm:shadow sm:rounded-xl w-full items-center">
@@ -116,21 +49,23 @@ export default function AttendanceSubmission() {
             <Skeleton className="h-5 w-full mt-2" />
             <Skeleton className="h-5 w-full mt-2" />
           </>
+        ) : error ? (
+          <p>{error}</p>
         ) : (
           <p className="text-muted-foreground">
-            {isOffShift
-              ? `You're out of your shift hours. See you on your next shift at ${format(handleNextShift(), "HH")}:00.`
-              : isClockedOut
-              ? `You have clocked out on your shift today. See you on your next shift at ${format(handleNextShift(), "HH")}:00.`
-              : canSubmit
+            {conditions.isOffShift
+              ? `You're out of your shift hours. See you on your next shift window at ${hours.nextShift}:00.`
+              : conditions.isClockedOut
+              ? `You have clocked out on your shift today. See you on your next shift window at ${hours.nextShift}:00.`
+              : conditions.canSubmit
               ? "You are currently on your clock in window. Clock in your attendance now!"
-              : isWaiting
-              ? `You have clocked in early. Your work shift starts at ${format(handleShiftStart(), "HH")}:00.`
-              : isIdling
-              ? `You are now on your workshift. Your shift ends at ${format(handleShiftEnd(), "HH")}:00.`
-              : isBusy
+              : conditions.isWaiting
+              ? `You have clocked in early. Your work shift starts at ${hours.shiftStart}:00.`
+              : conditions.isIdling
+              ? `You are now on your workshift. Your shift ends at ${hours.shiftEnd}:00.`
+              : conditions.isBusy
               ? "You are now on an ongoing job. Finish your job to enable clock out submission."
-              : `You are currently exceeding off your work shift at ${format(handleShiftEnd(), "HH")}:00. You are free to clock out your attendance!`}
+              : `You are currently exceeding off your work shift at ${hours.shiftEnd}:00. You can clock in your next shift at ${hours.nextShift}:00.`}
           </p>
         )}
         {loading ? (
@@ -142,11 +77,11 @@ export default function AttendanceSubmission() {
           >
             <LoaderCircle className="animate-spin" /> Loading
           </Button>
-        ) : isPresent ? (
+        ) : conditions.isPresent ? (
           <Button
             size="lg"
             onClick={() => handleOpenModal("CLOCK_OUT")}
-            disabled={isWorking}
+            disabled={conditions.isWorking}
             variant="outline"
             className="border-0 font-semibold text-white bg-rose-500 hover:bg-rose-400 saturate-[.65] hover:text-white active:scale-95 disabled:cursor-not-allowed w-64"
           >
@@ -156,15 +91,32 @@ export default function AttendanceSubmission() {
           <Button
             size="lg"
             onClick={() => handleOpenModal("CLOCK_IN")}
-            disabled={!canClockIn}
+            disabled={!conditions.canClockIn}
             variant="outline"
             className="border-0 font-semibold text-white bg-lime-500 hover:bg-lime-400 saturate-[.65] hover:text-white active:scale-95 disabled:cursor-not-allowed w-64"
           >
             <ClipboardCheck /> Clock-in
           </Button>
         )}
-        <SubmissionModal open={isAlertOpen} onClose={handleCloseModal} onSubmit={handleSubmit} loading={loading} />
       </div>
+      <Dialog onOpenChange={handleCloseModal} open={isAlertOpen} >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Submit Attendance</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to submit attendance? Once you submitted you cannot clock in/clock out again in your current shift.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-3">
+            <Button onClick={handleCloseModal} variant="outline">
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit} disabled={loading} variant="birtu">
+              {loading ? "Loading" : "Submit Attendance"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
