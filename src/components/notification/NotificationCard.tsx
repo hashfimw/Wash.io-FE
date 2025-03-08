@@ -1,34 +1,33 @@
 "use client";
 
 import { NotificationRecord } from "@/types/notification";
-import { CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Separator } from "../ui/separator";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import TimeDifferenceTooltip from "../notification/TimeDifferenceTooltip";
 
-export default function NotificationCard({ item, time }: { item: NotificationRecord; time: { time: string; isDate: boolean } }) {
+export function NotificationCardContent({ item }: { item: NotificationRecord }) {
   return (
     <CardHeader className="px-5 py-3">
       <CardTitle>{item.title}</CardTitle>
       <Separator />
       <CardDescription>{item.description}</CardDescription>
       <CardDescription>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger className={`${!time.isDate ? "hover:underline text-birtu brightness-50 hover:brightness-75 transition" : ""}`}>
-              {time.time}
-            </TooltipTrigger>
-            {!time.isDate ? (
-              <>
-                <TooltipContent side="right" className="bg-birmud pointer-events-auto shadow text-black">
-                  {new Date(item.createdAt).toLocaleString()}
-                </TooltipContent>
-              </>
-            ) : (
-              <></>
-            )}
-          </Tooltip>
-        </TooltipProvider>
+        <TimeDifferenceTooltip date={item.createdAt} />
       </CardDescription>
     </CardHeader>
+  );
+}
+
+export function NotificationCard({ children, item, onClick }: { children: React.ReactNode; item: NotificationRecord; onClick?: () => void }) {
+  return (
+    <Card
+      onClick={onClick}
+      className={`relative z-0 ${!item.isRead ? " bg-orange-50 hover:bg-orange-100" : "bg-putbir brightness-95 hover:brightness-100"} transition`}
+    >
+      <div
+        className={`${!item.isRead ? "absolute -left-1 -top-1 size-4 bg-oren rounded-full blur-[1px] animate-ping duration-1500" : "hidden"}`}
+      ></div>
+      {children}
+    </Card>
   );
 }
