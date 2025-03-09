@@ -88,11 +88,11 @@ export default function NotificationModal({ open, onClose }: NotificationModalPr
 
   useEffect(() => {
     fetchUnreadCount();
-  }, []);
+  }, [open]);
 
   useEffect(() => {
     fetchNotification();
-  }, [page, requestType]);
+  }, [page, requestType, open]);
 
   useEffect(() => {
     if (error) {

@@ -35,7 +35,7 @@ export interface GetJobsResponse {
 
 export interface UpdateLaundryJobInputBody {
   orderItemId: number;
-  qty: number;
+  qty: number | null;
 }
 
 export interface GetJobByIdResponse {

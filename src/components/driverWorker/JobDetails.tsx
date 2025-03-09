@@ -20,8 +20,8 @@ import { GetEmployeeStatusResponse } from "@/types/attendance";
 import { useRouter } from "next/navigation";
 
 export default function JobDetails({ role, id }: { role: "driver" | "worker"; id: string }) {
-  const router = useRouter()
-  
+  const router = useRouter();
+
   const { getJobById, updateJob: alterJob, loading: apiLoading, error } = useDriverWorker();
   const [job, setJob] = useState<GetJobByIdResponse>();
 
@@ -67,7 +67,7 @@ export default function JobDetails({ role, id }: { role: "driver" | "worker"; id
         });
         const defaultItems = orderItems.map((item) => ({
           orderItemId: item.orderItemId,
-          qty: 0,
+          qty: null,
         }));
         setOrderItemNames(itemNames);
         setInputRef(orderItems);
@@ -148,6 +148,7 @@ export default function JobDetails({ role, id }: { role: "driver" | "worker"; id
   );
   const isPending = !!(isTakeLaundryJob && job.isByPassRequested && !job.byPassStatus);
   const isPendingProcess = !!(isPending || job?.byPassStatus === "REJECTED");
+  const canProcessJob = !!(!job?.isCompleted && employeeStatus.isPresent);
 
   return (
     <div className="mx-auto space-y-6 max-w-screen-lg">
@@ -199,7 +200,7 @@ export default function JobDetails({ role, id }: { role: "driver" | "worker"; id
                       </Button>
                     </div>
                   ) : (
-                    !job.isCompleted && (
+                    canProcessJob && (
                       <Button disabled={!!error || loading} variant="birtu" size="lg" className="hidden sm:block" onClick={() => setAlertOpen(true)}>
                         {job.employeeName ? "Process Job" : "Take Job"}
                       </Button>
@@ -257,7 +258,7 @@ export default function JobDetails({ role, id }: { role: "driver" | "worker"; id
                     </Button>
                   </div>
                 ) : (
-                  !job.isCompleted && (
+                  canProcessJob && (
                     <Button
                       disabled={!!error || loading}
                       variant="birtu"
