@@ -9,14 +9,16 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { DashboardData, getDashboardData } from "@/services/dashboardService";
 import DashboardContent from "@/components/admin/OverviewWrapper";
+import { useBreadcrumb } from "@/context/BreadcrumbContext";
 
 export default function DashboardPage() {
   const params = useParams();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
-
+  const { setBreadcrumbItems } = useBreadcrumb();
   // Get role from URL parameter
+
   const roleFromUrl = params?.role as string;
 
   // Debug info on component mount
@@ -45,7 +47,10 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchDashboardData();
   }, [roleFromUrl]);
-
+  useEffect(() => {
+    const roleName = roleFromUrl === "super-admin" ? "Super Admin" : "Outlet Admin";
+    setBreadcrumbItems([{ label: roleName, href: `/dashboard/${roleFromUrl}` }, { label: "Overview" }]);
+  }, [setBreadcrumbItems, roleFromUrl]);
   // Common header component for all states
   const DashboardHeader = () => (
     <div className="bg-gradient-to-r from-birtu to-birmud rounded-lg p-4 sm:p-6 text-oren shadow-lg overflow-hidden">
