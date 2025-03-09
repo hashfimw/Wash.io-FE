@@ -7,8 +7,6 @@ import { Button } from "../ui/button";
 import Avatar from "../app/avatar";
 import { useSession } from "@/hooks/useSession";
 
-
-
 export default function DesktopNavbar() {
   const { isAuth } = useSession();
   const [navbarColor, setNavbarColor] = useState("#E7FAFE");
@@ -39,7 +37,7 @@ export default function DesktopNavbar() {
       {/* Logo */}
       <div className="flex flex-row">
         <Link href={"/"} className="w-[36px] h-[36px] relative bottom-2">
-          <Image src={"/washio.png"} alt="washio-logo" fill className="object-cover" />
+          <Image src={"/washio-oren.png"} alt="washio-logo" fill className="object-cover" />
         </Link>
         <Link href={"/"} className="text-xl font-semibold">
           ash<span className="text-oren">io</span>
@@ -52,10 +50,10 @@ export default function DesktopNavbar() {
           <Avatar />
         ) : (
           <>
-            <Button className="bg-orange-500 hover:bg-orange-600 text-white text-sm">
+            <Button className="bg-orange-500 hover:bg-birtu text-white text-sm">
               <Link href={"/register"}>Sign Up</Link>
             </Button>
-            <Button className="bg-orange-500 hover:bg-orange-600 text-white text-sm">
+            <Button className="bg-orange-500 hover:bg-birtu text-white text-sm">
               <Link href={"/login"}>Sign In</Link>
             </Button>
           </>

@@ -6,18 +6,12 @@ import { useOrders } from "@/hooks/api/request-order/usePublicOrders";
 import { useAddress } from "@/hooks/api/request-order/useAddress";
 import { useLocation } from "@/context/LocationContext";
 
-
 const CreatePickupOrder: React.FC = () => {
   const router = useRouter();
   const { createPickupOrder } = useOrders();
-  const {
-    addresses,
-    loading: addressesLoading,
-    error: addressesError,
-    getAllAddresses,
-  } = useAddress();
+  const { addresses, loading: addressesLoading, error: addressesError, getAllAddresses } = useAddress();
 
-  const { location, permissionStatus, requestLocation } = useLocation();
+  const { permissionStatus, requestLocation } = useLocation();
 
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -53,9 +47,7 @@ const CreatePickupOrder: React.FC = () => {
         const order = await createPickupOrder(selectedAddressId);
         router.push(`/orders/${order.id}`);
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to create pickup order"
-        );
+        setError(err instanceof Error ? err.message : "Failed to create pickup order");
       } finally {
         setIsSubmitting(false);
       }
@@ -75,10 +67,7 @@ const CreatePickupOrder: React.FC = () => {
     return (
       <div className="p-4 text-center text-yellow-700">
         Location access is required to create a pickup order.
-        <button
-          onClick={requestLocation}
-          className="ml-2 px-4 py-2 bg-blue-600 text-white rounded-md"
-        >
+        <button onClick={requestLocation} className="ml-2 px-4 py-2 bg-blue-600 text-white rounded-md">
           Enable Location
         </button>
       </div>
@@ -89,16 +78,14 @@ const CreatePickupOrder: React.FC = () => {
     <div className="max-w-2xl mx-auto p-4">
       <h2 className="text-xl font-bold mb-4 pt-20">Create Pickup Order</h2>
 
-      {error && (
-        <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">{error}</div>
-      )}
+      {error && <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">{error}</div>}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label className="block mb-2 font-medium">Select Pickup Address</label>
           {addresses?.length === 0 ? (
             <div className="p-4 bg-yellow-100 text-yellow-700 rounded-md">
-              You don't have any saved addresses. Please add an address first.
+              You don&apos;t have any saved addresses. Please add an address first.
             </div>
           ) : (
             <div className="space-y-3">
@@ -115,9 +102,7 @@ const CreatePickupOrder: React.FC = () => {
                   />
                   <label htmlFor={`address-${address.id}`} className="cursor-pointer">
                     <div className="font-medium">
-                      {address.isPrimary && (
-                        <span className="text-blue-600">(Primary) </span>
-                      )}
+                      {address.isPrimary && <span className="text-blue-600">(Primary) </span>}
                       {address.addressLine}
                     </div>
                     <div className="text-sm text-gray-600">

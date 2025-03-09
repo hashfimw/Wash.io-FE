@@ -1,4 +1,4 @@
-// src/components/employees/employee-table-filters.tsx
+// src/components/employees/employee-form/employee-table-filters.tsx
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +12,7 @@ import { Role } from "@/types/employee";
 import { useOutlets } from "@/hooks/api/outlets/useOutlets";
 import { useEffect, useState } from "react";
 import { Outlet } from "@/types/outlet";
+import { Search, X } from "lucide-react";
 
 interface EmployeeTableFiltersProps {
   searchQuery: string;
@@ -33,13 +34,13 @@ export function EmployeeTableFilters({
   onResetFilters,
 }: EmployeeTableFiltersProps) {
   const [outlets, setOutlets] = useState<Outlet[]>([]);
-  const { getOutlets } = useOutlets();
+  const { getOutlets, loading: outletsLoading } = useOutlets();
 
   useEffect(() => {
     const fetchOutlets = async () => {
       try {
         const response = await getOutlets();
-        setOutlets(response.data);
+        setOutlets(response.data || []);
       } catch (error) {
         console.error("Error fetching outlets:", error);
       }
@@ -48,22 +49,62 @@ export function EmployeeTableFilters({
     fetchOutlets();
   }, []);
 
+  const handleRoleChange = (value: string) => {
+    // Handle "ALL Role" selection as empty string
+    if (value === "ALL Role") {
+      onRoleChange("");
+    } else {
+      onRoleChange(value as Role);
+    }
+  };
+
+  const handleOutletChange = (value: string) => {
+    // Handle "ALL Outlets" selection as null
+    if (value === "ALL Outlets") {
+      onOutletChange(null);
+    } else {
+      onOutletChange(value ? parseInt(value) : null);
+    }
+  };
+
+  const clearSearch = () => {
+    onSearchChange("");
+  };
+
+  const isFiltersActive = searchQuery || selectedRole || selectedOutlet;
+
   return (
     <div className="flex flex-col md:flex-row gap-4 items-center">
+      {/* Search Input */}
       <div className="relative flex-1">
-        <Input
-          placeholder="Search employees..."
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="w-[200px] lg:w-[300px]"
-        />
+        <div className="relative">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search employees..."
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className="w-full md:w-[300px] pl-8 pr-8"
+          />
+          {searchQuery && (
+            <button
+              onClick={clearSearch}
+              className="absolute right-2 top-2.5"
+              aria-label="Clear search"
+            >
+              <X className="h-4 w-4 text-muted-foreground" />
+            </button>
+          )}
+        </div>
       </div>
-      <div className="flex flex-row gap-4">
+
+      {/* Filter Selects */}
+      <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+        {/* Role Filter */}
         <Select
-          value={selectedRole}
-          onValueChange={(value) => onRoleChange(value as Role | "")}
+          value={selectedRole || "ALL Role"}
+          onValueChange={handleRoleChange}
         >
-          <SelectTrigger className="w-[140px] lg:w-[200px] ">
+          <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="Select role" />
           </SelectTrigger>
           <SelectContent>
@@ -73,13 +114,14 @@ export function EmployeeTableFilters({
             <SelectItem value={Role.DRIVER}>Driver</SelectItem>
           </SelectContent>
         </Select>
+
+        {/* Outlet Filter */}
         <Select
-          value={selectedOutlet?.toString() || ""}
-          onValueChange={(value) =>
-            onOutletChange(value ? parseInt(value) : null)
-          }
+          value={selectedOutlet?.toString() || "ALL Outlets"}
+          onValueChange={handleOutletChange}
+          disabled={outletsLoading}
         >
-          <SelectTrigger className="w-[140px] lg:w-[200px]">
+          <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="Select outlet" />
           </SelectTrigger>
           <SelectContent>
@@ -92,8 +134,15 @@ export function EmployeeTableFilters({
           </SelectContent>
         </Select>
       </div>
-      <Button variant="birtu" onClick={onResetFilters} className="w-[80px]">
-        Reset
+
+      {/* Reset Button */}
+      <Button
+        variant="birtu"
+        onClick={onResetFilters}
+        className="w-full md:w-auto"
+        disabled={!isFiltersActive}
+      >
+        Reset Filters
       </Button>
     </div>
   );

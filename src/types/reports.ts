@@ -1,7 +1,3 @@
-// src/types/report.ts
-
-import { Employee } from "./employee";
-
 export type ReportPeriod = "daily" | "monthly" | "yearly";
 
 export interface SalesReportParams {
@@ -58,7 +54,19 @@ export interface SalesReportResponse {
 }
 
 export interface EmployeePerformanceResponse {
-  [x: string]: any;
-  pagination: EmployeePerformanceResponse;
+  pagination: {
+    workers: {
+      currentPage: number;
+      totalPages: number;
+    };
+    drivers: {
+      currentPage: number;
+      totalPages: number;
+    };
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
   data: EmployeePerformanceData;
 }

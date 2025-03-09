@@ -60,10 +60,8 @@ export const Header = ({ user, breadcrumbItems, role }: HeaderProps) => {
   };
 
   return (
-    <div className="relative border-b overflow-hidden">
-      {/* Background gradient */}
+    <div className="relative border-b overflow-hidden rounded-r-3xl">
       <div className="absolute inset-0 bg-gradient-to-b from-birtu to-birtu/70 rounded-r-3xl"></div>
-
       <div className="relative flex h-16 items-center px-4 gap-4 z-10">
         {/* Mobile Sidebar Toggle */}
         <Sheet>
@@ -80,12 +78,10 @@ export const Header = ({ user, breadcrumbItems, role }: HeaderProps) => {
             </div>
           </SheetContent>
         </Sheet>
-
         {/* Breadcrumb with improved styling */}
         <div className="flex-1">
           <Breadcrumb items={breadcrumbItems} />
         </div>
-
         {/* User Menu - Improved styling */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

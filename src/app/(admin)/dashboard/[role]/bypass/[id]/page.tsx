@@ -2,13 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-
 import { AlertCircle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useBypassRequest } from "@/hooks/api/bypassrequest/useBypass";
@@ -20,10 +18,8 @@ export default function BypassRequestDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
-  const { getBypassRequestById, loading } = useBypassRequest();
-  const [bypassRequest, setBypassRequest] = useState<BypassRequest | null>(
-    null
-  );
+  const { getBypassRequestById } = useBypassRequest();
+  const [bypassRequest, setBypassRequest] = useState<BypassRequest | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
@@ -53,8 +49,7 @@ export default function BypassRequestDetailPage() {
         toast({
           variant: "destructive",
           title: "Error",
-          description:
-            "Failed to load bypass request details. Please try again.",
+          description: "Failed to load bypass request details. Please try again.",
         });
       } finally {
         setIsLoading(false);
@@ -70,28 +65,19 @@ export default function BypassRequestDetailPage() {
   const getStatusBadge = (status: ByPassStatus | null) => {
     if (status === null) {
       return (
-        <Badge
-          variant="outline"
-          className="bg-yellow-50 text-yellow-700 border-yellow-200"
-        >
+        <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
           Pending
         </Badge>
       );
     } else if (status === ByPassStatus.ACCEPTED) {
       return (
-        <Badge
-          variant="outline"
-          className="bg-green-50 text-green-700 border-green-200"
-        >
+        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
           Approved
         </Badge>
       );
     } else if (status === ByPassStatus.REJECTED) {
       return (
-        <Badge
-          variant="outline"
-          className="bg-red-50 text-red-700 border-red-200"
-        >
+        <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
           Rejected
         </Badge>
       );
@@ -137,8 +123,7 @@ export default function BypassRequestDetailPage() {
             <AlertCircle className="h-10 w-10 text-red-500 mb-4" />
             <h3 className="text-xl font-medium mb-2">Request Not Found</h3>
             <p className="text-muted-foreground text-center mb-6">
-              {error ||
-                `Bypass request with ID #${id} could not be found or has been deleted.`}
+              {error || `Bypass request with ID #${id} could not be found or has been deleted.`}
             </p>
             <Button asChild>
               <Link href={backUrl}>Back to List</Link>
@@ -157,9 +142,7 @@ export default function BypassRequestDetailPage() {
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <h1 className="text-2xl font-bold">
-          Bypass Request Details #{bypassRequest.id}
-        </h1>
+        <h1 className="text-2xl font-bold">Bypass Request Details #{bypassRequest.id}</h1>
         <div className="ml-2">{getStatusBadge(bypassRequest.byPassStatus)}</div>
       </div>
 

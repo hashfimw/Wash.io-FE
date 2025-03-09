@@ -7,9 +7,7 @@ import { ShowerHead, ThumbsUp, Clock, WashingMachine } from "lucide-react";
 import LaundrySearchBar from "./searchbar";
 
 export default function AboutPage() {
-  const [activeTab, setActiveTab] = useState<
-    "machines" | "services" | "why-us"
-  >("machines");
+  const [activeTab, setActiveTab] = useState<"machines" | "services" | "why-us">("machines");
   const [selectedItem, setSelectedItem] = useState<number>(0);
 
   // Machines data
@@ -30,11 +28,7 @@ export default function AboutPage() {
         "State-of-the-art dryers with adjustable temperature settings to protect your fabrics while drying them thoroughly and quickly.",
       capacity: "20kg capacity",
       image: "/images/dryer.jpg",
-      features: [
-        "Moisture sensing",
-        "Quick dry technology",
-        "Anti-wrinkle setting",
-      ],
+      features: ["Moisture sensing", "Quick dry technology", "Anti-wrinkle setting"],
     },
     {
       id: 2,
@@ -43,11 +37,7 @@ export default function AboutPage() {
         "Specialized equipment for pre-treating stubborn stains before washing, ensuring better results on difficult spots and marks.",
       capacity: "Custom treatments",
       image: "/images/stain-station.jpg",
-      features: [
-        "Eco-friendly solutions",
-        "Targeted application",
-        "Works on all fabrics",
-      ],
+      features: ["Eco-friendly solutions", "Targeted application", "Works on all fabrics"],
     },
   ];
 
@@ -69,11 +59,7 @@ export default function AboutPage() {
         "Professional dry cleaning for your delicate garments, suits, dresses, and specialty fabrics that require special care.",
       price: "Starting at $6.99/item",
       image: "/images/dry-cleaning.jpg",
-      features: [
-        "Gentle process",
-        "Stain treatment",
-        "Preserves fabric quality",
-      ],
+      features: ["Gentle process", "Stain treatment", "Preserves fabric quality"],
     },
     {
       id: 2,
@@ -146,21 +132,17 @@ export default function AboutPage() {
           <div className="absolute inset-0 bg-gradient-to-r from-birtu to-transparent opacity-90"></div>
           <div className="relative z-10 py-16 px-8 md:px-16 flex flex-col md:flex-row items-center">
             <div className="md:w-1/2 text-white mb-8 md:mb-0">
-              <h1 className="text-3xl md:text-5xl font-bold mb-4">
-                Washio Laundry
-              </h1>
+              <h1 className="text-3xl md:text-5xl font-bold mb-4">Washio Laundry</h1>
               <p className="text-lg opacity-90 mb-6">
-                Discover our state-of-the-art equipment, premium services, and
-                why customers choose us for all their laundry needs.
+                Discover our state-of-the-art equipment, premium services, and why customers choose us for all
+                their laundry needs.
               </p>
-              <Button className="bg-oren hover:bg-orange-600 text-white border-none">
-                Book Service Now
-              </Button>
+              <Button className="bg-oren hover:bg-orange-600 text-white border-none">Book Service Now</Button>
             </div>
             <div className="md:w-1/2 flex justify-center">
               <div className="w-52 h-52 md:w-52 md:h-52 bg-birmud rounded-full flex items-center justify-center">
                 <Image
-                  src={"/washio.png"}
+                  src={"/washio-oren.png"}
                   alt="washio-logo"
                   width={200} // Sesuaikan ukuran logo
                   height={200}
@@ -290,12 +272,8 @@ export default function AboutPage() {
                   </div>
                 </div>
                 <div className="p-6">
-                  <h2 className="text-2xl font-bold text-birtu mb-3">
-                    {machines[selectedItem].name}
-                  </h2>
-                  <p className="text-gray-700 mb-6">
-                    {machines[selectedItem].description}
-                  </p>
+                  <h2 className="text-2xl font-bold text-birtu mb-3">{machines[selectedItem].name}</h2>
+                  <p className="text-gray-700 mb-6">{machines[selectedItem].description}</p>
 
                   <div className="flex flex-col md:flex-row gap-4 mb-6">
                     <div className="flex-1 bg-putbir rounded-lg p-4">
@@ -325,21 +303,15 @@ export default function AboutPage() {
                 </div>
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-3">
-                    <h2 className="text-2xl font-bold text-birtu">
-                      {services[selectedItem].name}
-                    </h2>
+                    <h2 className="text-2xl font-bold text-birtu">{services[selectedItem].name}</h2>
                     <span className="bg-oren text-white px-3 py-1 rounded-full text-sm">
                       {services[selectedItem].price}
                     </span>
                   </div>
-                  <p className="text-gray-700 mb-6">
-                    {services[selectedItem].description}
-                  </p>
+                  <p className="text-gray-700 mb-6">{services[selectedItem].description}</p>
 
                   <div className="bg-putbir rounded-lg p-4 mb-6">
-                    <h3 className="font-medium text-birtu mb-2">
-                      What's Included
-                    </h3>
+                    <h3 className="font-medium text-birtu mb-2">What's Included</h3>
                     <ul className="grid grid-cols-1 md:grid-cols-3 gap-2">
                       {services[selectedItem].features.map((feature, idx) => (
                         <li key={idx} className="flex items-center">
@@ -365,9 +337,7 @@ export default function AboutPage() {
                     </ul>
                   </div>
 
-                  <Button className="w-full bg-oren hover:bg-orange-600 text-white">
-                    Book This Service
-                  </Button>
+                  <Button className="w-full bg-oren hover:bg-orange-600 text-white">Book This Service</Button>
                 </div>
               </div>
             )}
@@ -379,9 +349,7 @@ export default function AboutPage() {
                   {whyChooseUs[selectedItem].icon}
                 </div>
                 <div className="p-6">
-                  <h2 className="text-2xl font-bold text-birtu mb-4">
-                    {whyChooseUs[selectedItem].title}
-                  </h2>
+                  <h2 className="text-2xl font-bold text-birtu mb-4">{whyChooseUs[selectedItem].title}</h2>
                   <p className="text-gray-700 text-lg leading-relaxed">
                     {whyChooseUs[selectedItem].description}
                   </p>
@@ -394,9 +362,7 @@ export default function AboutPage() {
 
       {/* Testimonials Section */}
       <section className="max-w-6xl mx-auto mt-24 px-4">
-        <h2 className="text-2xl font-bold text-center mb-10">
-          What Our Customers Say
-        </h2>
+        <h2 className="text-2xl font-bold text-center mb-10">What Our Customers Say</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             {
@@ -421,9 +387,7 @@ export default function AboutPage() {
             <div key={index} className="bg-white p-6 rounded-xl shadow-md">
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 bg-birmud rounded-full flex items-center justify-center mr-4">
-                  <span className="text-birtu font-bold">
-                    {testimonial.name.charAt(0)}
-                  </span>
+                  <span className="text-birtu font-bold">{testimonial.name.charAt(0)}</span>
                 </div>
                 <div>
                   <h3 className="font-medium">{testimonial.name}</h3>
@@ -431,9 +395,7 @@ export default function AboutPage() {
                     {[...Array(5)].map((_, i) => (
                       <svg
                         key={i}
-                        className={`w-4 h-4 ${
-                          i < testimonial.rating ? "text-oren" : "text-gray-300"
-                        }`}
+                        className={`w-4 h-4 ${i < testimonial.rating ? "text-oren" : "text-gray-300"}`}
                         fill="currentColor"
                         viewBox="0 0 20 20"
                       >
@@ -458,13 +420,11 @@ export default function AboutPage() {
               Ready to Experience Premium Laundry Service?
             </h2>
             <p className="text-white opacity-90 mb-8 max-w-2xl mx-auto">
-              Join our satisfied customers and let us take care of your laundry
-              needs. First-time customers get 20% off their first order!
+              Join our satisfied customers and let us take care of your laundry needs. First-time customers
+              get 20% off their first order!
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Button className="bg-white text-oren hover:bg-birmud hover:text-birtu">
-                Book a Pickup
-              </Button>
+              <Button className="bg-white text-oren hover:bg-birmud hover:text-birtu">Book a Pickup</Button>
               <Button className="bg-transparent border border-white text-white hover:bg-white hover:text-oren">
                 Contact Us
               </Button>

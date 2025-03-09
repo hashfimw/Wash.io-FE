@@ -3,14 +3,7 @@ import { Dispatch, SetStateAction } from "react";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,9 +44,7 @@ export function ActionSection({
           <CardTitle>Bypass Request Reason</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="whitespace-pre-line">
-            {bypassRequest.byPassNote || "No notes provided"}
-          </p>
+          <p className="whitespace-pre-line">{bypassRequest.byPassNote || "No notes provided"}</p>
         </CardContent>
       </Card>
 
@@ -62,9 +53,7 @@ export function ActionSection({
         <Card>
           <CardHeader>
             <CardTitle>Admin Response</CardTitle>
-            <CardDescription>
-              Provide notes for the worker regarding your decision (optional)
-            </CardDescription>
+            <CardDescription>Provide notes for the worker regarding your decision (optional)</CardDescription>
           </CardHeader>
           <CardContent>
             <Textarea
@@ -93,17 +82,13 @@ export function ActionSection({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Reject Bypass Request?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    You are about to reject the bypass request for Order #
-                    {bypassRequest.order.id}. The worker will need to complete
-                    the missing data before proceeding to the next station.
+                    You are about to reject the bypass request for Order #{bypassRequest.order.id}. The worker
+                    will need to complete the missing data before proceeding to the next station.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    className="bg-red-600 hover:bg-red-700"
-                    onClick={onReject}
-                  >
+                  <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={onReject}>
                     Reject
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -128,17 +113,13 @@ export function ActionSection({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Approve Bypass Request?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    You are about to approve the bypass request for Order #
-                    {bypassRequest.order.id}. The worker will be able to proceed
-                    to the next station despite missing data.
+                    You are about to approve the bypass request for Order #{bypassRequest.order.id}. The
+                    worker will be able to proceed to the next station despite missing data.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    className="bg-green-600 hover:bg-green-700"
-                    onClick={onApprove}
-                  >
+                  <AlertDialogAction className="bg-birtu hover:bg-birtu/80" onClick={onApprove}>
                     Approve
                   </AlertDialogAction>
                 </AlertDialogFooter>

@@ -1,12 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import {
-  Search,
-  Locate,
-  MapPin,
-  Clock,
-  ChevronDown,
-  AlertCircle,
-} from "lucide-react";
+import { Search, Locate, MapPin, Clock, ChevronDown, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
 import { usePublicOutlets } from "@/hooks/api/outlets/usePublicOutlets";
@@ -14,12 +7,7 @@ import { Outlet, OutletParams } from "@/types/outlet";
 import { useLocation } from "@/context/LocationContext";
 
 export default function LaundrySearchBar() {
-  const {
-    outlets,
-    loading: apiLoading,
-    error: apiError,
-    getPublicOutlets,
-  } = usePublicOutlets();
+  const { outlets, loading: apiLoading, error: apiError, getPublicOutlets } = usePublicOutlets();
   const {
     location,
     permissionStatus,
@@ -36,15 +24,11 @@ export default function LaundrySearchBar() {
   });
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [searchResults, setSearchResults] = useState<
-    (Outlet & { distance?: number })[]
-  >([]);
+  const [searchResults, setSearchResults] = useState<(Outlet & { distance?: number })[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [outletLocations, setOutletLocations] = useState<string[]>([]);
   const [searchType, setSearchType] = useState<"text" | "location">("text");
-  const [lastSearchParams, setLastSearchParams] = useState<OutletParams | null>(
-    null
-  );
+  const [lastSearchParams, setLastSearchParams] = useState<OutletParams | null>(null);
 
   // Maximum distance in kilometers to show outlets
   const MAX_DISTANCE_KM = 30;
@@ -55,10 +39,7 @@ export default function LaundrySearchBar() {
   useEffect(() => {
     // Close dropdown when clicking outside
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowDropdown(false);
       }
     };
@@ -74,12 +55,7 @@ export default function LaundrySearchBar() {
 
   // Update search results with distance when location changes
   useEffect(() => {
-    if (
-      location &&
-      searchType === "location" &&
-      outlets &&
-      outlets.length > 0
-    ) {
+    if (location && searchType === "location" && outlets && outlets.length > 0) {
       updateOutletsWithDistance(outlets, location.latitude, location.longitude);
     }
   }, [location, outlets, searchType]);
@@ -135,11 +111,7 @@ export default function LaundrySearchBar() {
     }
   };
 
-  const updateOutletsWithDistance = (
-    outletData: Outlet[],
-    latitude: number,
-    longitude: number
-  ) => {
+  const updateOutletsWithDistance = (outletData: Outlet[], latitude: number, longitude: number) => {
     // Calculate distance for each outlet
     const outletsWithDistance = outletData.map((outlet) => {
       // Parse latitude and longitude values
@@ -152,26 +124,18 @@ export default function LaundrySearchBar() {
       }
 
       // Calculate distance using the Haversine formula
-      const distance = calculateDistance(
-        latitude,
-        longitude,
-        outletLat,
-        outletLng
-      );
+      const distance = calculateDistance(latitude, longitude, outletLat, outletLng);
 
       return { ...outlet, distance };
     });
 
     // Filter out outlets without valid coordinates and outside MAX_DISTANCE_KM
     const nearbyOutlets = outletsWithDistance.filter(
-      (outlet) =>
-        outlet.distance !== undefined && outlet.distance <= MAX_DISTANCE_KM
+      (outlet) => outlet.distance !== undefined && outlet.distance <= MAX_DISTANCE_KM
     );
 
     // Sort by distance
-    const sortedOutlets = nearbyOutlets.sort(
-      (a, b) => (a.distance || Infinity) - (b.distance || Infinity)
-    );
+    const sortedOutlets = nearbyOutlets.sort((a, b) => (a.distance || Infinity) - (b.distance || Infinity));
 
     setSearchResults(sortedOutlets);
 
@@ -198,22 +162,14 @@ export default function LaundrySearchBar() {
       if (userLocation) {
         // If we already have outlets, update distances
         if (outlets && outlets.length > 0) {
-          updateOutletsWithDistance(
-            outlets,
-            userLocation.latitude,
-            userLocation.longitude
-          );
+          updateOutletsWithDistance(outlets, userLocation.latitude, userLocation.longitude);
         } else {
           // Otherwise fetch outlets and then update distances
           const params: OutletParams = { limit: 100 };
           const response = await getPublicOutlets(params);
 
           if (response && response.data) {
-            updateOutletsWithDistance(
-              response.data,
-              userLocation.latitude,
-              userLocation.longitude
-            );
+            updateOutletsWithDistance(response.data, userLocation.latitude, userLocation.longitude);
           }
         }
       }
@@ -245,11 +201,7 @@ export default function LaundrySearchBar() {
       if (response && response.data) {
         // If we have user location, add distance information and filter by distance
         if (location) {
-          updateOutletsWithDistance(
-            response.data,
-            location.latitude,
-            location.longitude
-          );
+          updateOutletsWithDistance(response.data, location.latitude, location.longitude);
         } else {
           // If no location data, show search results without distance filtering
           setSearchResults(response.data);
@@ -285,8 +237,7 @@ export default function LaundrySearchBar() {
 
   // Format the full address from outlet address components
   const getFormattedAddress = (outlet: Outlet): string => {
-    const { addressLine, village, district, regency, province } =
-      outlet.outletAddress;
+    const { addressLine, village, district, regency, province } = outlet.outletAddress;
     return [addressLine, village, district, regency, province]
       .filter((part) => part && part.trim() !== "")
       .join(", ");
@@ -304,15 +255,9 @@ export default function LaundrySearchBar() {
   }, []);
 
   return (
-    <div
-      className={`transition-all duration-300 ${
-        isScrolled ? "max-w-4xl" : "max-w-6xl"
-      } mx-auto relative`}
-    >
+    <div className={`transition-all duration-300 ${isScrolled ? "max-w-4xl" : "max-w-6xl"} mx-auto relative`}>
       <div
-        className={`flex items-center transition-all duration-500 ${
-          isScrolled ? "gap-6" : "flex-col gap-2"
-        }`}
+        className={`flex items-center transition-all duration-500 ${isScrolled ? "gap-6" : "flex-col gap-2"}`}
       >
         <div
           className={`mx-auto p-4 flex items-center gap-4 bg-white rounded-full transition-all duration-1000 ${
@@ -320,23 +265,18 @@ export default function LaundrySearchBar() {
           } w-full`}
         >
           <div className="relative flex-1">
-            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-blue-400">
+            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-birtu">
               <MapPin className="w-5 h-5" />
             </div>
             <input
               ref={inputRef}
               type="text"
               value={searchValues.location}
-              onChange={(e) =>
-                setSearchValues({ ...searchValues, location: e.target.value })
-              }
+              onChange={(e) => setSearchValues({ ...searchValues, location: e.target.value })}
               placeholder="Find outlets nearby..."
-              className="w-full pl-12 pr-12 py-3 border rounded-full outline-none focus:ring-2 focus:ring-blue-300 transition-shadow"
+              className="w-full pl-12 pr-12 py-3 border rounded-full outline-none focus:ring-2 focus:ring-birtu transition-shadow"
               onFocus={() => {
-                if (
-                  searchValues.location.trim() !== "" &&
-                  filteredSuggestions.length > 0
-                ) {
+                if (searchValues.location.trim() !== "" && filteredSuggestions.length > 0) {
                   setShowDropdown(true);
                 }
               }}
@@ -351,11 +291,7 @@ export default function LaundrySearchBar() {
               disabled={locationLoading}
               className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-full 
                 hover:bg-gray-100 focus:outline-none transition-colors
-                ${
-                  permissionStatus === "denied"
-                    ? "text-red-500"
-                    : "text-gray-500"
-                }
+                ${permissionStatus === "denied" ? "text-red-500" : "text-gray-500"}
               `}
               title={
                 permissionStatus === "denied"
@@ -363,19 +299,15 @@ export default function LaundrySearchBar() {
                   : "Use my current location to find outlets within 30km"
               }
             >
-              <Locate
-                className={`w-5 h-5 ${
-                  locationLoading ? "animate-pulse text-blue-500" : ""
-                }`}
-              />
+              <Locate className={`w-5 h-5 ${locationLoading ? "animate-pulse text-blue-500" : ""}`} />
             </button>
           </div>
           <div className="h-8 w-px bg-gray-300"></div>
           <button
             onClick={handleSearch}
             disabled={isLoading || apiLoading}
-            className={`px-3 py-3 bg-orange-500 text-white rounded-full 
-    hover:bg-orange-600 transition-colors flex items-center gap-2
+            className={`px-3 py-3 bg-oren text-white rounded-full 
+    hover:bg-orange-400 transition-colors flex items-center gap-2
     ${isLoading || apiLoading ? "opacity-70 " : ""}
   `}
           >
@@ -414,9 +346,7 @@ export default function LaundrySearchBar() {
             <div className="p-4 text-center">
               <div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
               <p className="mt-2 text-gray-600">
-                {searchType === "location"
-                  ? "Finding outlets nearby..."
-                  : "Searching outlets..."}
+                {searchType === "location" ? "Finding outlets nearby..." : "Searching outlets..."}
               </p>
             </div>
           ) : filteredSuggestions.length > 0 && searchResults.length === 0 ? (
@@ -439,12 +369,8 @@ export default function LaundrySearchBar() {
           ) : searchResults.length > 0 ? (
             <div className="p-2">
               <h3 className="text-xs text-gray-500 px-3 py-1">
-                {searchType === "location"
-                  ? `Outlets Within ${MAX_DISTANCE_KM}km`
-                  : "Outlets Found"}
-                {searchResults.length > 0 && (
-                  <span className="ml-1">({searchResults.length})</span>
-                )}
+                {searchType === "location" ? `Outlets Within ${MAX_DISTANCE_KM}km` : "Outlets Found"}
+                {searchResults.length > 0 && <span className="ml-1">({searchResults.length})</span>}
               </h3>
               <ul className="divide-y divide-gray-100">
                 {searchResults.map((outlet, index) => (
@@ -463,9 +389,7 @@ export default function LaundrySearchBar() {
                           </span>
                         )}
                       </div>
-                      <div className="text-sm text-gray-600 truncate">
-                        {getFormattedAddress(outlet)}
-                      </div>
+                      <div className="text-sm text-gray-600 truncate">{getFormattedAddress(outlet)}</div>
                       {/* Operating hours UI - placeholder since your Outlet type doesn't have this */}
                       <div className="flex items-center text-sm text-gray-500 mt-1">
                         <Clock className="w-3 h-3 mr-1" />
@@ -479,13 +403,10 @@ export default function LaundrySearchBar() {
           ) : locationError || apiError ? (
             <div className="p-4 flex flex-col items-center text-center">
               <AlertCircle className="w-6 h-6 text-red-500 mb-2" />
-              <p className="text-red-500 font-medium">
-                {locationError || apiError}
-              </p>
+              <p className="text-red-500 font-medium">{locationError || apiError}</p>
               {permissionStatus === "denied" && (
                 <p className="text-sm text-gray-600 mt-2">
-                  Please enable location services in your browser settings to
-                  use this feature.
+                  Please enable location services in your browser settings to use this feature.
                 </p>
               )}
             </div>

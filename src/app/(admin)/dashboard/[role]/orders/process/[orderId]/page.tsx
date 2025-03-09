@@ -77,8 +77,7 @@ export default function ProcessSpecificOrderPage() {
         <div className="flex flex-col items-center justify-center h-64 text-center">
           <h3 className="text-xl font-medium">Order not found</h3>
           <p className="text-muted-foreground mt-2">
-            The order you're looking for doesn't exist or has already been
-            processed.
+            The order you&apos;re looking for doesn&apos;t exist or has already been processed.
           </p>
           <Button
             variant="default"
@@ -100,20 +99,12 @@ export default function ProcessSpecificOrderPage() {
       </Button>
 
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">
-          Process Order #{orderId}
-        </h2>
-        <p className="text-muted-foreground">
-          Add laundry weight and items to process this order
-        </p>
+        <h2 className="text-2xl font-bold tracking-tight">Process Order #{orderId}</h2>
+        <p className="text-muted-foreground">Add laundry weight and items to process this order</p>
       </div>
 
       <div className="flex justify-center w-full">
-        <ProcessOrderForm
-          orderId={orderId}
-          onSuccess={handleSuccess}
-          role={role}
-        />
+        <ProcessOrderForm orderId={orderId} onSuccess={handleSuccess} role={role} />
       </div>
     </div>
   );

@@ -1,4 +1,6 @@
-// src/types/customer.ts
+// src/types/customer.ts\
+
+import type { Metadata } from "next";
 export interface User {
   id: number;
   fullName: string | null;
@@ -11,7 +13,7 @@ export interface User {
 }
 
 export interface UserResponse {
-  meta: any;
+  meta: Metadata;
   total_page: number;
   page: number;
   limit: number;

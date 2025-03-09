@@ -9,7 +9,13 @@ import { useEmployeeAuth } from "@/hooks/api/auth/useEmployeeAuth";
 import Loading from "@/app/loading";
 import { DriverGuard, WorkerGuard } from "@/hoc/EmployeeGuard";
 
-export default function RoleLayout({ children, params }: { children: React.ReactNode; params: { role: string } }) {
+export default function RoleLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: { role: string };
+}) {
   const validRoleParams = ["driver", "worker"];
   const { role } = params;
 

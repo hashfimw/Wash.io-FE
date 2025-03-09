@@ -23,6 +23,7 @@ import {
 import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import { CustomBadge } from "./badgeStatus";
+import SwipeIndicator from "@/components/swipeIndicator";
 
 interface BypassRequestsTableProps {
   requests: BypassRequest[];
@@ -35,6 +36,7 @@ export function BypassRequestsTable({
 }: BypassRequestsTableProps) {
   return (
     <div className="rounded-md border">
+      <SwipeIndicator className="md:hidden" />
       <Table>
         <TableHeader>
           <TableRow>

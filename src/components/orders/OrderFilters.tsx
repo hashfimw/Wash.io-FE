@@ -2,18 +2,8 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarIcon, X } from "lucide-react";
 import { format, isSameDay } from "date-fns";
 import { OrderStatus } from "@/types/order";
@@ -25,22 +15,14 @@ import { useAdminAuth } from "@/hooks/api/auth/useAdminAuth";
 interface OrderFiltersProps {
   onSearch?: (value: string) => void;
   onStatusChange?: (status: OrderStatus | "") => void;
-  onDateRangeChange?: (
-    dates: { startDate: Date; endDate: Date } | null
-  ) => void;
+  onDateRangeChange?: (dates: { startDate: Date; endDate: Date } | null) => void;
   onOutletChange?: (outletId: number | null) => void;
 }
 
-export function OrderFilters({
-  onStatusChange,
-  onDateRangeChange,
-  onOutletChange,
-}: OrderFiltersProps) {
+export function OrderFilters({ onStatusChange, onDateRangeChange, onOutletChange }: OrderFiltersProps) {
   const { user } = useAdminAuth(); // Get current user
-  const [outlets, setOutlets] = useState<{ id: number; outletName: string }[]>(
-    []
-  );
-  const { getOutlets, loading: outletsLoading } = useOutlets();
+  const [outlets, setOutlets] = useState<{ id: number; outletName: string }[]>([]);
+  const { getOutlets } = useOutlets();
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [datePickerOpen, setDatePickerOpen] = useState(false);
@@ -72,10 +54,7 @@ export function OrderFilters({
 
     // Jika ada rentang tanggal
     if (endDate) {
-      return `${format(startDate, "d MMM yyyy")} - ${format(
-        endDate,
-        "d MMM yyyy"
-      )}`;
+      return `${format(startDate, "d MMM yyyy")} - ${format(endDate, "d MMM yyyy")}`;
     }
 
     // Jika hanya ada tanggal awal
@@ -127,11 +106,7 @@ export function OrderFilters({
     <div className="flex flex-col sm:flex-row gap-4">
       {/* Outlet Filter - Only show for SUPER_ADMIN */}
       {user?.role === "SUPER_ADMIN" && (
-        <Select
-          onValueChange={(value) =>
-            onOutletChange?.(value === "all" ? null : Number(value))
-          }
-        >
+        <Select onValueChange={(value) => onOutletChange?.(value === "all" ? null : Number(value))}>
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Filter by outlet" />
           </SelectTrigger>
@@ -147,9 +122,7 @@ export function OrderFilters({
       )}
 
       {/* Status Filter */}
-      <Select
-        onValueChange={(value) => onStatusChange?.(value as OrderStatus | "")}
-      >
+      <Select onValueChange={(value) => onStatusChange?.(value as OrderStatus | "")}>
         <SelectTrigger className="w-[200px]">
           <SelectValue placeholder="Filter by status" />
         </SelectTrigger>

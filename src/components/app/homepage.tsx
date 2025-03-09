@@ -54,15 +54,13 @@ export default function Homepage() {
               </span>
             </h2>
 
-            <p className="text-gray-600">
-              Experience premium laundry service at your fingertips.
-            </p>
+            <p className="text-gray-600">Experience premium laundry service at your fingertips.</p>
             <div className="flex justify-center md:justify-start">
               <div className="mt-6 space-x-2">
-                <Button className="bg-orange-500 hover:bg-orange-600 text-white text-sm">
+                <Button className="bg-oren hover:bg-orange-400 text-white text-sm">
                   <Link href={"/register"}>Get Started Now</Link>
                 </Button>
-                <Button className="bg-gray-700 hover:bg-gray-800 text-white text-sm">
+                <Button className="bg-birtu hover:bg-gray-800 text-white text-sm">
                   <Link href={"/about"}>Learn More</Link>
                 </Button>
               </div>
@@ -99,13 +97,8 @@ export default function Homepage() {
             { title: "FREE", desc: "Pickup This Week" },
             { title: "30% OFF", desc: "Bulk Orders" },
           ].map((item, index) => (
-            <div
-              key={index}
-              className="bg-white p-6 rounded-lg shadow-md text-center"
-            >
-              <h3 className="text-lg text-orange-500 font-bold">
-                {item.title}
-              </h3>
+            <div key={index} className="bg-white p-6 rounded-lg shadow-md text-center">
+              <h3 className="text-lg text-orange-500 font-bold">{item.title}</h3>
               <p>{item.desc}</p>
             </div>
           ))}
@@ -168,10 +161,7 @@ export default function Homepage() {
                 Icon: Package2,
               },
             ].map((item, index) => (
-              <div
-                key={index}
-                className="bg-white shadow-md rounded-full p-6 flex items-center space-x-4"
-              >
+              <div key={index} className="bg-white shadow-md rounded-full p-6 flex items-center space-x-4">
                 <div className="flex justify-center items-center p-4 bg-orange-100 rounded-full">
                   <item.Icon className="w-8 h-8 text-orange-500" />
                 </div>

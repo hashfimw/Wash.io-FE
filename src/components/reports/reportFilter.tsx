@@ -6,21 +6,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar as CalendarIcon, X } from "lucide-react";
 import { format, isSameDay } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Outlet } from "@/types/outlet";
 import { ReportPeriod } from "@/types/reports";
@@ -28,34 +18,45 @@ import { ReportPeriod } from "@/types/reports";
 interface ReportFilterProps {
   outlets: Outlet[];
   showPeriodFilter?: boolean;
-  onFilterChange: (filters: any) => void;
+  onFilterChange: (filters: {
+    outletId?: number;
+    startDate?: string;
+    endDate?: string;
+    period?: ReportPeriod;
+  }) => void;
+  userRole: string; // User's role (SUPER_ADMIN or OUTLET_ADMIN)
+  userOutletId?: string; // Outlet ID for OUTLET_ADMIN
 }
 
 export function ReportFilter({
   outlets,
   showPeriodFilter = false,
   onFilterChange,
+  userRole,
+  userOutletId,
 }: ReportFilterProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const isOutletAdmin = userRole === "OUTLET_ADMIN";
 
   // State for filters
-  const [outletId, setOutletId] = useState<string | null>(
-    searchParams.get("outletId") || null
-  );
+  const [outletId, setOutletId] = useState<string | null>(() => {
+    // For OUTLET_ADMIN: Always use their assigned outlet
+    if (isOutletAdmin && userOutletId) {
+      return userOutletId;
+    }
+
+    // For SUPER_ADMIN: Use from URL or null (all outlets)
+    return searchParams.get("outletId") || null;
+  });
+
   const [startDate, setStartDate] = useState<Date | undefined>(
-    searchParams.get("startDate")
-      ? new Date(searchParams.get("startDate") as string)
-      : undefined
+    searchParams.get("startDate") ? new Date(searchParams.get("startDate") as string) : undefined
   );
   const [endDate, setEndDate] = useState<Date | undefined>(
-    searchParams.get("endDate")
-      ? new Date(searchParams.get("endDate") as string)
-      : undefined
+    searchParams.get("endDate") ? new Date(searchParams.get("endDate") as string) : undefined
   );
-  const [period, setPeriod] = useState<ReportPeriod>(
-    (searchParams.get("period") as ReportPeriod) || "daily"
-  );
+  const [period, setPeriod] = useState<ReportPeriod>((searchParams.get("period") as ReportPeriod) || "daily");
   const [datePickerOpen, setDatePickerOpen] = useState(false);
 
   // Format date range for display
@@ -69,10 +70,7 @@ export function ReportFilter({
 
     // If there's a date range
     if (endDate) {
-      return `${format(startDate, "d MMM yyyy")} - ${format(
-        endDate,
-        "d MMM yyyy"
-      )}`;
+      return `${format(startDate, "d MMM yyyy")} - ${format(endDate, "d MMM yyyy")}`;
     }
 
     // If there's only a start date
@@ -161,15 +159,24 @@ export function ReportFilter({
             <Label htmlFor="outlet">Outlet</Label>
             <Select
               value={outletId || ""}
-              onValueChange={(value) =>
-                setOutletId(value === "" ? null : value)
-              }
+              onValueChange={(value) => setOutletId(value === "" ? null : value)}
+              disabled={isOutletAdmin} // Disable the dropdown for OUTLET_ADMIN
             >
               <SelectTrigger id="outlet">
-                <SelectValue placeholder="All Outlets" />
+                {isOutletAdmin ? (
+                  // For OUTLET_ADMIN: Show outlet name directly without placeholder
+                  <span>
+                    {outlets.find((o) => o.id.toString() === outletId)?.outletName || "Your Outlet"}
+                  </span>
+                ) : (
+                  // For SUPER_ADMIN: Use placeholder
+                  <SelectValue placeholder="All Outlets" />
+                )}
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="All">All Outlets</SelectItem>
+                {/* Only show "All Outlets" option for SUPER_ADMIN */}
+                {!isOutletAdmin && <SelectItem value="outlets">All Outlets</SelectItem>}
+
                 {outlets.map((outlet) => (
                   <SelectItem key={outlet.id} value={outlet.id.toString()}>
                     {outlet.outletName}
@@ -192,9 +199,7 @@ export function ReportFilter({
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  <span className="truncate flex-grow">
-                    {formatDateRange()}
-                  </span>
+                  <span className="truncate flex-grow">{formatDateRange()}</span>
                   {startDate && (
                     <X
                       className="ml-2 h-4 w-4 opacity-70 hover:opacity-100"
@@ -248,10 +253,7 @@ export function ReportFilter({
           {showPeriodFilter && (
             <div className="space-y-2">
               <Label htmlFor="period">Report Period</Label>
-              <Select
-                value={period}
-                onValueChange={(value: ReportPeriod) => setPeriod(value)}
-              >
+              <Select value={period} onValueChange={(value: ReportPeriod) => setPeriod(value)}>
                 <SelectTrigger id="period">
                   <SelectValue placeholder="Select period" />
                 </SelectTrigger>

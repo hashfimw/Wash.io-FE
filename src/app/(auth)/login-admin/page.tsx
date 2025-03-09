@@ -5,14 +5,7 @@ import React, { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAdminAuth } from "@/hooks/api/auth/useAdminAuth";
 import { useRouter } from "next/navigation";
@@ -20,6 +13,21 @@ import Image from "next/image";
 import VerificationModal from "@/components/admin/verficationModal";
 import CSSWave from "@/components/animations/Waves";
 import BackgroundIcons from "@/components/admin/backgroundLoginAdmin";
+
+// Helper function untuk set cookie tanpa library
+function setCookie(name: string, value: string, days: number) {
+  let expires = "";
+  if (days) {
+    const date = new Date();
+    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+    expires = "; expires=" + date.toUTCString();
+  }
+
+  // Tambahkan secure flag jika di produksi
+  const secure = process.env.NODE_ENV === "production" ? "; secure" : "";
+
+  document.cookie = name + "=" + (value || "") + expires + "; path=/" + secure + "; samesite=strict";
+}
 
 const LoginPage = () => {
   const router = useRouter();
@@ -54,6 +62,7 @@ const LoginPage = () => {
       }
     }
   }, []);
+
   const handleVerified = () => {
     setShowVerificationModal(false);
   };
@@ -65,9 +74,14 @@ const LoginPage = () => {
       const response = await login(credentials);
 
       if (response?.data?.user) {
+        // Tambahkan token ke cookie untuk server component
+        if (response.data.token) {
+          // Gunakan helper function untuk set cookie
+          setCookie("token", response.data.token, 1); // Expired dalam 1 hari
+        }
+
         const { role } = response.data.user;
-        const rolePathParam =
-          role === "SUPER_ADMIN" ? "super-admin" : "outlet-admin";
+        const rolePathParam = role === "SUPER_ADMIN" ? "super-admin" : "outlet-admin";
         router.push(`dashboard/${rolePathParam}`);
       }
     } catch (err) {
@@ -85,14 +99,8 @@ const LoginPage = () => {
           viewBox="0 0 400 120"
           preserveAspectRatio="none"
         >
-          <path
-            d="M0,50 C100,20 200,80 400,30 L400,0 L0,0 Z"
-            className="fill-birtu"
-          />
-          <path
-            d="M0,30 C100,60 280,10 400,40 L400,0 L0,0 Z"
-            className="fill-oren opacity-20"
-          />
+          <path d="M0,50 C100,20 200,80 400,30 L400,0 L0,0 Z" className="fill-birtu" />
+          <path d="M0,30 C100,60 280,10 400,40 L400,0 L0,0 Z" className="fill-oren opacity-20" />
         </svg>
       </div>
       <BackgroundIcons opacity={0.07} />
@@ -126,10 +134,7 @@ const LoginPage = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <Alert
-                variant="destructive"
-                className="bg-red-50 text-red-600 border-red-200"
-              >
+              <Alert variant="destructive" className="bg-red-50 text-red-600 border-red-200">
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
