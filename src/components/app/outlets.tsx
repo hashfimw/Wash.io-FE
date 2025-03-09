@@ -2,11 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation"; // Import useSearchParams
 import { Search, MapPin, Phone, Clock, Star, ExternalLink } from "lucide-react";
 import { Button } from "../ui/button";
 
 import dynamic from "next/dynamic";
 import { usePublicOutlets } from "@/hooks/api/outlets/usePublicOutlets";
+import Link from "next/link";
 
 // Dynamically import the LocationPicker to avoid SSR issues with Leaflet
 const LocationPickerNoSSR = dynamic(
@@ -46,13 +48,27 @@ interface OutletFormValues {
   village: string;
 }
 
+interface OutletSearchParams {
+  search: string;
+  limit: number;
+  latitude?: number;
+  longitude?: number;
+}
+
 const LaundryOutlets = () => {
+  const searchParams = useSearchParams(); // Get search params from URL
+  const urlSearchQuery = searchParams.get("search") || ""; // Get 'search' parameter
+
   const [activeOutlet, setActiveOutlet] = useState(0);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(urlSearchQuery); // Initialize with URL query
   const [outletData, setOutletData] = useState<OutletData[]>([]);
   const { getPublicOutlets, loading, error } = usePublicOutlets();
   const [currentPage, setCurrentPage] = useState(1);
   const [mobileView, setMobileView] = useState(false);
+  const [locationParams, setLocationParams] = useState<{
+    lat?: number;
+    lng?: number;
+  } | null>(null);
   const itemsPerPage = 3;
 
   // Mock form for LocationPicker (since we're not editing, just viewing)
@@ -63,52 +79,43 @@ const LaundryOutlets = () => {
     },
   } as any; // Type assertion to satisfy LocationPicker props
 
-  // Fetch outlets on component mount and when search changes
-  useEffect(() => {
-    const fetchOutlets = async () => {
-      try {
-        // Use the existing getOutlets function with search parameter
-        const response = await getPublicOutlets({
-          search: searchQuery,
-          limit: 10, // You can adjust this as needed
-        });
+  const fetchOutlets = async () => {
+    try {
+      const searchParams: OutletSearchParams = {
+        search: searchQuery,
+        limit: 10, // You can adjust this as needed
+      };
 
-        // Add placeholder data for display properties not in the API
-        const enrichedData = response.data.map((outlet) => ({
-          ...outlet,
-          // Default placeholder values that would typically come from your API
-          phone: "+62 89 1011 1213",
-          hours: "24 Hours",
-          rating: 4.5,
-          services: ["Regular Wash", "Dry Cleaning", "Express Service"],
-          image:
-            "https://img.freepik.com/free-vector/laundry-service-illustration_23-2151178846.jpg?t=st=1740680864~exp=1740684464~hmac=9bc3f24a6a19e52337f4e7b352c2e24ebf3c0efe157469aea6a31967130b6a26&w=900",
-        }));
-
-        setOutletData(enrichedData);
-      } catch (err) {
-        console.error("Error fetching outlets:", err);
+      // If we have location parameters, add them to the search
+      if (locationParams) {
+        searchParams.latitude = locationParams.lat;
+        searchParams.longitude = locationParams.lng;
       }
-    };
 
-    fetchOutlets();
-  }, [searchQuery]);
+      // Use the existing getOutlets function with search parameters
+      const response = await getPublicOutlets(searchParams);
 
-  // Check for mobile view
+      // The rest of your code remains the same...
+      const enrichedData = response.data.map((outlet) => ({
+        ...outlet,
+        phone: "+62 89 1011 1213",
+        hours: "24 Hours",
+        rating: 4.5,
+        services: ["Regular Wash", "Dry Cleaning", "Express Service"],
+        image:
+          "https://img.freepik.com/free-vector/laundry-service-illustration_23-2151178846.jpg?t=st=1740680864~exp=1740684464~hmac=9bc3f24a6a19e52337f4e7b352c2e24ebf3c0efe157469aea6a31967130b6a26&w=900",
+      }));
+
+      setOutletData(enrichedData);
+    } catch (err) {
+      console.error("Error fetching outlets:", err);
+    }
+  };
+
+  // Also update the dependency array of the useEffect that calls fetchOutlets:
   useEffect(() => {
-    const handleResize = () => {
-      setMobileView(window.innerWidth < 768);
-    };
-
-    // Set initial value
-    handleResize();
-
-    // Add event listener
-    window.addEventListener("resize", handleResize);
-
-    // Cleanup
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+    fetchOutlets();
+  }, [searchQuery, locationParams]);
 
   // Implement debounce for search to avoid too many API calls
   useEffect(() => {
@@ -124,6 +131,17 @@ const LaundryOutlets = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = outletData.slice(indexOfFirstItem, indexOfLastItem);
 
+  // Handle search input changes
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  // Handle search form submission
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // The search will trigger through the useEffect dependency on searchQuery
+  };
+
   return (
     <section className="bg-gradient-to-b from-[#E7FAFE] to-white p-4 pt-20 sm:p-6 py-8 sm:py-12 sm:mt-8">
       <div className="max-w-6xl mx-auto px-2 sm:px-4">
@@ -133,16 +151,25 @@ const LaundryOutlets = () => {
 
         {/* Search Bar */}
         <div className="relative max-w-md mx-auto mb-6 sm:mb-8">
-          <div className="flex items-center border-2 border-gray-300 rounded-full bg-white overflow-hidden pl-3 sm:pl-4 pr-2 py-1.5 sm:py-2">
+          <form
+            onSubmit={handleSearchSubmit}
+            className="flex items-center border-2 border-gray-300 rounded-full bg-white overflow-hidden pl-3 sm:pl-4 pr-2 py-1.5 sm:py-2"
+          >
             <Search className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 mr-1 sm:mr-2" />
             <input
               type="text"
               placeholder="Search outlets by name or location..."
               className="w-full text-sm sm:text-base outline-none bg-transparent"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchInputChange}
             />
-          </div>
+            <button
+              type="submit"
+              className="ml-2 bg-orange-500 hover:bg-orange-600 text-white rounded-full p-1 sm:p-2"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+          </form>
         </div>
 
         {/* Loading State */}
@@ -307,9 +334,11 @@ const LaundryOutlets = () => {
 
                     {/* Button */}
                     <div className="mt-4">
-                      <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white text-sm">
-                        Order Now
-                      </Button>
+                      <Link href={"/new-order"}>
+                        <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white text-sm">
+                          Order Now
+                        </Button>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -514,9 +543,11 @@ const LaundryOutlets = () => {
                           </div>
 
                           <div className="mt-4 sm:mt-6">
-                            <Button className="bg-orange-500 hover:bg-orange-600 text-white text-sm sm:text-base">
-                              Order Now
-                            </Button>
+                            <Link href={"/new-order"}>
+                              <Button className="bg-orange-500 hover:bg-orange-600 text-white text-sm sm:text-base">
+                                Order Now
+                              </Button>
+                            </Link>
                           </div>
                         </div>
                       </div>

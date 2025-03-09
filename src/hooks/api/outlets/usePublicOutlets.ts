@@ -4,7 +4,7 @@ import { Outlet, OutletParams } from "@/types/outlet";
 
 // Create a separate API instance without auth interceptor for public endpoints
 const publicApi = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api",
 });
 
 interface ApiResponseType {

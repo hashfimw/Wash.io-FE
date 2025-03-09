@@ -1,7 +1,13 @@
 'use client';
 
-// context/LocationContext.tsx
-import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { 
+  createContext, 
+  useContext, 
+  useState, 
+  useEffect, 
+  ReactNode, 
+  useCallback 
+} from 'react';
 
 type Coordinates = {
   latitude: number;
@@ -28,50 +34,68 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // Function to clear error
+  // Memoized error clearing function
   const clearError = useCallback(() => {
     setError(null);
   }, []);
 
   // Check permission status on component mount
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    // Check if geolocation is supported
-    if (!navigator.geolocation) {
+    // Server-side rendering check
+    if (typeof window === 'undefined' || !navigator.geolocation) {
       setPermissionStatus('unavailable');
       return;
     }
 
-    // Check geolocation permission status
-    if (navigator.permissions) {
-      navigator.permissions.query({ name: 'geolocation' as PermissionName })
-        .then((result) => {
-          setPermissionStatus(result.state as LocationPermissionStatus);
+    // Advanced permission checking
+    const checkPermission = async () => {
+      try {
+        if (navigator.permissions) {
+          const result = await navigator.permissions.query({ name: 'geolocation' as PermissionName });
           
-          // Listen for permission changes
-          result.onchange = () => {
+          const updatePermissionStatus = () => {
             setPermissionStatus(result.state as LocationPermissionStatus);
             
-            // If permission became granted and we don't have location yet, get it
+            // Automatically request location if permission is granted
             if (result.state === 'granted' && !location) {
-              getCurrentPosition();
+              requestLocation();
             }
           };
-        })
-        .catch((err) => {
-          console.error('Error checking permission:', err);
-          // If we can't check permissions, we'll assume 'prompt'
-        });
-    }
+
+          // Initial status
+          updatePermissionStatus();
+
+          // Listen for permission changes
+          result.addEventListener('change', updatePermissionStatus);
+
+          // Cleanup listener
+          return () => result.removeEventListener('change', updatePermissionStatus);
+        }
+      } catch (err) {
+        console.error('Permission query error:', err);
+        // Fallback to default behavior
+        setPermissionStatus('prompt');
+      }
+    };
+
+    checkPermission();
   }, [location]);
 
-  // Function to get current position
-  const getCurrentPosition = (): Promise<Coordinates | null> => {
+  // Robust getCurrentPosition method
+  const getCurrentPosition = useCallback((): Promise<Coordinates | null> => {
     return new Promise((resolve) => {
+      // Prevent multiple simultaneous requests
+      if (isLoading) return resolve(null);
+
       setIsLoading(true);
       setError(null);
       
+      const options = { 
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 60000 // Accept cached position up to 1 minute old
+      };
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const newLocation = {
@@ -87,43 +111,40 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
         (err) => {
           setIsLoading(false);
           
-          if (err.code === 1) { // PERMISSION_DENIED
-            setPermissionStatus('denied');
-            setError('Location permission denied. Please enable location access in your browser settings.');
-          } else if (err.code === 2) { // POSITION_UNAVAILABLE
-            setError('Location information is unavailable. Please try again.');
-          } else if (err.code === 3) { // TIMEOUT
-            setError('The request to get location timed out. Please check your connection and try again.');
-          } else {
-            setError(`An error occurred: ${err.message}`);
-          }
+          const errorMap: Record<number, string> = {
+            1: 'Location permission denied. Please enable access in browser settings.',
+            2: 'Location information unavailable. Please try again.',
+            3: 'Location request timed out. Check your connection.',
+          };
+
+          const errorMessage = errorMap[err.code] || `Location error: ${err.message}`;
+          setError(errorMessage);
+          setPermissionStatus(err.code === 1 ? 'denied' : 'prompt');
           
           resolve(null);
         },
-        { 
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 60000 // Accept positions that are up to 1 minute old
-        }
+        options
       );
     });
-  };
+  }, [isLoading]);
 
-  // Function to request location permission and get position
+  // Request location with additional safety checks
   const requestLocation = useCallback(async (): Promise<Coordinates | null> => {
+    // Server-side and browser support check
     if (typeof window === 'undefined' || !navigator.geolocation) {
-      setError('Geolocation is not supported by your browser');
+      setError('Geolocation not supported');
       setPermissionStatus('unavailable');
       return null;
     }
     
     return getCurrentPosition();
-  }, []);
+  }, [getCurrentPosition]);
 
-  // Calculate distance between two coordinates using Haversine formula
-  // Returns distance in kilometers
+  // Haversine formula for distance calculation (unchanged)
   const calculateDistance = useCallback((lat1: number, lon1: number, lat2: number, lon2: number): number => {
-    const R = 6371; // Radius of the earth in km
+    const R = 6371; // Earth's radius in kilometers
+    const deg2rad = (deg: number) => deg * (Math.PI / 180);
+    
     const dLat = deg2rad(lat2 - lat1);
     const dLon = deg2rad(lon2 - lon1);
     const a = 
@@ -131,14 +152,8 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
       Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
       Math.sin(dLon/2) * Math.sin(dLon/2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-    const distance = R * c; // Distance in km
-    return distance;
+    return R * c; // Distance in kilometers
   }, []);
-
-  // Helper function to convert degrees to radians
-  const deg2rad = (deg: number): number => {
-    return deg * (Math.PI/180);
-  };
 
   return (
     <LocationContext.Provider value={{ 
@@ -155,6 +170,7 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+// Hook to use location context
 export const useLocation = () => {
   const context = useContext(LocationContext);
   if (context === undefined) {

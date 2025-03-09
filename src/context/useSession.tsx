@@ -19,7 +19,7 @@ export const SessionProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL_BE || "http://localhost:8000/api";
+  const base_url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
   // ✅ Cek sesi dan pastikan user diperbarui
   const checkSession = useCallback(async () => {
@@ -29,7 +29,7 @@ export const SessionProvider: React.FC<{ children: ReactNode }> = ({ children })
       console.log("🔹 Checking session with token:", token);
       if (!token) throw new Error("No token found");
 
-      const res = await fetch(`${baseUrl}/auth/session`, {
+      const res = await fetch(`${base_url}/auth/session`, {
         method: "GET",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -53,7 +53,7 @@ export const SessionProvider: React.FC<{ children: ReactNode }> = ({ children })
     } finally {
       setLoading(false);
     }
-  }, [baseUrl]);
+  }, [base_url]);
 
   // ✅ Pastikan `login` juga memperbarui sesi
   const login = async (token: string) => {

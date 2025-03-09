@@ -6,8 +6,9 @@ import * as Yup from "yup";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import LaundrySearchBar from "../app/searchbar";
+import { Button } from "../ui/button";
 
-const base_url = process.env.NEXT_PUBLIC_BASE_URL_BE;
+const base_url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
 const SignUp = () => {
   const router = useRouter();
@@ -90,7 +91,7 @@ const SignUp = () => {
                   </p>
                 )}
               </div>
-              <button
+              <Button
                 type="submit"
                 disabled={isLoading}
                 className={`w-full p-3 rounded-lg text-white ${
@@ -98,7 +99,7 @@ const SignUp = () => {
                 } transition-all`}
               >
                 {isLoading ? "Sending..." : "Verify Email"}
-              </button>
+              </Button>
             </form>
           ) : (
             <p className="text-green-600 text-center">

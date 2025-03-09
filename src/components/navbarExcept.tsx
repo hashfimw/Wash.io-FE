@@ -13,6 +13,12 @@ const validPathPatterns = [
   /^\/$/, // Halaman utama
   /^\/about\/?$/, // Halaman about
   /^\/contact\/?$/, // Halaman contact
+  /^\/outlets\/?$/, // Halaman outlets
+  /^\/orders\/?$/, // Halaman orders
+  /^\/new-order\/?$/, // Halaman orders
+  /^\/payment\/?$/, // Halaman orders
+  /^\/register\/?$/, // Halaman register
+  /^\/login\/?$/, // Halaman login
   /^\/driver\/?$/, // Halaman shop
   /^\/(\/.*)?$/, // Halaman products dan sub-path nya
   /^\/blog(\/.*)?$/, // Halaman blog dan sub-path nya

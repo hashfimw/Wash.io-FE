@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useToast } from "@/components/ui/use-toast";
+import { Button } from "../ui/button";
 
 const CompleteRegister = () => {
   const searchParams = useSearchParams();
@@ -13,7 +14,7 @@ const CompleteRegister = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [token, setToken] = useState<string | null>(null);
 
-  const base_url = process.env.NEXT_PUBLIC_BASE_URL_BE;
+  const base_url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
   useEffect(() => {
     const urlToken = searchParams.get("token");
@@ -103,12 +104,12 @@ const CompleteRegister = () => {
         <div className="mb-4 p-3 bg-red-50 text-red-800 rounded">
           Registration link is not valid or expired. Please check your email or get new link.
         </div>
-        <button
+        <Button
           onClick={() => router.push('/login')}
           className="w-full p-3 rounded-lg text-white bg-blue-500 hover:bg-blue-600"
         >
           Back to home
-        </button>
+        </Button>
       </div>
     );
   }
@@ -161,7 +162,7 @@ const CompleteRegister = () => {
           )}
         </div>
         
-        <button
+        <Button
           type="submit"
           disabled={isLoading}
           className={`w-full p-3 rounded-lg text-white ${
@@ -169,7 +170,7 @@ const CompleteRegister = () => {
           }`}
         >
           {isLoading ? "Signing Up..." : "Submit"}
-        </button>
+        </Button>
       </form>
     </div>
   );
