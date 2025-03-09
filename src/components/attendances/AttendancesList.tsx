@@ -299,7 +299,7 @@ export default function AttendancesList() {
     isClockedOut: !!(!employeeStatus.canClockIn && !employeeStatus.isPresent && employeeStatus.isAttended),
     isOffShift: !!(!employeeStatus.canClockIn && !employeeStatus.isPresent && !employeeStatus.isAttended),
     canSubmit: !!(employeeStatus.canClockIn && !employeeStatus.isPresent),
-    isWaiting: !!(employeeStatus.isPresent && !employeeStatus.isOnWorkShift && currentHour < shiftStartHour()),
+    isWaiting: !!(employeeStatus.isPresent && !employeeStatus.isOnWorkShift && currentHour > nextShiftHour() && currentHour < shiftStartHour()),
     isIdling: !!(employeeStatus.isPresent && !employeeStatus.isWorking && employeeStatus.isOnWorkShift),
     isBusy: !!(employeeStatus.isPresent && employeeStatus.isWorking),
     isPresent: employeeStatus.isPresent,
