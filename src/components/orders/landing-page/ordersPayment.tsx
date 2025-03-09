@@ -21,12 +21,7 @@ const PaymentPage: React.FC = () => {
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const { getOrderById } = useOrders();
-  const {
-    initiatePayment,
-    loading: paymentLoading,
-    error: paymentError,
-  } = usePayment();
-
+  const { initiatePayment, loading: paymentLoading, error: paymentError } = usePayment();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -72,10 +67,7 @@ const PaymentPage: React.FC = () => {
 
     const script = document.createElement("script");
     script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
-    script.setAttribute(
-      "data-client-key",
-      process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || ""
-    );
+    script.setAttribute("data-client-key", process.env.MIDTRANS_CLIENT_KEY!);
     script.onload = () => console.log("Midtrans Snap loaded");
     document.body.appendChild(script);
   }, []);
@@ -143,11 +135,9 @@ const PaymentPage: React.FC = () => {
           <div className="flex items-center justify-center text-gray-500 mb-4">
             <AlertCircle size={48} />
           </div>
-          <h1 className="text-xl font-bold text-center mb-2">
-            Order Not Found
-          </h1>
+          <h1 className="text-xl font-bold text-center mb-2">Order Not Found</h1>
           <p className="text-center text-gray-500">
-            We couldn't find the order you're looking for.
+            We couldn&apos;t find the order you&apos;re looking for.
           </p>
           <button
             onClick={() => router.push(`/orders`)}
@@ -172,9 +162,7 @@ const PaymentPage: React.FC = () => {
 
         <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100 transition-all hover:shadow-lg">
           <div className="bg-orange-500 p-4">
-            <h1 className="text-xl font-bold text-white">
-              Complete Your Payment
-            </h1>
+            <h1 className="text-xl font-bold text-white">Complete Your Payment</h1>
           </div>
 
           <div className="p-6">
@@ -210,10 +198,7 @@ const PaymentPage: React.FC = () => {
                     <p className="text-gray-600 mb-1">Items:</p>
                     <ul className="pl-4">
                       {order.OrderItem.map((item) => (
-                        <li
-                          key={item.id}
-                          className="flex justify-between text-sm"
-                        >
+                        <li key={item.id} className="flex justify-between text-sm">
                           <span>{item.orderItemName}</span>
                           {item.qty && <span>x{item.qty}</span>}
                         </li>
@@ -224,9 +209,7 @@ const PaymentPage: React.FC = () => {
                 {order.Payment && (
                   <p className="flex justify-between py-3 border-t border-gray-200 text-lg font-medium">
                     <span>Total Payment:</span>
-                    <span className="text-orange-500">
-                      {formatCurrency(order.Payment?.totalPrice)}
-                    </span>
+                    <span className="text-orange-500">{formatCurrency(order.Payment?.totalPrice)}</span>
                   </p>
                 )}
               </div>
@@ -246,9 +229,7 @@ const PaymentPage: React.FC = () => {
                   />
                   <div className="flex-1">
                     <p className="font-medium">Credit/Debit Card</p>
-                    <p className="text-sm text-gray-500">
-                      Pay with Visa, Mastercard, or other cards
-                    </p>
+                    <p className="text-sm text-gray-500">Pay with Visa, Mastercard, or other cards</p>
                   </div>
                 </label>
 
@@ -263,9 +244,7 @@ const PaymentPage: React.FC = () => {
                   />
                   <div className="flex-1">
                     <p className="font-medium">Bank Transfer</p>
-                    <p className="text-sm text-gray-500">
-                      Pay via bank transfer
-                    </p>
+                    <p className="text-sm text-gray-500">Pay via bank transfer</p>
                   </div>
                 </label>
 
@@ -280,9 +259,7 @@ const PaymentPage: React.FC = () => {
                   />
                   <div className="flex-1">
                     <p className="font-medium">E-Wallet</p>
-                    <p className="text-sm text-gray-500">
-                      GoPay, OVO, DANA, etc.
-                    </p>
+                    <p className="text-sm text-gray-500">GoPay, OVO, DANA, etc.</p>
                   </div>
                 </label>
               </div>
@@ -308,11 +285,7 @@ const PaymentPage: React.FC = () => {
                   Processing...
                 </span>
               ) : (
-                `Pay ${
-                  order.Payment
-                    ? formatCurrency(order.Payment.totalPrice)
-                    : "Now"
-                }`
+                `Pay ${order.Payment ? formatCurrency(order.Payment.totalPrice) : "Now"}`
               )}
             </button>
           </div>
