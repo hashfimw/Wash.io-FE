@@ -311,7 +311,7 @@ export default function AboutPage() {
                   <p className="text-gray-700 mb-6">{services[selectedItem].description}</p>
 
                   <div className="bg-putbir rounded-lg p-4 mb-6">
-                    <h3 className="font-medium text-birtu mb-2">What's Included</h3>
+                    <h3 className="font-medium text-birtu mb-2">What&apos;s Included</h3>
                     <ul className="grid grid-cols-1 md:grid-cols-3 gap-2">
                       {services[selectedItem].features.map((feature, idx) => (
                         <li key={idx} className="flex items-center">

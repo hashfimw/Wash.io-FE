@@ -24,7 +24,7 @@ const CreatePickupOrder = () => {
         });
       }
     };
-    
+
     fetchAddresses();
   }, [getAllAddresses]);
 
@@ -39,9 +39,7 @@ const CreatePickupOrder = () => {
         {loading && (
           <div className="text-center py-8 sm:py-12">
             <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-orange-500 mx-auto"></div>
-            <p className="mt-3 sm:mt-4 text-sm sm:text-base text-gray-600">
-              Loading your addresses...
-            </p>
+            <p className="mt-3 sm:mt-4 text-sm sm:text-base text-gray-600">Loading your addresses...</p>
           </div>
         )}
 

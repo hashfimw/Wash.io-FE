@@ -7,14 +7,23 @@ interface JobDetailsCardProps {
   job: GetJobByIdResponse;
   isTakeLaundryJob: boolean;
   isValid: boolean;
-  isPending: boolean,
+  isPending: boolean;
   inputBody: UpdateLaundryJobInputBody[];
   errors: string[];
   handleQtyChange: (orderItemId: number, newQty: number) => void;
 }
 
-export default function JobDetailsCard({ role, job, isTakeLaundryJob, isValid, inputBody, errors, handleQtyChange, isPending }: JobDetailsCardProps) {
-  const isNotPending = !!(isTakeLaundryJob && !isPending)
+export default function JobDetailsCard({
+  role,
+  job,
+  isTakeLaundryJob,
+  isValid,
+  inputBody,
+  errors,
+  handleQtyChange,
+  isPending,
+}: JobDetailsCardProps) {
+  const isNotPending = !!(isTakeLaundryJob && !isPending);
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-3 text-sidebar-foreground">
@@ -27,7 +36,9 @@ export default function JobDetailsCard({ role, job, isTakeLaundryJob, isValid, i
         } space-y-3 sm:px-4 sm:py-6 rounded-md shadow-inner px-2 py-4 text-sm sm:text-base`}
       >
         <p>
-          <span className="text-muted-foreground">{role === "driver" ? "• Transport type " : "• Station "}</span>
+          <span className="text-muted-foreground">
+            {role === "driver" ? "• Transport type " : "• Station "}
+          </span>
           <span
             className={`font-medium text-white text-xs sm:text-sm saturate-[.8] rounded-full py-0.5 px-3 ${
               role === "driver" ? "bg-birtu" : "bg-oren"
@@ -109,7 +120,8 @@ export default function JobDetailsCard({ role, job, isTakeLaundryJob, isValid, i
               <p>
                 <span className="text-muted-foreground">• Address line: </span>
                 <span className="font-medium">
-                  {job.address.addressLine}, {job.address.province}, {job.address.regency}, {job.address.district}, {job.address.village}
+                  {job.address.addressLine}, {job.address.province}, {job.address.regency},{" "}
+                  {job.address.district}, {job.address.village}
                 </span>
               </p>
             )}
@@ -127,15 +139,21 @@ export default function JobDetailsCard({ role, job, isTakeLaundryJob, isValid, i
             <p>
               <span className="text-muted-foreground">• Bypass status </span>
               {!job.isByPassRequested ? (
-                <span className="font-medium text-white text-xs sm:text-sm saturate-[.8] rounded-full py-0.5 px-3 bg-lime-600">No bypass</span>
+                <span className="font-medium text-white text-xs sm:text-sm saturate-[.8] rounded-full py-0.5 px-3 bg-lime-600">
+                  No bypass
+                </span>
               ) : job.isByPassRequested && !job.byPassStatus ? (
                 <span className="font-medium text-white text-xs sm:text-sm saturate-[.8] rounded-full py-0.5 px-3 bg-yellow-600">
                   Pending
                 </span>
               ) : job.byPassStatus && job.byPassStatus === "ACCEPTED" ? (
-                <span className="font-medium text-white text-xs sm:text-sm saturate-[.8] rounded-full py-0.5 px-3 bg-lime-600">Accepted</span>
+                <span className="font-medium text-white text-xs sm:text-sm saturate-[.8] rounded-full py-0.5 px-3 bg-lime-600">
+                  Accepted
+                </span>
               ) : (
-                <span className="font-medium text-white text-xs sm:text-sm saturate-[.8] rounded-full py-0.5 px-3 bg-rose-600">Rejected</span>
+                <span className="font-medium text-white text-xs sm:text-sm saturate-[.8] rounded-full py-0.5 px-3 bg-rose-600">
+                  Rejected
+                </span>
               )}
             </p>
             {job.byPassNote && (
@@ -157,7 +175,10 @@ export default function JobDetailsCard({ role, job, isTakeLaundryJob, isValid, i
                   </thead>
                   <tbody>
                     {inputBody.map((item, idx) => (
-                      <tr className="text-center font-medium h-9 odd:bg-muted even:bg-amber-100/50 hover:brightness-105 transition" key={idx}>
+                      <tr
+                        className="text-center font-medium h-9 odd:bg-muted even:bg-amber-100/50 hover:brightness-105 transition"
+                        key={idx}
+                      >
                         <td>{idx + 1}</td>
                         <td>{job.orderItem![idx].orderItemName}</td>
                         <td>{job.orderItem![idx].qty}</td>
@@ -166,8 +187,10 @@ export default function JobDetailsCard({ role, job, isTakeLaundryJob, isValid, i
                             <input
                               type="number"
                               min="0"
-                              value={item.qty}
-                              onChange={(e) => handleQtyChange(item.orderItemId, parseInt(e.target.value) || 0)}
+                              value={item.qty ?? 0}
+                              onChange={(e) =>
+                                handleQtyChange(item.orderItemId, parseInt(e.target.value) || 0)
+                              }
                               required
                               className="w-16 shadow-none text-sm sm:text-base p-1 rounded-sm border"
                             />
@@ -190,7 +213,9 @@ export default function JobDetailsCard({ role, job, isTakeLaundryJob, isValid, i
                       </div>
                     )}
                     {isValid && (
-                      <div className="px-4 py-2 bg-green-100 text-green-700 border-t-0 text-sm">All items match the expected quantities!</div>
+                      <div className="px-4 py-2 bg-green-100 text-green-700 border-t-0 text-sm">
+                        All items match the expected quantities!
+                      </div>
                     )}
                   </>
                 )}

@@ -1,3 +1,4 @@
+// src/components/reports/EmployeePerformancePart2.tsx
 "use client";
 
 import React, { RefObject } from "react";
@@ -10,8 +11,7 @@ import { TablePagination } from "../shared/usePagination";
 import { ExportConfig } from "@/utils/exportReport/types";
 import { ReportExportMenu } from "./reportExportMenu";
 import { Outlet } from "@/types/outlet";
-
-// Define a more specific type for outlets
+import { EmployeePerformanceChart } from "./employeePerfomanceChart";
 
 interface EmployeePerformancePart2Props {
   activeTab: "workers" | "drivers";
@@ -175,6 +175,9 @@ export function EmployeePerformancePart2({
         userRole={userRole}
         userOutletId={userOutletId}
       />
+
+      {/* Employee Performance Chart - TAMBAHAN BARU */}
+      <EmployeePerformanceChart data={performanceData} activeTab={activeTab} isLoading={loading} />
 
       <div ref={tableRef}>
         <div className="p-4 bg-white rounded-lg shadow">

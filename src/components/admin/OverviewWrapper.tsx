@@ -33,12 +33,12 @@ function TodayOrdersCard({ count, userRoleForPath }: { count: number; userRoleFo
     <Link href={`/dashboard/${userRoleForPath}/orders`} className="block h-full">
       <Card className="hover:shadow-md transition-shadow hover:bg-gray-50 cursor-pointer h-full">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-gray-600">Today's Orders</CardTitle>
+          <CardTitle className="text-sm font-medium text-gray-600">Today&apos;s Orders</CardTitle>
           <Users className="h-6 w-6 text-indigo-500" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{count}</div>
-          <p className="text-xs text-indigo-600">Today's activity</p>
+          <p className="text-xs text-indigo-600">Today&apos;s activity</p>
         </CardContent>
       </Card>
     </Link>

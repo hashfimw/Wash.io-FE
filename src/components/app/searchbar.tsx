@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useRef, useState, useEffect } from "react";
 import { Search, Locate, MapPin, Clock, ChevronDown, AlertCircle } from "lucide-react";
@@ -11,13 +11,8 @@ import { useLocation } from "@/context/LocationContext";
 
 export default function LaundrySearchBar() {
   const router = useRouter(); // Initialize the router
-  
-  const {
-    outlets,
-    loading: apiLoading,
-    error: apiError,
-    getPublicOutlets,
-  } = usePublicOutlets();
+
+  const { outlets, loading: apiLoading, error: apiError, getPublicOutlets } = usePublicOutlets();
   const {
     location,
     permissionStatus,
@@ -239,14 +234,15 @@ export default function LaundrySearchBar() {
   const handleOutletSelect = (outlet: Outlet) => {
     // Navigate to outlet detail page with the outlet ID
     setShowDropdown(false);
-    
+
     // Navigate to outlets page with the search query
     // We'll use the outlet's location data for the search
-    const searchQuery = outlet.outletAddress.district || 
-                       outlet.outletAddress.regency || 
-                       outlet.outletAddress.province || 
-                       outlet.outletName;
-    
+    const searchQuery =
+      outlet.outletAddress.district ||
+      outlet.outletAddress.regency ||
+      outlet.outletAddress.province ||
+      outlet.outletName;
+
     router.push(`/outlets?search=${encodeURIComponent(searchQuery)}`);
   };
 
@@ -276,7 +272,11 @@ export default function LaundrySearchBar() {
       // If we're using location-based search
       if (searchType === "location" && location) {
         // Encode location coordinates in the URL to maintain the location context
-        router.push(`/outlets?search=${encodeURIComponent(searchValues.location)}&lat=${location.latitude}&lng=${location.longitude}`);
+        router.push(
+          `/outlets?search=${encodeURIComponent(searchValues.location)}&lat=${location.latitude}&lng=${
+            location.longitude
+          }`
+        );
       } else {
         // For text-based search, just pass the search query
         router.push(`/outlets?search=${encodeURIComponent(searchValues.location)}`);
@@ -286,7 +286,7 @@ export default function LaundrySearchBar() {
       router.push(`/outlets?search=${encodeURIComponent(searchValues.location)}`);
     } else {
       // If no search query, just go to outlets page
-      router.push('/outlets');
+      router.push("/outlets");
     }
   };
 
@@ -406,14 +406,9 @@ export default function LaundrySearchBar() {
             <div className="p-2">
               <div className="flex justify-between items-center text-xs text-gray-500 px-3 py-1">
                 <h3>
-                  {searchType === "location"
-                    ? `Outlets Within ${MAX_DISTANCE_KM}km`
-                    : "Outlets Found"}
-                  {searchResults.length > 0 && (
-                    <span className="ml-1">({searchResults.length})</span>
-                  )}
+                  {searchType === "location" ? `Outlets Within ${MAX_DISTANCE_KM}km` : "Outlets Found"}
+                  {searchResults.length > 0 && <span className="ml-1">({searchResults.length})</span>}
                 </h3>
-
               </div>
               <ul className="divide-y divide-gray-100">
                 {searchResults.map((outlet, index) => (
