@@ -20,9 +20,7 @@ export default function DashboardPage() {
   const roleFromUrl = params?.role as string;
 
   // Debug info on component mount
-  useEffect(() => {
-    console.log("Dashboard loading with URL role param:", roleFromUrl);
-  }, [roleFromUrl]);
+  useEffect(() => {}, [roleFromUrl]);
 
   // Function to fetch dashboard data
   const fetchDashboardData = async () => {
@@ -31,7 +29,6 @@ export default function DashboardPage() {
 
     try {
       // Use the role from URL directly
-      console.log("Fetching dashboard data for role:", roleFromUrl);
 
       // Get dashboard data - always fetches fresh data
       const data = await getDashboardData(roleFromUrl);

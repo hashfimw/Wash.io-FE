@@ -4,13 +4,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useBreadcrumb } from "@/context/BreadcrumbContext";
 
 import { useLaundryItems } from "@/hooks/api/laundry-item/useLaundryItems";
@@ -24,20 +18,13 @@ import { CreateItemDialog } from "@/components/laundry-items/CreateItemDialog";
 
 export default function LaundryItemPage() {
   const params = useParams();
-  const role = Array.isArray(params.role)
-    ? params.role[0]
-    : params.role || "outlet-admin";
+  const role = Array.isArray(params.role) ? params.role[0] : params.role || "outlet-admin";
   const isSuperAdmin = role === "super-admin";
 
   const { setBreadcrumbItems } = useBreadcrumb();
   const { toast } = useToast();
-  const {
-    getLaundryItems,
-    createLaundryItem,
-    updateLaundryItem,
-    deleteLaundryItem,
-    error,
-  } = useLaundryItems();
+  const { getLaundryItems, createLaundryItem, updateLaundryItem, deleteLaundryItem, error } =
+    useLaundryItems();
 
   const [items, setItems] = useState<OrderItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -49,10 +36,7 @@ export default function LaundryItemPage() {
   // Set breadcrumb
   useEffect(() => {
     const roleName = role === "super-admin" ? "Super Admin" : "Outlet Admin";
-    setBreadcrumbItems([
-      { label: roleName, href: `/dashboard/${role}` },
-      { label: "Laundry Items" },
-    ]);
+    setBreadcrumbItems([{ label: roleName, href: `/dashboard/${role}` }, { label: "Laundry Items" }]);
   }, [role, setBreadcrumbItems]);
 
   // Fetch laundry items
@@ -64,7 +48,7 @@ export default function LaundryItemPage() {
         if (response && response.data) {
           // Ensure data is valid and complete
           const validItems = Array.isArray(response.data) ? response.data : [];
-          console.log("Fetched items:", validItems);
+
           setItems(validItems);
           setFilteredItems(validItems);
         }
@@ -89,9 +73,7 @@ export default function LaundryItemPage() {
       setFilteredItems(items);
     } else {
       const lowerQuery = searchQuery.toLowerCase();
-      const filtered = items.filter((item) =>
-        item.orderItemName.toLowerCase().includes(lowerQuery)
-      );
+      const filtered = items.filter((item) => item.orderItemName.toLowerCase().includes(lowerQuery));
       setFilteredItems(filtered);
     }
   }, [searchQuery, items]);
@@ -119,9 +101,7 @@ export default function LaundryItemPage() {
       const response = await updateLaundryItem(id, itemName);
       if (response && response.data) {
         // Update local state
-        setItems((prev) =>
-          prev.map((item) => (item.id === id ? response.data : item))
-        );
+        setItems((prev) => prev.map((item) => (item.id === id ? response.data : item)));
         toast({
           title: "Success",
           description: "Laundry item updated successfully.",

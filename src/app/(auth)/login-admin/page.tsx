@@ -78,7 +78,6 @@ const LoginPage = () => {
         if (response.data.token) {
           // Gunakan helper function untuk set cookie
           setCookie("token", response.data.token, 1); // Expired dalam 1 hari
-          console.log("Token disimpan ke cookie untuk server component");
         }
 
         const { role } = response.data.user;
