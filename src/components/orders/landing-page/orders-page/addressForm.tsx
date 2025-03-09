@@ -10,7 +10,21 @@ import { useAddress } from "@/hooks/api/request-order/useAddress";
 import { useToast } from "@/components/ui/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useSession } from "@/hooks/useSession";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+
+// Create a custom MapPicker component that wraps the LocationPicker but works with Formik
+const MapPicker = dynamic(
+  () => import("./mapPickerFormik").then((mod) => mod.default),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[300px] w-full flex items-center justify-center border rounded-md">
+        Loading map...
+      </div>
+    ),
+  }
+);
 
 interface AddressFormProps {
   onAddressCreated: (addressId: number) => void;
@@ -101,7 +115,19 @@ const AddressForm = ({ onAddressCreated, onCancel }: AddressFormProps) => {
       </CardHeader>
       <CardContent>
         <form onSubmit={addressFormik.handleSubmit} className="space-y-4">
-          {/* Form fields remain the same */}
+          {/* Map Picker */}
+          <div className="space-y-2">
+            <Label>Select Location on Map</Label>
+            <MapPicker 
+              formik={addressFormik}
+              latitude={addressFormik.values.latitude}
+              longitude={addressFormik.values.longitude}
+            />
+            <p className="text-sm text-muted-foreground">
+              Click on the map to automatically fill address details
+            </p>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="addressLine">Full Address</Label>
             <Input
@@ -188,6 +214,7 @@ const AddressForm = ({ onAddressCreated, onCancel }: AddressFormProps) => {
                 id="latitude"
                 {...addressFormik.getFieldProps("latitude")}
                 placeholder="Latitude"
+                readOnly
               />
               {addressFormik.touched.latitude &&
                 addressFormik.errors.latitude && (
@@ -203,6 +230,7 @@ const AddressForm = ({ onAddressCreated, onCancel }: AddressFormProps) => {
                 id="longitude"
                 {...addressFormik.getFieldProps("longitude")}
                 placeholder="Longitude"
+                readOnly
               />
               {addressFormik.touched.longitude &&
                 addressFormik.errors.longitude && (
