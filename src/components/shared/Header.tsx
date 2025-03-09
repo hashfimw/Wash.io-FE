@@ -45,10 +45,6 @@ export const Header = ({ user, breadcrumbItems, role }: HeaderProps) => {
 
   useEffect(() => {
     fetchUnreadCount();
-  }, []);
-
-  useEffect(() => {
-    fetchUnreadCount();
   }, [isNotificationModalOpen]);
 
   const handleOpen = () => {

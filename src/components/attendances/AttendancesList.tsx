@@ -106,9 +106,11 @@ export default function AttendancesList() {
   };
 
   const fetchEmployeeStatus = async () => {
-    const response = await getEmployeeStatus();
+    if (role === "driver" || role === "worker") {
+      const response = await getEmployeeStatus();
 
-    setEmployeeStatus(response.data);
+      setEmployeeStatus(response.data);
+    }
   };
 
   const submitAttendance = async (attendanceType: "CLOCK_IN" | "CLOCK_OUT") => {

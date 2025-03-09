@@ -67,7 +67,7 @@ export default function JobDetails({ role, id }: { role: "driver" | "worker"; id
         });
         const defaultItems = orderItems.map((item) => ({
           orderItemId: item.orderItemId,
-          qty: 0,
+          qty: null,
         }));
         setOrderItemNames(itemNames);
         setInputRef(orderItems);
