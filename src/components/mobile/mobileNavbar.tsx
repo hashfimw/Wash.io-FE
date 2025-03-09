@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+
 import Link from "next/link";
 import Image from "next/image";
 import { useSession } from "@/hooks/useSession";
 import Avatar from "../app/avatar";
+import { Menu, X } from "lucide-react";
+import MobileLaundrySearchBar from "../app/mobileSearchbar";
+
 
 export default function MobileNavbar() {
   const { isAuth } = useSession();
@@ -43,7 +46,7 @@ export default function MobileNavbar() {
         <div className="flex flex-row">
           <Link href={"/"} className="w-[36px] h-[36px] relative bottom-2">
             <Image
-              src={"/washio-oren.png"}
+              src={"/washio.png"}
               alt="washio-logo"
               layout="fill"
               className="object-cover"
@@ -56,6 +59,7 @@ export default function MobileNavbar() {
 
         {/* Avatar atau Burger Menu */}
         <div className="text-gray-700 font-bold hover:cursor-pointer flex items-center space-x-4">
+          <MobileLaundrySearchBar />
           {isOpen ? (
             <X size={24} onClick={toggleMenu} />
           ) : isAuth ? (
@@ -94,6 +98,11 @@ export default function MobileNavbar() {
               </Link>
             </li>
             <hr className="my-2 border-t" />
+            <li className="flex items-center justify-center">
+              <Link href={"/register"} className="hover:text-green-800">
+                Sign Up
+              </Link>
+            </li>
             <li className="flex items-center justify-center">
               <Link href={"/login"} className="hover:text-green-800">
                 Sign In

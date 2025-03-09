@@ -1,168 +1,116 @@
-import { useState, useCallback } from "react";
-import axios from "axios";
+"use client"
 
-interface Address {
-  id: number;
-  addressLine: string;
-  village: string;
-  district: string;
-  regency: string;
-  province: string;
-  isPrimary: boolean;
-  // Add any other fields your address might have
-}
+import { useState, useCallback, useEffect } from "react";
+import { ApiResponse } from "@/types/api";
+import useApi from "../useApi";
+import { Address } from "@/types/requestOrder";
+import { useSession } from "@/hooks/useSession";
 
-interface AddressParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  sortBy?: string;
-  sortOrder?: string;
-}
-
-interface AddressApiResponse {
-  message: string;
-  data: Address[];
-  meta?: {
-    page: number;
-    limit: number;
-    total: number;
-    totalRecords: number;
-  };
-}
-
-const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api",
-});
-
-// Interceptor for token
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
+/**
+ * Hook for managing customer addresses
+ */
 export const useAddress = () => {
+  const api = useApi();
+  const { user } = useSession();
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Get all user addresses
-  const getAllAddresses = useCallback(async (params: AddressParams = {}) => {
+  /**
+   * Get all addresses for the current user (only non-deleted)
+   */
+  const getAllAddresses = useCallback(async () => {
     setLoading(true);
     setError(null);
+
     try {
-      // Build query parameters
-      const queryParams = new URLSearchParams();
-      if (params.page) queryParams.append("page", params.page.toString());
-      if (params.limit) queryParams.append("limit", params.limit.toString());
-      if (params.search) queryParams.append("search", params.search);
-      if (params.sortBy) queryParams.append("sortBy", params.sortBy);
-      if (params.sortOrder) queryParams.append("sortOrder", params.sortOrder);
-
-      const url = `/address${
-        queryParams.toString() ? `?${queryParams.toString()}` : ""
-      }`;
-
-      // const url = `/address`; // Menghilangkan query params untuk sementara
-      console.log("Fetching address", url);
-      
-
-      const response = await api.get<AddressApiResponse>(url);
+      const response = await api.get<ApiResponse<Address[]>>("/address");
+      console.log("All addresses response:", response.data);
       setAddresses(response.data.data || []);
       return response.data.data;
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        setError(error.response?.data?.message || 'Failed to fetch addresses');
-      } else {
-        setError('An unexpected error occurred');
-      }
+    } catch (error) {
+      console.error("Error fetching addresses:", error);
+      setError(error instanceof Error ? error.message : "An error occurred while fetching addresses");
       return [];
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [api]);
 
-  // Get address by ID
-  const getAddressById = useCallback(async (id: number) => {
+  /**
+   * Get a specific address by ID
+   * @param addressId - The ID of the address to retrieve
+   */
+  const getAddressById = useCallback(async (addressId: number) => {
     setLoading(true);
     setError(null);
+
     try {
-      const response = await api.get<{ message: string; data: Address }>(`/address/${id}`);
+      const response = await api.get<ApiResponse<Address>>(`/address/${addressId}`);
+      console.log("Address by ID response:", response.data);
       return response.data.data;
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        setError(error.response?.data?.message || 'Failed to fetch address');
-      } else {
-        setError('An unexpected error occurred');
-      }
-      throw error;
+    } catch (error) {
+      console.error("Error fetching address by ID:", error);
+      setError(error instanceof Error ? error.message : "Address not found");
+      return null;
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [api]);
 
-  // Create new address
-  const createAddress = useCallback(async (addressData: Omit<Address, 'id'>) => {
+  /**
+   * Create a new address, ensuring isPrimary isn't duplicated
+   * @param addressData - The address data without ID
+   * @returns The ID of the created address
+   */
+  const createAddress = useCallback(async (addressData: Omit<Address, "id">) => {
     setLoading(true);
     setError(null);
+  
     try {
-      const response = await api.post<{ message: string; data: Address }>('/address', addressData);
-      await getAllAddresses();
-      return response.data.data;
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        setError(error.response?.data?.message || 'Failed to create address');
-      } else {
-        setError('An unexpected error occurred');
+      // if (!user || !user.id) {
+      //   throw new Error("User is not authenticated");
+      // }
+  
+      const payload = { ...addressData, customerId: user?.id };
+  
+      console.log("Sending address creation request with payload:", payload);
+  
+      // Kirim request ke backend
+      const response = await api.post<Address>("/address", payload);
+      
+      console.log("Address creation response:", response.data);
+  
+      // Karena backend tidak membungkus dalam { success, data }, langsung ambil response.data.id
+      const addressId = response.data?.id;
+  
+      if (!addressId) {
+        throw new Error("Invalid response format: Missing address ID");
       }
+  
+      console.log("New address ID:", addressId);
+  
+      await getAllAddresses(); // Refresh daftar alamat
+  
+      return addressId;
+    } catch (error) {
+      console.error("Error creating address:", error);
+      setError(error instanceof Error ? error.message : "An error occurred while creating address");
       throw error;
     } finally {
       setLoading(false);
     }
-  }, [getAllAddresses]);
+  }, [api, getAllAddresses, user]);
+  
 
-  // Update address
-  const updateAddress = useCallback(async (id: number, addressData: Partial<Address>) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await api.patch<{ message: string; data: Address }>(`/address/${id}`, addressData);
-      await getAllAddresses();
-      return response.data.data;
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        setError(error.response?.data?.message || 'Failed to update address');
-      } else {
-        setError('An unexpected error occurred');
-      }
-      throw error;
-    } finally {
-      setLoading(false);
+  /**
+   * Fetch addresses automatically when user is available
+   */
+  useEffect(() => {
+    if (user?.id) {
+      getAllAddresses();
     }
-  }, [getAllAddresses]);
-
-  // Delete address
-  const deleteAddress = useCallback(async (id: number) => {
-    setLoading(true);
-    setError(null);
-    try {
-      await api.delete(`/address/${id}`);
-      await getAllAddresses();
-      return true;
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        setError(error.response?.data?.message || 'Failed to delete address');
-      } else {
-        setError('An unexpected error occurred');
-      }
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  }, [getAllAddresses]);
+  }, [user, getAllAddresses]);
 
   return {
     addresses,
@@ -171,7 +119,5 @@ export const useAddress = () => {
     getAllAddresses,
     getAddressById,
     createAddress,
-    updateAddress,
-    deleteAddress
   };
 };
