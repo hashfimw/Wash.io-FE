@@ -46,11 +46,11 @@ export default function Homepage() {
           <div className="text-center md:text-left md:w-1/2">
             <h2 className="text-2xl md:text-4xl font-bold">
               Fresh Laundry,{" "}
-              <span className="relative bg-oren p-2 text-white inline-block overflow-hidden rotate-12 group">
+              <span className="relative bg-orange-500 p-2 text-white inline-block overflow-hidden rotate-12 md:rotate-12 group mt-5">
                 Hassle-Free
-                {/* Lipatan awalnya terlihat */}
-                <span className="absolute top-0 right-0 w-[40px] h-[40px] bg-gradient-to-br from-white to-gray-300 rounded-bl-full shadow-lg transition-all duration-300 ease-in-out group-hover:opacity-0 group-hover:scale-0 group-hover:translate-x-8 group-hover:-translate-y-8"></span>
-                <span className="absolute top-0 right-0 w-0 h-0 border-t-[40px] border-l-[40px] border-t-[#E7FAFE] border-l-transparent transition-all duration-300 ease-in-out group-hover:opacity-0 group-hover:scale-0 group-hover:translate-x-8 group-hover:-translate-y-8"></span>
+                {/* Folded corner effect */}
+                <span className="absolute top-0 right-0 w-[30px] h-[30px] md:w-[40px] md:h-[40px] bg-gradient-to-br from-white to-gray-300 rounded-bl-full shadow-lg transition-all duration-300 ease-in-out group-hover:opacity-0 group-hover:scale-0 group-hover:translate-x-8 group-hover:-translate-y-8"></span>
+                <span className="absolute top-0 right-0 w-0 h-0 border-t-[30px] border-l-[30px] md:border-t-[40px] md:border-l-[40px] border-t-[#E7FAFE] border-l-transparent transition-all duration-300 ease-in-out group-hover:opacity-0 group-hover:scale-0 group-hover:translate-x-8 group-hover:-translate-y-8"></span>
               </span>
             </h2>
 

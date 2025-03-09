@@ -1,106 +1,118 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { useOrders } from '@/hooks/api/request-order/usePublicOrders';
-import { formatDate } from '@/utils/formatters';
-import Link from 'next/link';
-import { 
-  Search, 
-  Calendar, 
-  MapPin, 
-  Box, 
-  CreditCard, 
-  Clock, 
-  ExternalLink 
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Order } from "@/types/requestOrder";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+
+import {
+  Loader2,
+  Search,
+  PlusCircle,
+  MapPinned,
+  CreditCard,
+  Box,
+  Clock,
+  ExternalLink,
+  CheckCircle,
 } from "lucide-react";
 
-// Define the Order type if not already imported
-interface OrderItem {
-  id: number;
-  orderItemName: string;
-  qty?: number;
-}
+import { useOrders } from "@/hooks/api/request-order/usePublicOrders";
+import { formatDate } from "@/utils/formatters";
+import { CompleteOrderButton } from "./orders-page/completeOrderButton";
 
-interface Order {
-  id: number;
-  createdAt: string;
-  orderStatus: string;
-  isPaid: boolean;
-  outlet?: {
-    outletName: string;
-  };
-  customerAddress?: {
-    addressLine: string;
-  };
-  OrderItem?: OrderItem[] ;
-}
-
-const OrderList: React.FC = () => {
-  const { orders = [], loading, error, getAllOrders } = useOrders();
+export default function OrdersPage() {
+  const { orders, loading, error, getAllOrders } = useOrders();
+  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  // Fix: specify the type as Order[]
-  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const itemsPerPage = 5;
-
-  // Rest of your component...
 
   useEffect(() => {
     getAllOrders();
   }, [getAllOrders]);
 
-  // Filter orders based on search query
   useEffect(() => {
-    if (!orders.length) return;
-    
-    const filtered = orders.filter(order => {
-      const searchLower = searchQuery.toLowerCase();
-      return (
-        order.id.toString().includes(searchLower) ||
-        (order.outlet?.outletName || '').toLowerCase().includes(searchLower) ||
-        order.orderStatus.toLowerCase().includes(searchLower) ||
-        (order.customerAddress?.addressLine || '').toLowerCase().includes(searchLower) ||
-        order.OrderItem?.some(item => 
-          item.orderItemName.toLowerCase().includes(searchLower)
-        )
-      );
-    });
-    
-    setFilteredOrders(filtered);
+    if (orders.length > 0) {
+      // Filter orders based on search query
+      const filtered = orders.filter((order) => {
+        const searchLower = searchQuery.toLowerCase();
+        return (
+          order.id.toString().includes(searchLower) ||
+          (order.outlet?.outletName || "")
+            .toLowerCase()
+            .includes(searchLower) ||
+          order.orderStatus.toLowerCase().includes(searchLower) ||
+          (order.customerAddress?.addressLine || "")
+            .toLowerCase()
+            .includes(searchLower) ||
+          order.OrderItem?.some((item) =>
+            item.orderItemName.toLowerCase().includes(searchLower)
+          )
+        );
+      });
+      setFilteredOrders(filtered);
+    }
   }, [orders, searchQuery]);
 
-  // Implement debounce for search
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      // This will trigger the filter useEffect
-    }, 500);
+  const handleOrderComplete = (updatedOrder: Order) => {
+    // Update the filtered orders list when an order is completed
+    setFilteredOrders((prev) =>
+      prev.map((order) => (order.id === updatedOrder.id ? updatedOrder : order))
+    );
+  };
 
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
+  const getStatusStyle = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "received_by_customer":
+        return "bg-blue-100 text-blue-800";
+      case "completed":
+        return "bg-green-100 text-green-800";
+      case "cancelled_by_customer":
+      case "cancelled_by_outlet":
+        return "bg-red-100 text-red-800";
+      case "pending":
+      case "waiting_for_pickup_driver":
+      case "waiting_for_delivery_driver":
+        return "bg-yellow-100 text-yellow-800";
+      case "on_the_way_to_customer":
+      case "on_the_way_to_outlet":
+      case "being_washed":
+      case "being_ironed":
+        return "bg-blue-100 text-blue-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
 
   // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredOrders.slice(indexOfFirstItem, indexOfLastItem);
 
-  // Get status style based on order status
-  const getStatusStyle = (status: any) => {
-    switch(status.toLowerCase()) {
-      case 'pending':
-      case 'waiting_confirmation':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'confirmed':
-      case 'in_progress':
-        return 'bg-blue-100 text-blue-800';
-      case 'completed':
-      case 'delivered':
-        return 'bg-green-100 text-green-800';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
+  if (loading && orders.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-gradient-to-b from-[#E7FAFE] to-white">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 text-red-500 p-4 rounded-lg text-center mx-auto max-w-4xl">
+        <p>Error loading orders: {error}</p>
+        <Button
+          variant="outline"
+          className="mt-2 text-sm"
+          onClick={() => getAllOrders()}
+        >
+          Try again
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <section className="bg-gradient-to-b from-[#E7FAFE] to-white p-4 sm:p-6 py-8 sm:py-12">
@@ -108,7 +120,7 @@ const OrderList: React.FC = () => {
         <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 sm:mb-8 mt-20">
           Your <span className="text-orange-500">Laundry</span> Orders
         </h2>
-        
+
         {/* Search Bar */}
         <div className="relative max-w-md mx-auto mb-6 sm:mb-8">
           <div className="flex items-center border-2 border-gray-300 rounded-full bg-white overflow-hidden pl-3 sm:pl-4 pr-2 py-1.5 sm:py-2">
@@ -123,74 +135,74 @@ const OrderList: React.FC = () => {
           </div>
         </div>
 
-        {/* Loading State */}
-        {loading && (
-          <div className="text-center py-8 sm:py-12">
-            <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-orange-500 mx-auto"></div>
-            <p className="mt-3 sm:mt-4 text-sm sm:text-base text-gray-600">Loading your orders...</p>
-          </div>
-        )}
+        {/* New Order Button */}
+        <div className="flex items-start justify-end mb-6">
+          <Link href="/new-order">
+            <Button className="bg-orange-500 hover:bg-orange-600">
+              <PlusCircle className="mr-2" />
+              New Order
+            </Button>
+          </Link>
+        </div>
 
-        {/* Error State */}
-        {error && (
-          <div className="bg-red-50 text-red-500 p-3 sm:p-4 rounded-lg text-center text-sm sm:text-base">
-            <p>{error}</p>
-            <button 
-              className="mt-2 text-xs sm:text-sm underline"
-              onClick={() => getAllOrders()}
-            >
-              Try again
-            </button>
-          </div>
-        )}
-
-        {/* No Orders State */}
-        {!loading && !error && filteredOrders.length === 0 && (
-          <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <Box className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <h3 className="text-lg font-semibold text-gray-700">No Orders Found</h3>
-            <p className="text-gray-500 mt-1">
-              {searchQuery ? "No orders match your search criteria." : "You haven't placed any orders yet."}
-            </p>
-            <Link href="/services" className="mt-4 inline-block px-4 py-2 bg-orange-500 text-white rounded-md text-sm">
-              Browse Services
-            </Link>
-          </div>
-        )}
-
-        {/* Orders List */}
-        {!loading && !error && filteredOrders.length > 0 && (
+        {filteredOrders.length === 0 ? (
+          <Card>
+            <CardContent className="p-6 text-center">
+              <Box className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <h3 className="text-lg font-semibold text-gray-700">
+                No Orders Found
+              </h3>
+              <p className="text-gray-500 mt-1">
+                {searchQuery
+                  ? "No orders match your search criteria."
+                  : "You haven't placed any orders yet."}
+              </p>
+              <Button className="mt-4 bg-orange-500 hover:bg-orange-600">
+                <Link href="/new-order">Create New Order</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
           <div className="space-y-4 sm:space-y-6">
             {currentItems.map((order) => (
-              <div key={order.id} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100 transition-all hover:shadow-lg">
-                <div className="p-4 sm:p-5">
+              <Card
+                key={order.id}
+                className="overflow-hidden border border-gray-100 transition-all hover:shadow-lg"
+              >
+                <CardContent className="p-4 sm:p-5">
                   {/* Header with Order # and Status */}
                   <div className="flex justify-between items-center">
                     <div className="flex items-center">
-                      <span className="font-bold text-base sm:text-lg">WASH-{order.id}</span>
-                      <span className={`ml-3 px-2 py-1 rounded-full text-xs ${getStatusStyle(order.orderStatus)}`}>
-                        {order.orderStatus.replace(/_/g, ' ')}
+                      <span className="font-bold text-base sm:text-lg">
+                        WASH-{order.id}
+                      </span>
+                      <span
+                        className={`ml-3 px-2 py-1 rounded-full text-xs ${getStatusStyle(
+                          order.orderStatus
+                        )}`}
+                      >
+                        {order.orderStatus.replace(/_/g, " ")}
                       </span>
                     </div>
                     <div className="flex items-center justify-center text-sm text-gray-500">
-                      {/* <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 text-gray-400"/> */}
                       <Clock className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 text-gray-400" />
                       <span>{formatDate(order.createdAt)}</span>
                     </div>
                   </div>
-                  
+
                   {/* Order Details */}
                   <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-2">
                       {/* Outlet Info */}
                       <div className="flex items-start">
-                        <MapPin className="w-4 h-4 mr-2 text-orange-500 mt-0.5" />
-                        <div>
-                          <p className="text-sm font-medium">{order.outlet?.outletName || 'N/A'}</p>
-                          <p className="text-xs text-gray-500">{order.customerAddress?.addressLine || 'Address not available'}</p>
+                        <MapPinned className="w-4 h-4 mr-2 text-orange-500 mt-0.5" />
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium">
+                            {order.outlet?.outletName || "N/A"}
+                          </p>
                         </div>
                       </div>
-                      
+
                       {/* Payment Status */}
                       <div className="flex items-center">
                         <CreditCard className="w-4 h-4 mr-2 text-orange-500" />
@@ -208,7 +220,7 @@ const OrderList: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* Order Items */}
                     <div>
                       {order.OrderItem && order.OrderItem.length > 0 ? (
@@ -218,10 +230,17 @@ const OrderList: React.FC = () => {
                             <p className="text-sm font-medium">Order Items:</p>
                           </div>
                           <ul className="pl-6 text-sm space-y-1">
-                            {order.OrderItem.slice(0, 3).map(item => (
-                              <li key={item.id} className="flex justify-between">
+                            {order.OrderItem.slice(0, 3).map((item) => (
+                              <li
+                                key={item.id}
+                                className="flex justify-between"
+                              >
                                 <span>{item.orderItemName}</span>
-                                {item.qty && <span className="text-gray-500">x{item.qty}</span>}
+                                {item.qty && (
+                                  <span className="text-gray-500">
+                                    x{item.qty}
+                                  </span>
+                                )}
                               </li>
                             ))}
                             {order.OrderItem.length > 3 && (
@@ -232,53 +251,84 @@ const OrderList: React.FC = () => {
                           </ul>
                         </div>
                       ) : (
-                        <p className="text-sm text-gray-500">No items in this order</p>
+                        <p className="text-sm text-gray-500">
+                          No items in this order
+                        </p>
+                      )}
+
+                      {order.laundryWeight && (
+                        <div className="mt-2">
+                          <div className="flex items-center">
+                            <Box className="w-4 h-4 mr-2 text-orange-500" />
+                            <span className="text-sm">
+                              Weight: {order.laundryWeight} kg
+                            </span>
+                          </div>
+                        </div>
                       )}
                     </div>
                   </div>
-                  
+
                   {/* Action Buttons */}
-                  <div className="mt-4 pt-3 border-t flex justify-end space-x-2 sm:space-x-3">
-                    <Link 
-                      href={`/orders/${order.id}`} 
-                      className="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md flex items-center transition-colors"
-                    >
-                      View Details
-                      <ExternalLink className="w-3 h-3 ml-1.5" />
-                    </Link>
-                    {!order.isPaid && (
-                      <Link 
-                        href={`/orders/${order.id}/payment`} 
-                        className="px-3 py-1.5 text-sm bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors"
-                      >
-                        Pay Now
+                  <div className="mt-4 pt-3 border-t flex justify-between">
+                    <div>
+                      {/* Complete button - only shows for "received_by_customer" status */}
+                      {order.orderStatus.toLowerCase() ===
+                        "received_by_customer" && (
+                        <CompleteOrderButton
+                          order={order}
+                          onComplete={handleOrderComplete}
+                          className="text-sm bg-green-500 hover:bg-green-600 flex items-center"
+                        />
+                      )}
+                    </div>
+
+                    <div className="flex justify-end space-x-2 sm:space-x-3">
+                      <Link href={`/orders/${order.id}`}>
+                        <Button
+                          variant="outline"
+                          className="text-sm flex items-center"
+                        >
+                          View Details
+                          <ExternalLink className="w-3 h-3 ml-1.5" />
+                        </Button>
                       </Link>
-                    )}
+                      {!order.isPaid && (
+                        <Link href={`/orders/${order.id}/payment`}>
+                          <Button className="text-sm bg-orange-500 hover:bg-orange-600">
+                            Pay Now
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             ))}
-            
+
             {/* Pagination */}
             {filteredOrders.length > itemsPerPage && (
               <div className="flex justify-center items-center space-x-2 mt-6">
-                <button
-                  className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-700 hover:bg-gray-800 text-white text-sm rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                <Button
+                  variant="secondary"
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(prev - 1, 1))
+                  }
                   disabled={currentPage === 1}
                 >
                   Previous
-                </button>
+                </Button>
                 <div className="text-sm sm:text-base px-2">
-                  Page {currentPage} of {Math.ceil(filteredOrders.length / itemsPerPage)}
+                  Page {currentPage} of{" "}
+                  {Math.ceil(filteredOrders.length / itemsPerPage)}
                 </div>
-                <button
-                  className="px-3 py-1.5 sm:px-4 sm:py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
-                  onClick={() => setCurrentPage(prev => prev + 1)}
+                <Button
+                  className="bg-orange-500 hover:bg-orange-600"
+                  onClick={() => setCurrentPage((prev) => prev + 1)}
                   disabled={indexOfLastItem >= filteredOrders.length}
                 >
                   Next
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -286,6 +336,4 @@ const OrderList: React.FC = () => {
       </div>
     </section>
   );
-};
-
-export default OrderList;
+}

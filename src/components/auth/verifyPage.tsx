@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useParams, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
-const base_url = process.env.NEXT_PUBLIC_BASE_URL_BE;
+const base_url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
 export default function VerifyPage() {
   const router = useRouter();

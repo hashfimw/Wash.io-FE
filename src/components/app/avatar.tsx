@@ -6,6 +6,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Image from "next/image";
 import { useSession } from "@/hooks/useSession";
+import { LogOut, ShoppingCartIcon, UserRoundPen } from "lucide-react";
 
 export default function Avatar() {
   const { isAuth, user, logout } = useSession();
@@ -30,7 +31,7 @@ export default function Avatar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ✅ Perbaikan: Debug user setelah login Google
+  // Debug user setelah login Google
   useEffect(() => {
     console.log("🔹 Avatar component - User data:", user);
   }, [user]);
@@ -51,7 +52,7 @@ export default function Avatar() {
     logout();
 
     setTimeout(() => {
-      router.push("/login"); // 🔥 Gunakan router.push() agar tidak reload penuh
+      router.push("/login");
     }, 1000);
   }, [logout, router]);
 
@@ -80,8 +81,8 @@ export default function Avatar() {
             <Image
               src={user.avatar || "/default-user-avatar.png"}
               alt="User Avatar"
-              layout="fill"
-              className="rounded-full border-2 border-teal-700 object-cover"
+              fill
+              className="rounded-full border-2 border-gray-900 object-cover"
             />
           </div>
         </button>
@@ -97,14 +98,14 @@ export default function Avatar() {
       {isDropdownOpen && (
         <div
           id="dropdown-menu"
-          className="absolute top-full right-0 w-[400px] lg:w-52 mt-2 bg-white border border-gray-200 rounded-xl shadow-md z-50"
+          className="absolute top-full right-0 w-[350px] lg:w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-md z-50"
         >
           {/* Mobile: Semua menu tersedia */}
           <ul className="py-2 lg:hidden">
             <li className="flex items-center justify-center">
               <button
                 onClick={() => navigateTo("/")}
-                className="block w-full text-center px-4 py-2 text-sm text-black hover:text-teal-700"
+                className="block w-full text-center px-4 py-2 text-sm text-black hover:text-oren"
               >
                 Home
               </button>
@@ -112,7 +113,7 @@ export default function Avatar() {
             <li className="flex items-center justify-center">
               <button
                 onClick={() => navigateTo("/outlets")}
-                className="block w-full text-center px-4 py-2 text-sm text-black hover:text-teal-700"
+                className="block w-full text-center px-4 py-2 text-sm text-black hover:text-oren"
               >
                 Outlets
               </button>
@@ -120,7 +121,7 @@ export default function Avatar() {
             <li className="flex items-center justify-center">
               <button
                 onClick={() => navigateTo("/about")}
-                className="block w-full text-center px-4 py-2 text-sm text-black hover:text-teal-700"
+                className="block w-full text-center px-4 py-2 text-sm text-black hover:text-oren"
               >
                 About
               </button>
@@ -128,15 +129,15 @@ export default function Avatar() {
             <li className="flex items-center justify-center">
               <button
                 onClick={() => navigateTo("/contact")}
-                className="block w-full text-center px-4 py-2 text-sm text-black hover:text-teal-700"
+                className="block w-full text-center px-4 py-2 text-sm text-black hover:text-oren"
               >
                 Contact
               </button>
             </li>
             <li className="flex items-center justify-center">
               <button
-                onClick={() => navigateTo("/user/profile")}
-                className="block w-full text-center px-4 py-2 text-sm text-black hover:text-teal-700"
+                onClick={() => navigateTo("/profile")}
+                className="block w-full text-center px-4 py-2 text-sm text-black hover:text-oren"
               >
                 Profile
               </button>
@@ -155,22 +156,33 @@ export default function Avatar() {
 
           {/* Desktop: Hanya Profile & Logout */}
           <ul className="py-2 hidden lg:block">
-            <li className="flex items-center justify-center">
+            <li className="px-4 py-2">
               <button
-                onClick={() => navigateTo("/user/profile")}
-                className="block w-full text-center px-4 py-2 text-sm text-black hover:text-teal-700"
+                onClick={() => navigateTo("/profile")}
+                className="flex items-center w-full text-sm text-black hover:text-oren"
               >
-                Profile
+                <UserRoundPen className="mr-2 h-4 w-4" />
+                <span>Profile</span>
+              </button>
+            </li>
+            <li className="px-4 py-2">
+              <button
+                onClick={() => navigateTo("/orders")}
+                className="flex items-center w-full text-sm text-black hover:text-oren"
+              >
+                <ShoppingCartIcon className="mr-2 h-4 w-4" />
+                <span>Orders</span>
               </button>
             </li>
             <hr className="my-2 border-t" />
-            <li className="flex items-center justify-center">
+            <li className="px-4 py-2">
               <button
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className="block w-full text-center px-4 py-2 text-sm text-red-500 hover:text-red-700 disabled:opacity-50"
+                className="flex items-center w-full text-sm text-red-500 hover:text-red-700 disabled:opacity-50"
               >
-                {isLoggingOut ? "Logging Out..." : "Logout"}
+                <span>{isLoggingOut ? "Logging Out..." : "Logout"}</span>
+                <LogOut className="ml-2 h-4 w-4" />
               </button>
             </li>
           </ul>
