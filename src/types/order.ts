@@ -1,5 +1,3 @@
-// src/types/order.ts
-
 export interface OrderItem {
   id: number;
   orderId: number;
@@ -52,14 +50,45 @@ export interface Order {
   createdAt: Date;
 }
 
+export interface PaymentInfo {
+  isPaid: boolean;
+  paymentStatus: string | null;
+  paymentMethod: string | null;
+  totalPrice: number | null;
+  snapRedirectURL: string | null;
+}
+
+// Update OrderTrackingResponse untuk menyertakan payment
+export interface OrderTrackingResponse {
+  order: Order;
+  timeline: Timeline[];
+  payment?: PaymentInfo;
+}
+
+// Tambahkan enum untuk OrderStage yang mencakup semua kemungkinan stage
+export enum OrderStage {
+  // Worker stations
+  WASHING = "WASHING",
+  IRONING = "IRONING",
+  PACKING = "PACKING",
+
+  // Transport types
+  PICKUP = "PICKUP",
+  DELIVERY = "DELIVERY",
+
+  // Order completion stages
+  RECEIVED_BY_CUSTOMER = "RECEIVED_BY_CUSTOMER",
+  COMPLETED = "COMPLETED",
+}
+
+// Perbarui Timeline interface untuk menggunakan OrderStage
 export interface Timeline {
-  stage: string;
+  stage: OrderStage | string; // Menggunakan string sebagai fallback
   worker?: string;
   driver?: string;
   status: string;
   timestamp: Date;
 }
-
 export interface OrderTrackingResponse {
   order: Order;
   timeline: Timeline[];
@@ -83,7 +112,6 @@ export enum OrderStatus {
   RECEIVED_BY_CUSTOMER = "RECEIVED_BY_CUSTOMER",
   COMPLETED = "COMPLETED",
   CANCELLED_BY_CUSTOMER = "CANCELLED_BY_CUSTOMER",
-  CANCELLED_BY_OUTLET = "CANCELLED_BY_OUTLET",
 }
 
 export enum WorkerStation {
@@ -107,7 +135,13 @@ export interface OrderItem {
 export interface ApiResponse<T> {
   success: boolean;
   data: {
-    meta: any;
+    meta: {
+      page: number;
+      limit: number;
+      total: number;
+      total_page: number;
+      totalRecords: number;
+    };
     data: T;
   };
 }
@@ -131,9 +165,12 @@ export interface OrderParams {
   startDate?: string;
   endDate?: string;
 }
-
 export interface OrderResponse {
-  filter(arg0: (order: { orderStatus: string }) => boolean): unknown;
+  map(
+    arg0: (order: OrderResponse) => { id: number; status: string }
+  ): import("react").SetStateAction<Order[]>;
+  id: number;
+  status: string;
   data: Order[];
   meta: {
     page: number;
@@ -141,4 +178,5 @@ export interface OrderResponse {
     total: number;
     totalRecords: number;
   };
+  filter(arg0: (order: { orderStatus: string }) => boolean): unknown;
 }

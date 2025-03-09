@@ -1,23 +1,16 @@
 // src/components//UsePagination.tsx
 import { Button } from "@/components/ui/button";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-} from "@/components/ui/pagination";
+import { Pagination, PaginationContent, PaginationItem } from "@/components/ui/pagination";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface TablePaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  disabled?: boolean;
 }
 
-export function TablePagination({
-  currentPage,
-  totalPages,
-  onPageChange,
-}: TablePaginationProps) {
+export function TablePagination({ currentPage, totalPages, onPageChange }: TablePaginationProps) {
   return (
     <Pagination>
       <PaginationContent>

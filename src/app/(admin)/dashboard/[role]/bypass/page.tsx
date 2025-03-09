@@ -25,11 +25,7 @@ export default function BypassRequestsPage() {
   const params = useParams();
   const role = params.role as string;
 
-  const {
-    getBypassRequests,
-    loading: apiLoading,
-    error: apiError,
-  } = useBypassRequest();
+  const { getBypassRequests, error: apiError } = useBypassRequest();
   const [bypassRequests, setBypassRequests] = useState<BypassRequest[]>([]);
   const [filteredRequests, setFilteredRequests] = useState<BypassRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);

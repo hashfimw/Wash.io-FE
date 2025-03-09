@@ -1,4 +1,3 @@
-// src/components/laundry-item/EditItemDialog.tsx
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -105,7 +104,7 @@ export function EditItemDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting} variant={"birtu"}>
               {isSubmitting ? "Updating..." : "Update Item"}
             </Button>
           </DialogFooter>

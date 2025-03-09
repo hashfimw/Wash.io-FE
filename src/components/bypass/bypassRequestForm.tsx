@@ -5,7 +5,6 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,19 +18,13 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertCircle } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useBypassRequest } from "@/hooks/api/bypassrequest/useBypass";
 import { WorkerStation } from "@/types/bypass";
 
 const bypassFormSchema = z.object({
   byPassNote: z.string().min(10, {
-    message: "Alasan bypass minimal 10 karakter.",
+    message: "Bypass note/reason is at least 10 characters.",
   }),
 });
 
@@ -63,15 +56,14 @@ export function BypassRequestForm({
 
   async function onSubmit(values: BypassFormValues) {
     try {
-      const response = await requestBypass({
+      const _response = await requestBypass({
         laundryJobId,
         byPassNote: values.byPassNote,
       });
 
       toast({
-        title: "Permintaan bypass terkirim",
-        description:
-          "Permintaan Anda telah dikirim ke admin untuk persetujuan.",
+        title: "Bypass request sent",
+        description: "Your request has been sent to admin to be confirmed.",
       });
 
       setRequestSent(true);
@@ -82,10 +74,9 @@ export function BypassRequestForm({
       console.error("Error mengajukan permintaan bypass:", error);
       toast({
         variant: "destructive",
-        title: "Gagal mengirim permintaan",
+        title: "Failed to send request",
         description:
-          error.response?.data?.message ||
-          "Terjadi kesalahan saat mengajukan permintaan bypass. Silakan coba lagi.",
+          error.response?.data?.message || "Something wrong during request bypass process. Please try again.",
       });
     }
   }
@@ -99,14 +90,13 @@ export function BypassRequestForm({
             Permintaan Bypass Menunggu
           </CardTitle>
           <CardDescription>
-            Permintaan bypass Anda untuk Order #{orderId} telah dikirim dan
-            sedang menunggu persetujuan admin.
+            Permintaan bypass Anda untuk Order #{orderId} telah dikirim dan sedang menunggu persetujuan admin.
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
           <p className="text-sm text-muted-foreground">
-            Anda akan diberi tahu begitu admin merespon permintaan Anda. Jika
-            disetujui, Anda dapat melanjutkan ke stasiun berikutnya.
+            Anda akan diberi tahu begitu admin merespon permintaan Anda. Jika disetujui, Anda dapat
+            melanjutkan ke stasiun berikutnya.
           </p>
         </CardContent>
       </Card>
@@ -114,51 +104,50 @@ export function BypassRequestForm({
   }
 
   function getStationName(station: WorkerStation): import("react").ReactNode {
-    throw new Error("Function not implemented.");
+    return station.toLowerCase().replace(/(?: |\b)(\w)/g, function (key) {
+      return key.toUpperCase();
+    });
   }
 
   return (
-    <Card className="border-2 border-red-200">
-      <CardHeader className="bg-red-50">
-        <CardTitle className="text-red-700 flex items-center gap-2">
-          <AlertCircle className="h-5 w-5" />
-          Proses Terblokir
-        </CardTitle>
-        <CardDescription>
-          Silakan minta persetujuan bypass dari admin untuk melanjutkan proses{" "}
-          {getStationName(station)} untuk Order #{orderId}.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="pt-6">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="byPassNote"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Alasan Bypass</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Jelaskan mengapa Anda perlu bypass proses ini (mis. item hilang, masalah berat)"
-                      className="resize-none"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Berikan informasi detail untuk membantu admin membuat
-                    keputusan.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" disabled={loading}>
-              {loading ? "Mengirim..." : "Ajukan Persetujuan Bypass"}
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+    //   <Card className="border-2 border-red-200">
+    //     <CardHeader className="bg-red-50">
+    //       <CardTitle className="text-red-700 flex items-center gap-2">
+    //         <AlertCircle className="h-5 w-5" />
+    //         Proses Terblokir
+    //       </CardTitle>
+    //       <CardDescription>
+    //         Silakan minta persetujuan bypass dari admin untuk melanjutkan proses{" "}
+    //         {getStationName(station)} untuk Order #{orderId}.
+    //       </CardDescription>
+    //     </CardHeader>
+    //     <CardContent className="pt-6">
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="byPassNote"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Bypass reason</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Explain why you need to request bypass (eg. missing item(s), force majeur, etc.)"
+                  className="resize-none"
+                  {...field}
+                />
+              </FormControl>
+              <FormDescription>Give detailed information to help the decision of admin.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button variant="birtu" type="submit" disabled={loading}>
+          {loading ? "Sending..." : "Request bypass"}
+        </Button>
+      </form>
+    </Form>
+    //   </CardContent>
+    // </Card>
   );
 }

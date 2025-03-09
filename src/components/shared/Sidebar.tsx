@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import {
   Store,
   ChevronDown,
-  ChevronRight,
   BriefcaseBusiness,
   UsersRound,
   ShoppingBag,
@@ -169,11 +168,7 @@ const generateMenuConfig = (roleParam: string): MenuItem[] => {
   // Convert component role to URL parameter
 
   return roleParam === "super-admin"
-    ? [
-        ...outletAdminItems.slice(0, 1),
-        ...superAdminItems,
-        ...outletAdminItems.slice(1),
-      ]
+    ? [...outletAdminItems.slice(0, 1), ...superAdminItems, ...outletAdminItems.slice(1)]
     : roleParam === "outlet-admin"
     ? outletAdminItems
     : roleParam === "driver"
@@ -200,9 +195,7 @@ export const SidebarContent = ({ role, isMobile = false }: SidebarProps) => {
     const items = generateMenuConfig(roleParam);
     return items.map((item) => ({
       ...item,
-      isExpanded: item.submenu
-        ? item.submenu.some((sub) => pathname.includes(sub.path))
-        : undefined,
+      isExpanded: item.submenu ? item.submenu.some((sub) => pathname.includes(sub.path)) : undefined,
     }));
   }, [roleParam, pathname]);
 
@@ -215,9 +208,7 @@ export const SidebarContent = ({ role, isMobile = false }: SidebarProps) => {
 
   const toggleSubmenu = (index: number) => {
     setExpandedItems((prev) =>
-      prev.map((item, i) =>
-        i === index ? { ...item, isExpanded: !item.isExpanded } : item
-      )
+      prev.map((item, i) => (i === index ? { ...item, isExpanded: !item.isExpanded } : item))
     );
   };
   const isActive = (path: string) => {
@@ -228,17 +219,13 @@ export const SidebarContent = ({ role, isMobile = false }: SidebarProps) => {
     const normalizedPath = path.replace(/\/$/, "");
 
     // Kasus khusus untuk Overview
-    if (
-      normalizedPath.startsWith("/dashboard/") &&
-      normalizedPath.split("/").length === 3
-    ) {
+    if (normalizedPath.startsWith("/dashboard/") && normalizedPath.split("/").length === 3) {
       return normalizedPathname === normalizedPath;
     }
 
     return (
       normalizedPathname === normalizedPath ||
-      (normalizedPath !== "" &&
-        normalizedPathname.startsWith(`${normalizedPath}/`))
+      (normalizedPath !== "" && normalizedPathname.startsWith(`${normalizedPath}/`))
     );
   };
 
@@ -269,14 +256,8 @@ export const SidebarContent = ({ role, isMobile = false }: SidebarProps) => {
           viewBox="0 0 400 100"
           preserveAspectRatio="none"
         >
-          <path
-            d="M0,50 C100,20 200,80 400,30 L400,0 L0,0 Z"
-            className="fill-birtu"
-          />
-          <path
-            d="M0,30 C100,60 280,10 400,40 L400,0 L0,0 Z"
-            className="fill-oren opacity-20"
-          />
+          <path d="M0,50 C100,20 200,80 400,30 L400,0 L0,0 Z" className="fill-birtu" />
+          <path d="M0,30 C100,60 280,10 400,40 L400,0 L0,0 Z" className="fill-oren opacity-20" />
         </svg>
       </div>
 
@@ -290,14 +271,8 @@ export const SidebarContent = ({ role, isMobile = false }: SidebarProps) => {
           viewBox="0 0 400 150"
           preserveAspectRatio="none"
         >
-          <path
-            d="M0,150 C100,50 300,120 400,50 L400,150 L0,150 Z"
-            className="fill-birtu"
-          />
-          <path
-            d="M0,150 C150,100 250,130 400,80 L400,150 L0,150 Z"
-            className="fill-oren opacity-20"
-          />
+          <path d="M0,150 C100,50 300,120 400,50 L400,150 L0,150 Z" className="fill-birtu" />
+          <path d="M0,150 C150,100 250,130 400,80 L400,150 L0,150 Z" className="fill-oren opacity-20" />
         </svg>
       </div>
 
@@ -326,9 +301,7 @@ export const SidebarContent = ({ role, isMobile = false }: SidebarProps) => {
               <span className="text-oren">.io</span>
             </h2>
           </div>
-          <h3 className="text-sm font-medium tracking-wide text-birtu/80">
-            Laundry
-          </h3>
+          <h3 className="text-sm font-medium tracking-wide text-birtu/80">Laundry</h3>
 
           <div
             className="mt-3 w-32 h-0.5 rounded-full"
@@ -347,11 +320,7 @@ export const SidebarContent = ({ role, isMobile = false }: SidebarProps) => {
             <Sparkles size={16} className="text-oren animate-pulse" />
           </div>
           <div className="absolute top-24 left-6 z-5 opacity-40">
-            <Sparkles
-              size={12}
-              className="text-birtu animate-pulse"
-              style={{ animationDelay: "1s" }}
-            />
+            <Sparkles size={12} className="text-birtu animate-pulse" style={{ animationDelay: "1s" }} />
           </div>
         </>
       )}
@@ -384,9 +353,7 @@ export const SidebarContent = ({ role, isMobile = false }: SidebarProps) => {
                     {item.title}
                   </span>
                   <span
-                    className={`transition-transform duration-300 ${
-                      item.isExpanded ? "rotate-180" : ""
-                    }`}
+                    className={`transition-transform duration-300 ${item.isExpanded ? "rotate-180" : ""}`}
                   >
                     <ChevronDown size={16} />
                   </span>
@@ -398,9 +365,7 @@ export const SidebarContent = ({ role, isMobile = false }: SidebarProps) => {
                       <Button
                         key={subItem.path}
                         asChild
-                        variant={
-                          pathname === subItem.path ? "secondary" : "ghost"
-                        }
+                        variant={pathname === subItem.path ? "secondary" : "ghost"}
                         className={`w-full justify-start pl-4 text-sm transition-all duration-300 ${
                           pathname === subItem.path
                             ? "bg-birmud/50 text-birtu font-medium"
@@ -410,9 +375,7 @@ export const SidebarContent = ({ role, isMobile = false }: SidebarProps) => {
                         <Link href={subItem.path} className="flex items-center">
                           <span
                             className={`mr-2 transition-colors duration-300 ${
-                              pathname === subItem.path
-                                ? "text-oren"
-                                : "text-birtu group-hover:text-oren"
+                              pathname === subItem.path ? "text-oren" : "text-birtu group-hover:text-oren"
                             }`}
                           >
                             {subItem.icon}

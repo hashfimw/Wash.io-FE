@@ -23,6 +23,7 @@ import { AlertCircle, Edit, MoreHorizontal, Trash } from "lucide-react";
 import { format } from "date-fns";
 import { EditItemDialog } from "./editItemDialog";
 import { DeleteItemDialog } from "./deleteItemDialog";
+import SwipeIndicator from "../swipeIndicator";
 
 interface LaundryItemTableProps {
   items: OrderItem[];
@@ -86,6 +87,7 @@ export function LaundryItemTable({
   return (
     <>
       <div className="rounded-md border">
+        <SwipeIndicator className="md:hidden" />
         <Table>
           <TableHeader>
             <TableRow>

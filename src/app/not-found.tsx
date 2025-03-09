@@ -2,15 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Shirt,
-  WashingMachine,
-  AlertTriangle,
-  Home,
-  Droplets,
-  Search,
-  Sparkles,
-} from "lucide-react";
+import { Shirt, WashingMachine, AlertTriangle, Home, Droplets, Search, Sparkles } from "lucide-react";
 import Link from "next/link";
 import Bubbles from "@/components/animations/Bubble";
 import WavesAnimation from "@/components/animations/Waves";
@@ -75,10 +67,7 @@ export default function NotFound() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-putbir to-birmud overflow-hidden relative">
       {/* Background layer */}
-      <div
-        className="absolute inset-0 bg-putbir opacity-40"
-        style={{ zIndex: 0 }}
-      />
+      <div className="absolute inset-0 bg-putbir opacity-40" style={{ zIndex: 0 }} />
 
       {/* Reusable Animation Components */}
       <Bubbles isMobile={isMobile} />
@@ -112,10 +101,7 @@ export default function NotFound() {
                     times: [0, 0.33, 0.66, 1],
                   }}
                 >
-                  <WashingMachine
-                    size={isMobile ? 80 : 120}
-                    className="text-birtu"
-                  />
+                  <WashingMachine size={isMobile ? 80 : 120} className="text-birtu" />
                 </motion.div>
                 <motion.div
                   animate={{ rotate: 360 }}
@@ -154,11 +140,7 @@ export default function NotFound() {
                       times: [0, 0.5, 1],
                     }}
                   >
-                    <Search
-                      size={isMobile ? 40 : 50}
-                      className="text-birtu"
-                      strokeWidth={1.5}
-                    />
+                    <Search size={isMobile ? 40 : 50} className="text-birtu" strokeWidth={1.5} />
                     <motion.div
                       animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.8, 0.2] }}
                       transition={{
@@ -168,10 +150,7 @@ export default function NotFound() {
                       }}
                       className="absolute -right-2 -top-2 md:-right-4 md:-top-4"
                     >
-                      <Sparkles
-                        size={isMobile ? 16 : 24}
-                        className="text-oren"
-                      />
+                      <Sparkles size={isMobile ? 16 : 24} className="text-oren" />
                     </motion.div>
                   </motion.div>
                 </motion.div>
@@ -190,11 +169,7 @@ export default function NotFound() {
               transition={{ delay: 0.5, duration: 1 }}
               className="absolute md:-left-24 -left-12 top-20 hidden sm:block"
             >
-              <Shirt
-                size={isMobile ? 40 : 54}
-                className="text-oren"
-                strokeWidth={1.5}
-              />
+              <Shirt size={isMobile ? 40 : 54} className="text-oren" strokeWidth={1.5} />
             </motion.div>
 
             {/* Water Droplets */}
@@ -207,15 +182,9 @@ export default function NotFound() {
                 repeat: Infinity,
                 times: [0, 0.5, 1],
               }}
-              className={`absolute ${
-                isMobile ? "top-1 right-20" : "-top-8 left-10"
-              } hidden sm:block`}
+              className={`absolute ${isMobile ? "top-1 right-20" : "-top-8 left-10"} hidden sm:block`}
             >
-              <Droplets
-                size={isMobile ? 30 : 40}
-                className="text-birmud"
-                strokeWidth={1.5}
-              />
+              <Droplets size={isMobile ? 30 : 40} className="text-birmud" strokeWidth={1.5} />
             </motion.div>
 
             {/* 404 Text Animation with enhanced styling */}
@@ -226,18 +195,13 @@ export default function NotFound() {
               className="flex justify-center items-center"
             >
               {errorText.split("").map((letter, index) => (
-                <motion.div
-                  key={index}
-                  variants={letterVariants}
-                  className="relative mx-1 md:mx-2"
-                >
+                <motion.div key={index} variants={letterVariants} className="relative mx-1 md:mx-2">
                   <span
                     className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold text-oren"
                     style={{
                       textShadow: "3px 3px 6px rgba(0, 0, 0, 0.15)",
                       display: "inline-block",
-                      filter:
-                        "drop-shadow(0 10px 10px rgba(229, 132, 63, 0.3))",
+                      filter: "drop-shadow(0 10px 10px rgba(229, 132, 63, 0.3))",
                     }}
                   >
                     {letter}
@@ -248,8 +212,7 @@ export default function NotFound() {
                     style={{
                       transform: "rotateX(180deg) translateY(97%)",
                       maskImage: "linear-gradient(transparent 40%, white)",
-                      WebkitMaskImage:
-                        "linear-gradient(transparent 40%, white)",
+                      WebkitMaskImage: "linear-gradient(transparent 40%, white)",
                     }}
                   >
                     {letter}
@@ -286,7 +249,6 @@ export default function NotFound() {
               ))}
             </motion.div>
           </div>
-
           {/* Alert Message */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -295,21 +257,14 @@ export default function NotFound() {
             className="mt-10 sm:mt-16 mb-6 sm:mb-10 flex flex-col items-center"
           >
             <div className="flex items-center justify-center mb-2 sm:mb-4">
-              <AlertTriangle
-                size={isMobile ? 24 : 28}
-                className="text-oren mr-2"
-              />
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-birtu">
-                Page Not Found
-              </h2>
+              <AlertTriangle size={isMobile ? 24 : 28} className="text-oren mr-2" />
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-birtu">Page Not Found</h2>
             </div>
             <p className="text-gray-600 max-w-lg mx-auto text-center text-base sm:text-lg px-4">
-              Oops! It seems this item got lost in our laundry system. The page
-              you're looking for might have been misplaced or no longer exists.
+              {`Oops! It seems this item got lost in our laundry system. The page
+              you're looking for might have been misplaced or no longer exists.`}
             </p>
           </motion.div>
-
-          {/* Home Button with enhanced styling */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

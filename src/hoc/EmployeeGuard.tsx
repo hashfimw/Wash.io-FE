@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { useAuth } from "@/hooks/api/auth/useEmployeeAuth";
+import { useEmployeeAuth } from "@/hooks/api/auth/useEmployeeAuth";
 
 type RoleGuardProps = {
   children: React.ReactNode;
@@ -13,7 +13,7 @@ type RoleGuardProps = {
 
 export const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
-  const { user, loading, getCurrentUser, logout } = useAuth();
+  const { user, loading, getCurrentUser, logout } = useEmployeeAuth();
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();

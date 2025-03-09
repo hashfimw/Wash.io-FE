@@ -1,22 +1,15 @@
 // src/components/orders/OrderTable.tsx
-import { useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { useCallback } from "react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Eye } from "lucide-react";
-import { Order, OrderStatus } from "@/types/order";
+import { Order } from "@/types/order";
 import { TableSkeleton } from "../ui/table-skeleton";
-import { OrderFilters } from "./OrderFilters";
 import { TablePagination } from "../shared/usePagination";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
+import SwipeIndicator from "../swipeIndicator";
 
 // Update OrderTable props
 interface OrderTableProps {
@@ -34,22 +27,31 @@ export function OrderTable({
   orders,
   loading,
   error,
-  isAdmin,
   onTrackOrder,
   currentPage,
   totalPages,
   onPageChange,
 }: OrderTableProps) {
+  // Optimasi dengan useCallback
+  const handleTrack = useCallback(
+    (orderId: number) => {
+      onTrackOrder(orderId);
+    },
+    [onTrackOrder]
+  );
+
+  // Tampilkan skeleton saat loading
   if (loading) return <TableSkeleton columns={7} rows={5} />;
+
+  // Tampilkan error jika ada
   if (error) return <div className="text-red-500 p-4">{error}</div>;
 
   return (
     <div className="space-y-4">
-      {/* Replace Select component with OrderFilters */}
-
-      <div className="rounded-md border">
+      {/* Table container with horizontal scroll on mobile */}
+      <div className="rounded-md border overflow-x-auto">
+        <SwipeIndicator className="md:hidden" />
         <Table>
-          {/* Table content remains the same */}
           <TableHeader>
             <TableRow>
               <TableHead>Order ID</TableHead>
@@ -85,11 +87,7 @@ export function OrderTable({
                     })}
                   </TableCell>
                   <TableCell className="text-center">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onTrackOrder(order.id)}
-                    >
+                    <Button variant="ghost" size="icon" onClick={() => handleTrack(order.id)}>
                       <Eye className="h-4 w-4" />
                     </Button>
                   </TableCell>
@@ -110,6 +108,7 @@ export function OrderTable({
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={onPageChange}
+          disabled={loading}
         />
       </div>
     </div>

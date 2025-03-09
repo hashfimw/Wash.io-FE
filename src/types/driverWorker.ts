@@ -5,7 +5,11 @@ export interface JobRecord {
   id: number;
   date: string;
   orderId: number;
+  transportType?: TransportType;
+  distance?: number;
 }
+
+export type JobSortField = "id" | "date" | "orderId" | "transportType" | "distance";
 
 export interface GetJobsRequest {
   endPoint: "transport-jobs" | "laundry-jobs";
@@ -15,7 +19,7 @@ export interface GetJobsRequest {
   sortOrder?: "asc" | "desc";
   startDate?: string;
   endDate?: string;
-  requestType: "requests" | "history";
+  requestType: "request" | "history";
   transportType?: TransportType;
 }
 
@@ -31,7 +35,7 @@ export interface GetJobsResponse {
 
 export interface UpdateLaundryJobInputBody {
   orderItemId: number;
-  qty: number;
+  qty: number | null;
 }
 
 export interface GetJobByIdResponse {
@@ -64,7 +68,7 @@ export interface GetJobByIdResponse {
     province: string;
     regency: string;
     district: string;
-    longitude: string;
+    village: string;
     customerId: number;
-  }[];
+  };
 }

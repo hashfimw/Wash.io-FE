@@ -22,6 +22,7 @@ export const useNotification = () => {
   const getNotifications = async (params: GetNotificationsRequest) => {
     try {
       setLoading(true);
+      setError(null)
 
       const queryParams = new URLSearchParams();
       if (params.page) queryParams.append("page", params.page.toString());
@@ -42,6 +43,7 @@ export const useNotification = () => {
   const getUnreadNotificationsCount = async () => {
     try {
       setLoading(true);
+      setError(null)
 
       const response = await api.get<{ data: number }>("/notifications/count-unread");
 
@@ -58,6 +60,7 @@ export const useNotification = () => {
   const markNotificationAsReadById = async (notificationId: number) => {
     try {
       setLoading(true);
+      setError(null)
 
       const response = await api.patch<{ message: string }>(`/notifications/${notificationId}`);
 
@@ -67,12 +70,14 @@ export const useNotification = () => {
       else setError("Failed to alter notification");
       throw err;
     } finally {
+      setLoading(false)
     }
   };
 
   const markAllUnreadNotificationAsRead = async () => {
     try {
       setLoading(true);
+      setError(null)
 
       const response = await api.patch<{ message: string }>(`/notifications`);
 

@@ -8,25 +8,11 @@ import { z } from "zod";
 import { Plus, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
-
-import { ProcessOrderRequest, OrderItem } from "@/types/order";
+import { OrderItem } from "@/types/order";
 import { processOrder } from "@/hooks/api/orders/useProcessOrders";
 import { useOrderItems } from "@/hooks/api/orders/useOrderItems";
 import { calculateLaundryPrice, formatCurrency } from "@/utils/price";
@@ -58,11 +44,7 @@ interface ProcessOrderFormProps {
   role: string;
 }
 
-export function ProcessOrderForm({
-  orderId,
-  onSuccess,
-  role,
-}: ProcessOrderFormProps) {
+export function ProcessOrderForm({ orderId, onSuccess }: ProcessOrderFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [templates, setTemplates] = useState<OrderItem[]>([]);
 
@@ -77,8 +59,7 @@ export function ProcessOrderForm({
   });
 
   // Use custom hook for item management
-  const { fields, addItem, removeItem, handleItemChange, handleInputChange } =
-    useOrderItems(form);
+  const { fields, addItem, removeItem, handleItemChange, handleInputChange } = useOrderItems(form);
 
   useEffect(() => {
     const fetchTemplates = async () => {
@@ -88,9 +69,7 @@ export function ProcessOrderForm({
 
         if (response && response.data) {
           // Handle berbagai kemungkinan struktur response
-          const templateData = Array.isArray(response.data)
-            ? response.data
-            : [];
+          const templateData = Array.isArray(response.data) ? response.data : [];
 
           console.log("Processed templates:", templateData);
           setTemplates(templateData);
@@ -161,18 +140,14 @@ export function ProcessOrderForm({
               name="laundryWeight"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-md font-medium">
-                    Laundry Weight (kg)
-                  </FormLabel>
+                  <FormLabel className="text-md font-medium">Laundry Weight (kg)</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
                       step="0.1"
                       placeholder="Enter weight in kg"
                       {...field}
-                      onChange={(e) =>
-                        field.onChange(parseFloat(e.target.value))
-                      }
+                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
                     />
                   </FormControl>
                   <FormMessage />
@@ -183,12 +158,7 @@ export function ProcessOrderForm({
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-md font-medium">Laundry Items</h3>
-                <Button
-                  type="button"
-                  variant="oren"
-                  size="sm"
-                  onClick={addItem}
-                >
+                <Button type="button" variant="oren" size="sm" onClick={addItem}>
                   <Plus className="h-4 w-4 mr-2" /> Add Item
                 </Button>
               </div>
@@ -208,22 +178,12 @@ export function ProcessOrderForm({
             </div>
 
             <div className="text-sm text-muted-foreground">
-              Total Price:{" "}
-              {formatCurrency(
-                calculateLaundryPrice(form.watch("laundryWeight"))
-              )}
+              Total Price: {formatCurrency(calculateLaundryPrice(form.watch("laundryWeight")))}
             </div>
 
             <CardFooter className="px-0 pt-4">
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                variant={"birtu"}
-                className="w-full"
-              >
-                {isSubmitting && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
+              <Button type="submit" disabled={isSubmitting} variant={"birtu"} className="w-full">
+                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Process Order
               </Button>
             </CardFooter>
