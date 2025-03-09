@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useSession } from '@/hooks/useSession';
-import { useUser } from '@/hooks/api/profile/useUser';
-import ProfileCard from './profileCard';
+import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useSession } from "@/hooks/useSession";
+import { useUser } from "@/hooks/api/profile/useUser";
+import ProfileCard from "./profileCard";
 
 const Profile = ({ params }: { params: { id: string } }) => {
   const { id } = params;
-  const { data: user, isLoading, isError } = useUser(id || '');
+  const { data: user, isLoading, isError } = useUser(id || "");
   const { isAuth, user: sessionUser } = useSession();
   const router = useRouter();
 
@@ -22,7 +22,7 @@ const Profile = ({ params }: { params: { id: string } }) => {
   }, [isAuth, sessionUser, id]);
 
   if (!id) {
-    router.push('/');
+    router.push("/");
     return null;
   }
 
@@ -35,9 +35,12 @@ const Profile = ({ params }: { params: { id: string } }) => {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted/30">
         <div className="text-center px-4">
           <h1 className="text-2xl font-semibold mb-4">User Not Found</h1>
-          <p className="text-muted-foreground mb-6">The user profile you're looking for doesn't exist or you don't have permission to view it.</p>
-          <button 
-            onClick={() => router.push('/')}
+          <p className="text-muted-foreground mb-6">
+            The user profile you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to
+            view it.
+          </p>
+          <button
+            onClick={() => router.push("/")}
             className="text-primary hover:text-primary/90 transition-colors underline"
           >
             Return to Home
@@ -63,7 +66,7 @@ const ProfileSkeleton = () => (
           <Skeleton className="h-6 w-24" />
           <Skeleton className="h-9 w-28" />
         </div>
-        
+
         <div className="flex flex-col items-center text-center space-y-3">
           <Skeleton className="h-6 w-24 rounded-full" />
           <Skeleton className="h-10 w-48" />

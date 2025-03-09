@@ -54,13 +54,10 @@ export default function ProfilePage() {
         <div className="text-center px-4">
           <h1 className="text-2xl font-semibold mb-4">User Not Found</h1>
           <p className="text-gray-600 mb-6">
-            The user profile you're looking for doesn't exist or you don't have
-            permission to view it.
+            The user profile you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to
+            view it.
           </p>
-          <Link
-            href="/"
-            className="text-birtu hover:text-oren transition-colors underline"
-          >
+          <Link href="/" className="text-birtu hover:text-oren transition-colors underline">
             Return to Home
           </Link>
         </div>
@@ -122,9 +119,7 @@ export default function ProfilePage() {
             <p className="text-gray-600 max-w-md">
               {isEditing
                 ? "Update your personal information and save the changes when you're done."
-                : `Member since ${new Date(
-                    user.createdAt || new Date()
-                  ).toLocaleDateString("en-US", {
+                : `Member since ${new Date(user.createdAt || new Date()).toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
@@ -152,9 +147,7 @@ export default function ProfilePage() {
 
                 {!isEditing && (
                   <div className="mt-4 text-center space-y-1">
-                    <h2 className="text-xl font-semibold">
-                      {user.fullName || "No Name Set"}
-                    </h2>
+                    <h2 className="text-xl font-semibold">{user.fullName || "No Name Set"}</h2>
                     <p className="text-gray-500 text-sm flex items-center justify-center">
                       <Mail className="h-3.5 w-3.5 mr-1" />
                       {user.email}
@@ -189,16 +182,12 @@ export default function ProfilePage() {
                       <InfoItem
                         icon={<Shield className="h-4 w-4" />}
                         label="Account Type"
-                        value={
-                          user.role ? user.role.replace("_", " ") : "CUSTOMER"
-                        }
+                        value={user.role ? user.role.replace("_", " ") : "CUSTOMER"}
                       />
                       <InfoItem
                         icon={<Clock className="h-4 w-4" />}
                         label="Joined"
-                        value={new Date(
-                          user.createdAt || new Date()
-                        ).toLocaleDateString("en-US", {
+                        value={new Date(user.createdAt || new Date()).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "long",
                           day: "numeric",
