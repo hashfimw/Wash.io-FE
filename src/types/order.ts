@@ -50,14 +50,45 @@ export interface Order {
   createdAt: Date;
 }
 
+export interface PaymentInfo {
+  isPaid: boolean;
+  paymentStatus: string | null;
+  paymentMethod: string | null;
+  totalPrice: number | null;
+  snapRedirectURL: string | null;
+}
+
+// Update OrderTrackingResponse untuk menyertakan payment
+export interface OrderTrackingResponse {
+  order: Order;
+  timeline: Timeline[];
+  payment?: PaymentInfo;
+}
+
+// Tambahkan enum untuk OrderStage yang mencakup semua kemungkinan stage
+export enum OrderStage {
+  // Worker stations
+  WASHING = "WASHING",
+  IRONING = "IRONING",
+  PACKING = "PACKING",
+
+  // Transport types
+  PICKUP = "PICKUP",
+  DELIVERY = "DELIVERY",
+
+  // Order completion stages
+  RECEIVED_BY_CUSTOMER = "RECEIVED_BY_CUSTOMER",
+  COMPLETED = "COMPLETED",
+}
+
+// Perbarui Timeline interface untuk menggunakan OrderStage
 export interface Timeline {
-  stage: string;
+  stage: OrderStage | string; // Menggunakan string sebagai fallback
   worker?: string;
   driver?: string;
   status: string;
   timestamp: Date;
 }
-
 export interface OrderTrackingResponse {
   order: Order;
   timeline: Timeline[];

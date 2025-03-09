@@ -24,7 +24,7 @@ import { WorkerStation } from "@/types/bypass";
 
 const bypassFormSchema = z.object({
   byPassNote: z.string().min(10, {
-    message: "Bypass reason must be at least 10 characters.",
+    message: "Bypass note/reason is at least 10 characters.",
   }),
 });
 
@@ -54,23 +54,29 @@ export function BypassRequestForm({
     },
   });
 
-  async function onSubmit(_values: BypassFormValues) {
+  async function onSubmit(values: BypassFormValues) {
     try {
+      const _response = await requestBypass({
+        laundryJobId,
+        byPassNote: values.byPassNote,
+      });
+
       toast({
-        title: "Bypass request submitted",
-        description: "Your request has been sent to admin for approval.",
+        title: "Bypass request sent",
+        description: "Your request has been sent to admin to be confirmed.",
       });
 
       setRequestSent(true);
       if (onRequestSuccess) {
         onRequestSuccess();
       }
-    } catch (error: unknown) {
-      console.error("Error submitting bypass request:", error);
+    } catch (error: any) {
+      console.error("Error mengajukan permintaan bypass:", error);
       toast({
         variant: "destructive",
-        title: "Failed to submit request",
-        description: "An error occurred while submitting your bypass request. Please try again.",
+        title: "Failed to send request",
+        description:
+          error.response?.data?.message || "Something wrong during request bypass process. Please try again.",
       });
     }
   }
@@ -81,76 +87,67 @@ export function BypassRequestForm({
         <CardHeader className="bg-yellow-50">
           <CardTitle className="text-yellow-700 flex items-center gap-2">
             <AlertCircle className="h-5 w-5" />
-            Bypass Request Pending
+            Permintaan Bypass Menunggu
           </CardTitle>
           <CardDescription>
-            Your bypass request for Order #{orderId} has been submitted and is awaiting admin approval.
+            Permintaan bypass Anda untuk Order #{orderId} telah dikirim dan sedang menunggu persetujuan admin.
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
           <p className="text-sm text-muted-foreground">
-            You will be notified once the admin responds to your request. If approved, you can proceed to the
-            next station.
+            Anda akan diberi tahu begitu admin merespon permintaan Anda. Jika disetujui, Anda dapat
+            melanjutkan ke stasiun berikutnya.
           </p>
         </CardContent>
       </Card>
     );
   }
 
-  function getStationName(station: WorkerStation): string {
-    switch (station) {
-      case WorkerStation.WASHING:
-        return "washing";
-      case WorkerStation.IRONING:
-        return "ironing";
-      case WorkerStation.PACKING:
-        return "packing";
-      default:
-        return (station as string).toLowerCase();
-    }
+  function getStationName(station: WorkerStation): import("react").ReactNode {
+    return station.toLowerCase().replace(/(?: |\b)(\w)/g, function (key) {
+      return key.toUpperCase();
+    });
   }
 
   return (
-    <Card className="border-2 border-red-200">
-      <CardHeader className="bg-red-50">
-        <CardTitle className="text-red-700 flex items-center gap-2">
-          <AlertCircle className="h-5 w-5" />
-          Process Blocked
-        </CardTitle>
-        <CardDescription>
-          Please request bypass approval from admin to continue the {getStationName(station)} process for
-          Order #{orderId}.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="pt-6">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="byPassNote"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Bypass Reason</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Explain why you need to bypass this process (e.g., missing items, weight issues)"
-                      className="resize-none"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Provide detailed information to help admin make a decision.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" disabled={loading}>
-              {loading ? "Submitting..." : "Request Bypass Approval"}
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+    //   <Card className="border-2 border-red-200">
+    //     <CardHeader className="bg-red-50">
+    //       <CardTitle className="text-red-700 flex items-center gap-2">
+    //         <AlertCircle className="h-5 w-5" />
+    //         Proses Terblokir
+    //       </CardTitle>
+    //       <CardDescription>
+    //         Silakan minta persetujuan bypass dari admin untuk melanjutkan proses{" "}
+    //         {getStationName(station)} untuk Order #{orderId}.
+    //       </CardDescription>
+    //     </CardHeader>
+    //     <CardContent className="pt-6">
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="byPassNote"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Bypass reason</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Explain why you need to request bypass (eg. missing item(s), force majeur, etc.)"
+                  className="resize-none"
+                  {...field}
+                />
+              </FormControl>
+              <FormDescription>Give detailed information to help the decision of admin.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button variant="birtu" type="submit" disabled={loading}>
+          {loading ? "Sending..." : "Request bypass"}
+        </Button>
+      </form>
+    </Form>
+    //   </CardContent>
+    // </Card>
   );
 }

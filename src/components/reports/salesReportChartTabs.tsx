@@ -19,7 +19,7 @@ import {
   Cell,
 } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState, useEffect } from "react";
 
 interface ChartDataItem {
   name: string;
@@ -44,6 +44,21 @@ export function SalesReportChartTabs({
 }: SalesReportChartTabsProps) {
   // Colors for charts
   const COLORS = ["#73A5A8", "#E5843F", "#97cfcf", "#F6BD60", "#84A59D"];
+
+  // Detect if mobile view - will be used for responsive adjustments
+  const [isMobile, setIsMobile] = useState(typeof window !== "undefined" && window.innerWidth < 768);
+
+  // Add window resize listener to update isMobile state
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
     <Tabs value={activeChart} onValueChange={setActiveChart}>
@@ -196,16 +211,26 @@ export function SalesReportChartTabs({
                     nameKey="name"
                     cx="50%"
                     cy="50%"
-                    outerRadius={100}
+                    outerRadius={isMobile ? "50%" : "60%"}
+                    innerRadius="0%"
                     fill="#8884d8"
-                    label={({ name, sales }) => `${name}: ${formatCurrency(sales)}`}
+                    label={({ name, sales, percent }) => {
+                      // Responsif label yang menyesuaikan ukuran layar
+                      return isMobile ? `${percent.toFixed(0)}%` : `${name}: ${formatCurrency(sales)}`;
+                    }}
+                    labelLine={!isMobile}
                   >
                     {chartData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
                   <Tooltip formatter={(value) => formatCurrency(Number(value))} />
-                  <Legend layout="vertical" verticalAlign="middle" align="right" />
+                  <Legend
+                    layout={isMobile ? "horizontal" : "vertical"}
+                    verticalAlign={isMobile ? "bottom" : "middle"}
+                    align={isMobile ? "center" : "right"}
+                    wrapperStyle={isMobile ? { paddingTop: "20px" } : {}}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>

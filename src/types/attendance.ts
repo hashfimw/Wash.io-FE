@@ -47,12 +47,12 @@ export interface GetAttendancesResponse {
 
 export type AttendanceSortField = "id" | "date" | "attendanceType" | "name" | "role" | "workShift" | "outletName";
 
-export interface TableSortConfig<T> {
-  field: T;
-  direction: "asc" | "desc";
-}
-
-export interface TableProps<T> extends TableSortConfig<T> {
-  page: number;
-  limit: number;
+export interface GetEmployeeStatusResponse {
+    workShift: EmployeeWorkShift;
+    isWorking: boolean;
+    isPresent: boolean;
+    isOnWorkShift: boolean;
+    canClockIn: boolean;
+    isAttended: boolean;
+    shiftStart: string
 }

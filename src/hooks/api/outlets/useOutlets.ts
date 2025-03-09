@@ -21,7 +21,7 @@ api.interceptors.request.use((config) => {
 const cache = {
   outlets: new Map(),
   timestamp: new Map(),
-  cacheDuration: 120000,
+  cacheDuration: 0,
 };
 
 interface ApiResponseType {

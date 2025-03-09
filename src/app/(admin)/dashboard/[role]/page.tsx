@@ -1,133 +1,124 @@
+"use client";
+
 // File: app/dashboard/[role]/page.tsx
-import { Metadata } from "next";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Waves } from "lucide-react";
+import { RefreshCw, Waves } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import DashboardWrapper from "@/components/admin/OverviewWrapper";
-import {
-  extractOrdersArray,
-  getAllOrders,
-  getAuthToken,
-  getItemsCreatedThisMonth,
-  getNewCustomersThisMonth,
-  getOrdersCreatedToday,
-  getOutlets,
-  getPendingOrders,
-  getUsers,
-} from "@/services/dashboardService";
-import { DashboardData } from "@/types/overviewDashboard";
+import { useParams } from "next/navigation";
+import { DashboardData, getDashboardData } from "@/services/dashboardService";
+import DashboardContent from "@/components/admin/OverviewWrapper";
 
-// Metadata untuk halaman
-export const metadata: Metadata = {
-  title: "Dashboard - Wash.io Laundry",
-  description: "Your all-in-one laundry management solution",
-  icons: "/washio-birtu.png",
-};
+export default function DashboardPage() {
+  const params = useParams();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
 
-// Komponen Dashboard utama
-export default async function Dashboard({ params }: { params?: { role?: string } }) {
-  try {
-    // Get auth token for debugging
-    const token = getAuthToken();
+  // Get role from URL parameter
+  const roleFromUrl = params?.role as string;
 
-    // Jika tidak ada token, tampilkan pesan login
-    if (!token) {
-      return (
-        <div className="space-y-6 p-4 sm:p-6">
-          <div className="bg-gradient-to-r from-birtu to-birmud rounded-lg p-6 text-oren shadow-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold mb-2 text-putih">Welcome to Wash.io Laundry</h1>
-                <p className="text-lg text-putbir opacity-90">Your all-in-one laundry management solution</p>
-              </div>
-              <Waves className="h-16 w-16 text-birtu" />
-            </div>
-          </div>
+  // Debug info on component mount
+  useEffect(() => {
+    console.log("Dashboard loading with URL role param:", roleFromUrl);
+  }, [roleFromUrl]);
 
-          <Card>
-            <CardContent className="p-6">
-              <p className="text-center py-4">Please login to view your dashboard</p>
-              <div className="flex justify-center">
-                <Link href="/login-admin">
-                  <Button>Login</Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      );
+  // Function to fetch dashboard data
+  const fetchDashboardData = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Use the role from URL directly
+      console.log("Fetching dashboard data for role:", roleFromUrl);
+
+      // Get dashboard data - always fetches fresh data
+      const data = await getDashboardData(roleFromUrl);
+      setDashboardData(data);
+    } catch (error) {
+      console.error("Error fetching dashboard:", error);
+      setError("Failed to load dashboard data. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    // Mengambil semua data dari API secara paralel
-    const [
-      outletsResponse,
-      customersResponse,
-      pendingOrders,
-      ordersResponse,
-      newCustomersCount, // Tambahkan perhitungan customer baru
-    ] = await Promise.all([
-      getOutlets(),
-      getUsers(),
-      getPendingOrders(),
-      getAllOrders(),
-      getNewCustomersThisMonth(), // Gunakan fungsi baru untuk menghitung customer baru
-    ]);
+  // Initialize dashboard on mount
+  useEffect(() => {
+    fetchDashboardData();
+  }, [roleFromUrl]);
 
-    // Memproses data
-    const outletsData = outletsResponse?.data || [];
-    const outletsCount = outletsData.length;
-    const newOutletsThisMonth = getItemsCreatedThisMonth(outletsData);
+  // Common header component for all states
+  const DashboardHeader = () => (
+    <div className="bg-gradient-to-r from-birtu to-birmud rounded-lg p-4 sm:p-6 text-oren shadow-lg overflow-hidden">
+      <div className="flex flex-row items-center justify-between">
+        <div className="flex-1">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2 text-putih">
+            Welcome to Wash.io Laundry
+          </h1>
+          <p className="text-base sm:text-lg text-putbir opacity-90">
+            Your all-in-one laundry management solution
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <Button
+            variant="oren"
+            size="sm"
+            onClick={fetchDashboardData}
+            className="hover:bg-birtu text-white border-white/20 mb-3 sm:mb-0"
+          >
+            <RefreshCw className="h-4 w-4 mr-2 animate-spin " />
+            Refresh<span className="hidden lg:block">Data</span>
+          </Button>
+          <Waves className="h-10 w-10 sm:h-16 sm:w-16 text-birtu" />
+        </div>
+      </div>
+    </div>
+  );
 
-    const customersData = customersResponse?.users || [];
-    // Gunakan totalCustomers jika tersedia, jika tidak gunakan panjang array
-    const customersCount = customersResponse?.totalCustomers || customersData.length;
-    // Gunakan hasil perhitungan dari fungsi khusus
-    const newCustomersThisMonth = newCustomersCount;
-
-    const pendingOrdersCount = Array.isArray(pendingOrders) ? pendingOrders.length : 0;
-
-    const allOrders = extractOrdersArray(ordersResponse);
-    const todayOrders = getOrdersCreatedToday(allOrders);
-    const todayOrdersCount = todayOrders.length;
-
-    // Mengambil role dari params atau default ke super-admin
-    const userRoleForPath = params?.role || "super-admin";
-
-    // Mengumpulkan data untuk diteruskan ke client component
-    const initialData: DashboardData = {
-      outletsCount,
-      newOutletsThisMonth,
-      customersCount,
-      newCustomersThisMonth,
-      pendingOrdersCount,
-      todayOrdersCount,
-    };
-
-    // Render dashboard wrapper yang bisa di-refresh
-    return <DashboardWrapper initialData={initialData} userRoleForPath={userRoleForPath} />;
-  } catch (error) {
-    console.error("Error in Dashboard component:", error);
-
-    // Fallback UI jika terjadi error
+  // If loading, show loading state
+  if (isLoading) {
     return (
-      <div className="space-y-6 p-4 sm:p-6">
-        <div className="bg-gradient-to-r from-birtu to-birmud rounded-lg p-6 text-oren shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold mb-2 text-putih">Welcome to Wash.io Laundry</h1>
-              <p className="text-lg text-putbir opacity-90">Your all-in-one laundry management solution</p>
-            </div>
-            <Waves className="h-16 w-16 text-birtu" />
+      <div className="space-y-4 sm:space-y-6 p-3 sm:p-6 max-w-full">
+        <DashboardHeader />
+
+        <div className="flex items-center justify-center h-48 sm:h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-birtu mx-auto mb-3 sm:mb-4"></div>
+            <p className="text-birtu text-sm sm:text-base">Loading dashboard...</p>
           </div>
         </div>
+      </div>
+    );
+  }
 
-        <Card>
-          <CardContent className="p-6">
-            <p>Dashboard data is currently unavailable. Please try again later.</p>
+  // If error, show error state
+  if (error) {
+    return (
+      <div className="space-y-4 sm:space-y-6 p-3 sm:p-6 max-w-full">
+        <DashboardHeader />
+
+        <Card className="mx-auto max-w-md">
+          <CardContent className="p-4 sm:p-6">
+            <p className="text-center text-red-500 mb-3 sm:mb-4 text-sm sm:text-base">{error}</p>
+            <div className="flex justify-center">
+              <Button onClick={fetchDashboardData} className="text-sm sm:text-base">
+                Try Again
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
     );
   }
+
+  // Render dashboard content if data is available
+  return dashboardData ? (
+    <DashboardContent
+      dashboardData={dashboardData}
+      userRoleForPath={roleFromUrl}
+      onRefresh={fetchDashboardData}
+    />
+  ) : null;
 }
