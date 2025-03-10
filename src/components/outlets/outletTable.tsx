@@ -1,8 +1,7 @@
-"use client";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, RefreshCw } from "lucide-react";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { OutletTableFilters } from "./outlet-table-filters";
 import { TablePagination } from "../shared/usePagination";
@@ -15,17 +14,19 @@ import SwipeIndicator from "../swipeIndicator";
 
 interface OutletTableProps {
   onEdit: (outlet: Outlet) => void;
+  onRefreshReady?: (refreshFn: () => void) => void;
   initialData?: {
     outlets: Outlet[];
     totalPages: number;
   };
 }
 
-export function OutletTable({ onEdit, initialData }: OutletTableProps) {
+export function OutletTable({ onEdit, initialData, onRefreshReady }: OutletTableProps) {
   const { toast } = useToast();
   const { deleteOutlet } = useOutlets();
   const [deleteOutletId, setDeleteOutletId] = useState<number | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Gunakan initialData dari server jika tersedia
   const {
@@ -46,6 +47,23 @@ export function OutletTable({ onEdit, initialData }: OutletTableProps) {
     pageSize: 10,
   });
 
+  // Expose refresh function ke parent component
+  useEffect(() => {
+    if (onRefreshReady) {
+      onRefreshReady(refresh);
+    }
+  }, [onRefreshReady, refresh]);
+
+  // Tambahkan fungsi refresh dengan animasi
+  const handleRefresh = useCallback(() => {
+    setIsRefreshing(true);
+    refresh();
+    // Tampilkan animasi refresh selama 1 detik
+    setTimeout(() => {
+      setIsRefreshing(false);
+    }, 1000);
+  }, [refresh]);
+
   // Menggunakan useCallback untuk fungsi yang sering digunakan
   const handleDelete = useCallback(async () => {
     if (!deleteOutletId) return;
@@ -58,6 +76,8 @@ export function OutletTable({ onEdit, initialData }: OutletTableProps) {
         description: "Outlet deleted successfully",
       });
       setDeleteOutletId(null);
+
+      // Langsung refresh table setelah delete berhasil
       refresh();
     } catch (error) {
       toast({
@@ -71,6 +91,16 @@ export function OutletTable({ onEdit, initialData }: OutletTableProps) {
     }
   }, [deleteOutletId, deleteOutlet, toast, refresh]);
 
+  // Membuat handle untuk edit yang bisa merefresh data
+  const handleEdit = useCallback(
+    (outlet: Outlet) => {
+      onEdit(outlet);
+      // Tidak memanggil refresh di sini karena akan dipanggil oleh parent
+      // setelah operasi edit selesai
+    },
+    [onEdit]
+  );
+
   // Gunakan useMemo untuk memoize table rows agar mengurangi re-renders
   const tableRows = useMemo(() => {
     return (
@@ -82,7 +112,7 @@ export function OutletTable({ onEdit, initialData }: OutletTableProps) {
           <TableCell className="whitespace-nowrap">{outlet.outletAddress?.district}</TableCell>
           <TableCell className="text-right p-2">
             <div className="flex justify-end gap-1 sm:gap-2">
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(outlet)}>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(outlet)}>
                 <Edit className="h-4 w-4" />
               </Button>
               <Button
@@ -98,20 +128,24 @@ export function OutletTable({ onEdit, initialData }: OutletTableProps) {
         </TableRow>
       )) || []
     );
-  }, [outlets, onEdit]);
+  }, [outlets, handleEdit]);
 
   if (loading && !initialData) return <TableSkeleton columns={5} rows={5} />;
   if (error) return <div className="text-red-500 p-4">{error}</div>;
 
   return (
     <div className="space-y-4">
-      {/* Filters section */}
-      <div className="w-full">
+      {/* Filters section with refresh button */}
+      <div className="w-full flex justify-between items-center">
         <OutletTableFilters
           searchQuery={searchQuery}
           onSearchChange={onSearchChange}
           onResetFilters={resetFilters}
         />
+        <Button variant="outline" size="sm" onClick={handleRefresh} disabled={loading} className="ml-2">
+          <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
+          Refresh
+        </Button>
       </div>
 
       <div className="overflow-auto rounded-md border">
@@ -119,15 +153,22 @@ export function OutletTable({ onEdit, initialData }: OutletTableProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Outlet Name </TableHead>
-              <TableHead className="cursor-pointer whitespace-nowrap min-w-[200px]">Address</TableHead>
+              <TableHead className="cursor-pointer" onClick={() => onSortChange("outletName")}>
+                Outlet Name {sortBy.field === "outletName" && (sortBy.direction === "asc" ? "↑" : "↓")}
+              </TableHead>
+              <TableHead className="whitespace-nowrap min-w-[200px]">Address</TableHead>
               <TableHead
                 className="cursor-pointer whitespace-nowrap min-w-[120px]"
                 onClick={() => onSortChange("province")}
               >
                 Province {sortBy.field === "province" && (sortBy.direction === "asc" ? "↑" : "↓")}
               </TableHead>
-              <TableHead className="cursor-pointer whitespace-nowrap min-w-[120px]">District</TableHead>
+              <TableHead
+                className="cursor-pointer whitespace-nowrap min-w-[120px]"
+                onClick={() => onSortChange("district")}
+              >
+                District {sortBy.field === "district" && (sortBy.direction === "asc" ? "↑" : "↓")}
+              </TableHead>
               <TableHead className="text-right whitespace-nowrap min-w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>

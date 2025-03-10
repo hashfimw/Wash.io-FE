@@ -23,7 +23,7 @@ if (typeof window !== "undefined") {
 const cache = {
   employees: new Map(),
   timestamp: new Map(),
-  cacheDuration: 3600000, // 5 menit
+  cacheDuration: 0, // 5 menit
 };
 
 export const useEmployees = () => {

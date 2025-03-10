@@ -15,7 +15,7 @@ export const Breadcrumb = ({ items }: BreadcrumbProps) => {
   const [isMobile, setIsMobile] = useState(false);
   const params = useParams();
   const role = params.role as string;
-  const admin = !!(role === "superadmin" || role === "outlet-admin");
+  const admin = !!(role === "super-admin" || role === "outlet-admin");
 
   // Determine home link based on role
   const homeLink = admin ? `/dashboard/${role}` : `/employee-dashboard/${role}`;

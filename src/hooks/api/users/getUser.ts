@@ -23,7 +23,7 @@ if (typeof window !== "undefined") {
 const cache = {
   users: new Map(),
   timestamp: new Map(),
-  cacheDuration: 900000,
+  cacheDuration: 0,
 };
 
 export const useUsers = () => {

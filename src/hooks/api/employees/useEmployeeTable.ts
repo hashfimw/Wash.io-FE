@@ -1,9 +1,7 @@
 // src/hooks/api/employees/useEmployeeTable.ts
 import { useCallback, useEffect, useState, useRef } from "react";
-
 import { Employee, Role } from "@/types/employee";
 import { useOutlets } from "@/hooks/api/outlets/useOutlets";
-
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useEmployees } from "./useEmployee";
