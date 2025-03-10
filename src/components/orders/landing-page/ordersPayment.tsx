@@ -22,7 +22,6 @@ const PaymentPage: React.FC = () => {
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const { getOrderById } = useOrders();
   const { initiatePayment, loading: paymentLoading, error: paymentError } = usePayment();
-
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -68,7 +67,7 @@ const PaymentPage: React.FC = () => {
 
     const script = document.createElement("script");
     script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
-    script.setAttribute("data-client-key", process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || "");
+    script.setAttribute("data-client-key", process.env.MIDTRANS_CLIENT_KEY!);
     script.onload = () => console.log("Midtrans Snap loaded");
     document.body.appendChild(script);
   }, []);
