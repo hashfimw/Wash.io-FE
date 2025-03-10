@@ -6,7 +6,7 @@ export interface User {
   email: string;
   avatar: string;
   isVerified: boolean;
-  role: Role; // Gunakan Role dari types/customer.ts
+  role: Role;
   createdAt: Date;
   updatedAt: Date;
 }

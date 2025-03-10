@@ -2,7 +2,6 @@ import { useState } from "react";
 import axios from "axios";
 import { Outlet, OutletParams } from "@/types/outlet";
 
-// Create a separate API instance without auth interceptor for public endpoints
 const publicApi = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api",
 });
@@ -23,7 +22,9 @@ export const usePublicOutlets = () => {
   const [error, setError] = useState<string | null>(null);
   const [outlets, setOutlets] = useState<Outlet[]>([]);
 
-  const getPublicOutlets = async (params: OutletParams = {}): Promise<ApiResponseType> => {
+  const getPublicOutlets = async (
+    params: OutletParams = {}
+  ): Promise<ApiResponseType> => {
     try {
       setLoading(true);
 
@@ -35,7 +36,9 @@ export const usePublicOutlets = () => {
       if (params.sortBy) queryParams.append("sortBy", params.sortBy);
       if (params.sortList) queryParams.append("sortList", params.sortList);
 
-      const url = `/outlets${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
+      const url = `/outlets${
+        queryParams.toString() ? `?${queryParams.toString()}` : ""
+      }`;
 
       const response = await publicApi.get<ApiResponseType>(url);
       setOutlets(response.data.data || []);

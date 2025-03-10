@@ -13,7 +13,6 @@ import { useSession } from "@/hooks/useSession";
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 
-// Create a custom MapPicker component that wraps the LocationPicker but works with Formik
 const MapPicker = dynamic(
   () => import("./mapPickerFormik").then((mod) => mod.default),
   {
@@ -78,11 +77,8 @@ const AddressForm = ({ onAddressCreated, onCancel }: AddressFormProps) => {
       }
 
       try {
-        console.log("Submitting address form with values:", values);
-        
         // Create address and get the ID
         const addressId = await createAddress(values);
-        console.log("Address creation successful, ID:", addressId);
         
         if (typeof addressId !== 'number' || isNaN(addressId)) {
           throw new Error(`Invalid address ID: ${addressId}`);

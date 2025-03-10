@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { User, Mail } from "lucide-react";
+import { User, Mail, AlertTriangle } from "lucide-react";
 import { useEditProfile } from "@/hooks/api/profile/useEditProfile";
 import { UserUpdatePayload } from "@/types/profile";
+
+const base_url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
 interface ProfileEditFormProps {
   userId: number;
@@ -29,6 +31,9 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
     email: "",
   });
 
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [emailChanged, setEmailChanged] = useState(false);
+
   // Update local state when initialValues change
   useEffect(() => {
     setValues({
@@ -36,6 +41,15 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
       email: initialValues.email || "",
     });
   }, [initialValues]);
+
+  // Check if email was changed
+  useEffect(() => {
+    if (initialValues.email !== values.email) {
+      setEmailChanged(true);
+    } else {
+      setEmailChanged(false);
+    }
+  }, [values.email, initialValues.email]);
 
   const { updateProfile, isUpdating } = useEditProfile();
 
@@ -45,6 +59,11 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
     // Clear errors when user types
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+
+    // Reset verification sent status when email changes again
+    if (field === "email" && verificationSent) {
+      setVerificationSent(false);
     }
   };
 
@@ -72,32 +91,74 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
     return isValid;
   };
 
+  const sendVerificationEmail = async () => {
+    if (!validateForm()) return;
+
+    try {
+      // Send verification email API call - matching your existing endpoint
+      const response = await fetch(`${base_url}/auth/request-email-change`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+          newEmail: values.email,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setVerificationSent(true);
+      } else {
+        setErrors((prev) => ({ ...prev, email: result.message || "Failed to send verification email" }));
+      }
+    } catch (error) {
+      console.error("Error sending verification email:", error);
+      setErrors((prev) => ({ ...prev, email: "Error sending verification email" }));
+    }
+  };
+
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
     const payload: UserUpdatePayload = {};
 
-    // Only include changed fields in the payload
+    // Only include fullName in the payload as email requires verification
     if (values.fullName !== initialValues.fullName) {
       payload.fullName = values.fullName;
     }
 
+    // If email has changed, request verification first
     if (values.email !== initialValues.email) {
-      payload.email = values.email;
+      await sendVerificationEmail();
+      
+      // Update only the name if changed
+      if (Object.keys(payload).length > 0) {
+        try {
+          const result = await updateProfile(userId, payload);
+          // Pass only the updated name back to the parent component
+          onSaveComplete({ fullName: values.fullName });
+        } catch (error) {
+          console.error("Error updating profile:", error);
+        }
+      }
+      return;
     }
 
-    // Only make the API call if something has changed
-    if (Object.keys(payload).length > 0) {
-      try {
-        const result = await updateProfile(userId, payload);
-        // Pass the updated values back to the parent component
-        onSaveComplete(values);
-      } catch (error) {
-        console.error("Error updating profile:", error);
-      }
-    } else {
-      // If nothing changed, still call onSaveComplete with no changes
+    // If nothing changed in either field
+    if (Object.keys(payload).length === 0) {
       onSaveComplete({});
+      return;
+    }
+
+    // Update only the name if changed
+    try {
+      const result = await updateProfile(userId, payload);
+      onSaveComplete(payload);
+    } catch (error) {
+      console.error("Error updating profile:", error);
     }
   };
 
@@ -186,6 +247,22 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
           {errors.email && (
             <p className="mt-1.5 text-xs text-red-500">{errors.email}</p>
           )}
+          
+          {emailChanged && !errors.email && (
+            <p className="mt-1.5 text-xs text-amber-500 flex items-center">
+              <AlertTriangle className="h-3 w-3 mr-1" />
+              Email change requires verification
+            </p>
+          )}
+          
+          {verificationSent && (
+            <p className="mt-1.5 text-xs text-green-500 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Verification email sent to {values.email}! Please check your inbox.
+            </p>
+          )}
         </div>
 
         <div className="flex justify-end">
@@ -195,7 +272,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
             disabled={isUpdating}
             className="px-4 py-2 bg-birtu text-white rounded-md hover:bg-oren transition-colors duration-300 disabled:opacity-50"
           >
-            {isUpdating ? "Saving..." : "Save Changes"}
+            {isUpdating ? "Saving..." : emailChanged && !verificationSent ? "Save & Verify Email" : "Save Changes"}
           </button>
         </div>
       </div>

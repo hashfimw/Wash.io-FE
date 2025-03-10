@@ -4,14 +4,11 @@ import { toast } from "@/components/ui/use-toast";
 import { UserUpdatePayload } from "@/types/profile";
 import { useState } from "react";
 
-/**
- * Custom hook for editing user profile information
- */
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+
 export const useEditProfile = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const API_URL =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
   // Update user profile (name, email, etc.)
   const updateProfile = async (id: number, payload: UserUpdatePayload) => {
@@ -58,7 +55,7 @@ export const useEditProfile = () => {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("id", String(userId));
-  
+
     try {
       const response = await fetch(`${API_URL}/users/avatar-cloud`, {
         method: "PATCH",
@@ -67,14 +64,13 @@ export const useEditProfile = () => {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-  
+
       const data = await response.json();
-      console.log("Backend Response:", data); // ✅ Debug respons backend
-  
+
       if (!response.ok) {
         throw new Error(data.message || "Failed to update avatar");
       }
-  
+
       if (data.avatarUrl) {
         return data.avatarUrl;
       } else {
@@ -86,11 +82,10 @@ export const useEditProfile = () => {
       return null;
     }
   };
-  
 
   return {
     isUpdating,
-    avatarUrl, // Tambahkan avatar ke return agar bisa digunakan di komponen lain
+    avatarUrl,
     updateProfile,
     updateAvatar,
   };

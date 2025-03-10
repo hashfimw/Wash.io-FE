@@ -38,7 +38,6 @@ const AddressSelector = ({
       try {
         const response: Address[] = await getAllAddresses();
         setAddresses(response);
-        console.log("Addresses fetched:", response);
       } catch (error) {
         console.error("Failed to fetch addresses:", error);
       }
