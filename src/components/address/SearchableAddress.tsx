@@ -1,4 +1,3 @@
-// src/components/address/SearchableAddress.tsx
 import { useState, useEffect } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { OutletFormValues } from "../outlets/outlet-form/schema";
@@ -10,11 +9,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Check, Loader2, Search } from "lucide-react";
@@ -90,21 +85,12 @@ export function SearchableAddress({ form }: SearchableAddressProps) {
     form.setValue("longitude", result.lon);
     form.setValue("addressLine", formattedAddress);
     form.setValue("province", result.address.state || "");
-    form.setValue(
-      "regency",
-      result.address.city || result.address.county || ""
-    );
+    form.setValue("regency", result.address.city || result.address.county || "");
     form.setValue(
       "district",
-      result.address.district ||
-        result.address.subdistrict ||
-        result.address.city_district ||
-        ""
+      result.address.district || result.address.subdistrict || result.address.city_district || ""
     );
-    form.setValue(
-      "village",
-      result.address.village || result.address.suburb || ""
-    );
+    form.setValue("village", result.address.village || result.address.suburb || "");
 
     setOpen(false);
   };
@@ -113,10 +99,7 @@ export function SearchableAddress({ form }: SearchableAddressProps) {
     <div className="relative w-full">
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <Input
-            {...form.register("addressLine")}
-            placeholder="Enter address"
-          />
+          <Input {...form.register("addressLine")} placeholder="Enter address" />
         </div>
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
@@ -159,14 +142,10 @@ export function SearchableAddress({ form }: SearchableAddressProps) {
                         <Check
                           className={cn(
                             "h-4 w-4 flex-shrink-0",
-                            form.watch("addressLine") === formattedAddress
-                              ? "opacity-100"
-                              : "opacity-0"
+                            form.watch("addressLine") === formattedAddress ? "opacity-100" : "opacity-0"
                           )}
                         />
-                        <span className="flex-1 truncate">
-                          {formattedAddress}
-                        </span>
+                        <span className="flex-1 truncate">{formattedAddress}</span>
                       </CommandItem>
                     );
                   })}

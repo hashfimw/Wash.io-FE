@@ -10,7 +10,6 @@ export default function ProcessOrdersPage() {
   const role = params.role as string;
   const { setBreadcrumbItems } = useBreadcrumb();
 
-  // Set breadcrumb based on role
   useEffect(() => {
     const roleName = role === "super-admin" ? "Super Admin" : "Outlet Admin";
     setBreadcrumbItems([
@@ -24,9 +23,7 @@ export default function ProcessOrdersPage() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Process Orders</h2>
-        <p className="text-muted-foreground">
-          Process customer orders by adding laundry weight and items
-        </p>
+        <p className="text-muted-foreground">Process customer orders by adding laundry weight and items</p>
       </div>
 
       <PendingOrdersList role={role} />

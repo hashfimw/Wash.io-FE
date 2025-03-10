@@ -1,4 +1,3 @@
-// src/components/admin/bypass-detail/ActionSection.tsx
 import { Dispatch, SetStateAction } from "react";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";

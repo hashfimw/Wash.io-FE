@@ -1,4 +1,3 @@
-// src/hooks/useOrderItems.ts
 import { useState } from "react";
 import { UseFormReturn, useFieldArray } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
@@ -12,16 +11,14 @@ export function useOrderItems(form: UseFormReturn<ProcessOrderFormValues>) {
     name: "orderItems",
   });
 
-  // Fungsi untuk normalisasi string
   const normalizeString = (str: string) => {
     return str
-      .toLowerCase() // Ubah ke lowercase
+      .toLowerCase()
       .trim() // Hilangkan spasi di awal dan akhir
       .replace(/\s+/g, " ") // Hilangkan multiple spaces
       .replace(/[^a-z0-9\s]/g, ""); // Hilangkan karakter khusus
   };
 
-  // Check for duplicate items
   const isDuplicateItem = (itemName: string, currentIndex: number) => {
     if (!itemName) return false;
 
@@ -29,32 +26,26 @@ export function useOrderItems(form: UseFormReturn<ProcessOrderFormValues>) {
     const items = form.getValues("orderItems");
 
     return items.some(
-      (item, index) =>
-        index !== currentIndex &&
-        normalizeString(item.orderItemName) === normalizedNewItem
+      (item, index) => index !== currentIndex && normalizeString(item.orderItemName) === normalizedNewItem
     );
   };
 
-  // Add new item row
   const addItem = () => {
     append({ orderItemName: "", qty: undefined as unknown as number });
   };
 
-  // Remove item row
   const removeItem = (index: number) => {
     if (fields.length > 1) {
       remove(index);
     }
   };
 
-  // Validate item before adding
   const validateItemName = (value: string, index: number) => {
     if (!value) return "Item name is required";
     if (isDuplicateItem(value, index)) return "This item is already added";
     return true;
   };
 
-  // Handle item selection change
   const handleItemChange = (value: string, index: number) => {
     if (value && isDuplicateItem(value, index)) {
       toast({
@@ -67,7 +58,6 @@ export function useOrderItems(form: UseFormReturn<ProcessOrderFormValues>) {
     form.setValue(`orderItems.${index}.orderItemName`, value);
   };
 
-  // Handle input change
   const handleInputChange = (value: string, index: number) => {
     const normalizedValue = value.trim();
 

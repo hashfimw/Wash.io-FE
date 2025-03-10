@@ -1,18 +1,10 @@
-// src/components/map/LocationPicker.tsx
 import { useEffect, useState } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  useMapEvents,
-  useMap,
-} from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { UseFormReturn } from "react-hook-form";
 import { OutletFormValues } from "../outlets/outlet-form/schema";
 
-// Custom icon
 const customIcon = new L.Icon({
   iconUrl: "/images/marker-icon.png",
   iconSize: [25, 41],
@@ -37,11 +29,7 @@ interface AddressResult {
   longitude: string;
 }
 
-// Fungsi untuk mendapatkan dan memproses alamat
-async function getAddressFromCoordinates(
-  lat: number,
-  lng: number
-): Promise<AddressResult | null> {
+async function getAddressFromCoordinates(lat: number, lng: number): Promise<AddressResult | null> {
   try {
     const response = await fetch(
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
@@ -49,7 +37,6 @@ async function getAddressFromCoordinates(
     const data = await response.json();
     const address = data.address;
 
-    // Ekstrak district dengan beberapa kemungkinan field
     const district =
       address.district ||
       address.suburb ||
@@ -58,11 +45,8 @@ async function getAddressFromCoordinates(
       address.neighbourhood ||
       "";
 
-    // Ekstrak village dengan beberapa kemungkinan field
-    const village =
-      address.village || address.suburb || address.neighbourhood || "";
+    const village = address.village || address.suburb || address.neighbourhood || "";
 
-    // Buat addressLine yang terstruktur
     const addressLine = [
       address.road,
       district,
@@ -87,11 +71,7 @@ async function getAddressFromCoordinates(
   }
 }
 
-// Fungsi untuk mengupdate form dengan data alamat
-function updateFormWithAddress(
-  form: UseFormReturn<OutletFormValues>,
-  address: AddressResult
-) {
+function updateFormWithAddress(form: UseFormReturn<OutletFormValues>, address: AddressResult) {
   form.setValue("latitude", address.latitude);
   form.setValue("longitude", address.longitude);
   form.setValue("addressLine", address.addressLine);
@@ -134,14 +114,8 @@ function RecenterMap({ lat, lng }: { lat: number; lng: number }) {
   return null;
 }
 
-export function LocationPicker({
-  form,
-  latitude,
-  longitude,
-}: LocationPickerProps) {
-  const [currentLocation, setCurrentLocation] = useState<[number, number]>([
-    -6.2, 106.816666,
-  ]);
+export function LocationPicker({ form, latitude, longitude }: LocationPickerProps) {
+  const [currentLocation, setCurrentLocation] = useState<[number, number]>([-6.2, 106.816666]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasGeolocation, setHasGeolocation] = useState(false);
 
@@ -191,11 +165,7 @@ export function LocationPicker({
 
   return (
     <div className="h-[300px] w-full rounded-md border">
-      <MapContainer
-        center={currentLocation}
-        zoom={13}
-        style={{ height: "100%", width: "100%" }}
-      >
+      <MapContainer center={currentLocation} zoom={13} style={{ height: "100%", width: "100%" }}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -204,11 +174,7 @@ export function LocationPicker({
         <MapEvents form={form} />
         {((latitude && longitude) || hasGeolocation) && (
           <Marker
-            position={
-              latitude && longitude
-                ? [parseFloat(latitude), parseFloat(longitude)]
-                : currentLocation
-            }
+            position={latitude && longitude ? [parseFloat(latitude), parseFloat(longitude)] : currentLocation}
             icon={customIcon}
           />
         )}

@@ -1,4 +1,3 @@
-// src/app/dashboard/[role]/laundry-item/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,7 +5,6 @@ import { useParams } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useBreadcrumb } from "@/context/BreadcrumbContext";
-
 import { useLaundryItems } from "@/hooks/api/laundry-item/useLaundryItems";
 import { OrderItem } from "@/types/order";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -20,12 +18,10 @@ export default function LaundryItemPage() {
   const params = useParams();
   const role = Array.isArray(params.role) ? params.role[0] : params.role || "outlet-admin";
   const isSuperAdmin = role === "super-admin";
-
   const { setBreadcrumbItems } = useBreadcrumb();
   const { toast } = useToast();
   const { getLaundryItems, createLaundryItem, updateLaundryItem, deleteLaundryItem, error } =
     useLaundryItems();
-
   const [items, setItems] = useState<OrderItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -33,22 +29,18 @@ export default function LaundryItemPage() {
   const [filteredItems, setFilteredItems] = useState<OrderItem[]>([]);
   const [refetchTrigger, setRefetchTrigger] = useState(0);
 
-  // Set breadcrumb
   useEffect(() => {
     const roleName = role === "super-admin" ? "Super Admin" : "Outlet Admin";
     setBreadcrumbItems([{ label: roleName, href: `/dashboard/${role}` }, { label: "Laundry Items" }]);
   }, [role, setBreadcrumbItems]);
 
-  // Fetch laundry items
   useEffect(() => {
     const fetchItems = async () => {
       try {
         setIsLoading(true);
         const response = await getLaundryItems();
         if (response && response.data) {
-          // Ensure data is valid and complete
           const validItems = Array.isArray(response.data) ? response.data : [];
-
           setItems(validItems);
           setFilteredItems(validItems);
         }
@@ -67,7 +59,6 @@ export default function LaundryItemPage() {
     fetchItems();
   }, [refetchTrigger]);
 
-  // Filter items based on search query
   useEffect(() => {
     if (searchQuery.trim() === "") {
       setFilteredItems(items);
@@ -78,29 +69,23 @@ export default function LaundryItemPage() {
     }
   }, [searchQuery, items]);
 
-  // Handle create item
   const handleCreateItem = async (itemName: string) => {
     try {
       const response = await createLaundryItem(itemName);
       if (response && response.data) {
-        // No need for toast here as it's handled in the dialog
         setIsCreateDialogOpen(false);
 
-        // Refetch all data after creating new item
         setRefetchTrigger((prev) => prev + 1);
       }
     } catch (err) {
       console.error("Error creating laundry item:", err);
-      // Error toast is handled in the dialog
     }
   };
 
-  // Handle update item
   const handleUpdateItem = async (id: number, itemName: string) => {
     try {
       const response = await updateLaundryItem(id, itemName);
       if (response && response.data) {
-        // Update local state
         setItems((prev) => prev.map((item) => (item.id === id ? response.data : item)));
         toast({
           title: "Success",
@@ -114,16 +99,13 @@ export default function LaundryItemPage() {
         title: "Error",
         description: "Failed to update laundry item. Please try again.",
       });
-      // Refetch to get latest data if error occurs
       setRefetchTrigger((prev) => prev + 1);
     }
   };
 
-  // Handle delete item
   const handleDeleteItem = async (id: number) => {
     try {
       await deleteLaundryItem(id);
-      // Update local state
       setItems((prev) => prev.filter((item) => item.id !== id));
       toast({
         title: "Success",
@@ -136,7 +118,6 @@ export default function LaundryItemPage() {
         title: "Error",
         description: "Failed to delete laundry item. Please try again.",
       });
-      // Refetch to get latest data if error occurs
       setRefetchTrigger((prev) => prev + 1);
     }
   };

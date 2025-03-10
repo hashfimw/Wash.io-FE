@@ -22,7 +22,6 @@ interface ReportExportMenuProps {
 }
 
 export function ReportExportMenu({ data, config, chartRef, isDisabled = false }: ReportExportMenuProps) {
-  // Check if data is empty
   const isDataEmpty = Object.keys(data).length === 0;
 
   const handleExportExcel = () => exportToExcel(data, config);

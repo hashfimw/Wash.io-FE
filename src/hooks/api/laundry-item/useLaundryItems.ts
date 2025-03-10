@@ -1,10 +1,8 @@
-// src/hooks/api/laundry-item/useLaundryItems.ts
 import { useState } from "react";
 import axios from "axios";
 import { OrderItem } from "@/types/order";
 import { ApiResponse } from "@/types/outlet";
 
-// Create axios instance with base URL
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api",
   headers: {
@@ -12,7 +10,6 @@ const api = axios.create({
   },
 });
 
-// Add request interceptor for auth token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -25,7 +22,6 @@ export const useLaundryItems = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Get all laundry items
   const getLaundryItems = async (): Promise<ApiResponse<OrderItem[]>> => {
     try {
       setLoading(true);
@@ -41,10 +37,7 @@ export const useLaundryItems = () => {
     }
   };
 
-  // Create new laundry item
-  const createLaundryItem = async (
-    orderItemName: string
-  ): Promise<ApiResponse<OrderItem>> => {
+  const createLaundryItem = async (orderItemName: string): Promise<ApiResponse<OrderItem>> => {
     try {
       setLoading(true);
       setError(null);
@@ -61,20 +54,13 @@ export const useLaundryItems = () => {
     }
   };
 
-  // Update laundry item
-  const updateLaundryItem = async (
-    id: number,
-    orderItemName: string
-  ): Promise<ApiResponse<OrderItem>> => {
+  const updateLaundryItem = async (id: number, orderItemName: string): Promise<ApiResponse<OrderItem>> => {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.put<ApiResponse<OrderItem>>(
-        `/orders/items/${id}`,
-        {
-          orderItemName,
-        }
-      );
+      const response = await api.put<ApiResponse<OrderItem>>(`/orders/items/${id}`, {
+        orderItemName,
+      });
       return response.data;
     } catch (err) {
       console.error(`Failed to update laundry item with ID ${id}:`, err);
@@ -85,14 +71,11 @@ export const useLaundryItems = () => {
     }
   };
 
-  // Delete laundry item
   const deleteLaundryItem = async (id: number): Promise<ApiResponse<void>> => {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.delete<ApiResponse<void>>(
-        `/orders/items/${id}`
-      );
+      const response = await api.delete<ApiResponse<void>>(`/orders/items/${id}`);
       return response.data;
     } catch (err) {
       console.error(`Failed to delete laundry item with ID ${id}:`, err);

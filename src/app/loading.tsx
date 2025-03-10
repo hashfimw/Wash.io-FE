@@ -12,23 +12,18 @@ const Loading = () => {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    // Check if we're on mobile
     const checkIfMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
 
-    // Initial check
     checkIfMobile();
 
-    // Add event listener for window resize
     window.addEventListener("resize", checkIfMobile);
 
-    // Animation timer
     const timer = setTimeout(() => {
       setShowFullContent(true);
-    }, 5000); // 5 second minimum display time
+    }, 5000);
 
-    // Cleanup
     return () => {
       window.removeEventListener("resize", checkIfMobile);
       clearTimeout(timer);
@@ -59,22 +54,19 @@ const Loading = () => {
       },
     },
   };
-  // Main title and subtitle
+
   const washText = "Wash.io";
   const tagline = "Smart Laundry Solutions";
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-putbir to-birmud overflow-hidden relative">
-      {/* Background Effects */}
       <div className="absolute inset-0 bg-putbir opacity-40 z-0" />
 
-      {/* Reusable Animation Components */}
       <Bubbles isMobile={isMobile} />
       <CSSWave />
       <LightBeam />
 
       <div className="relative z-10">
-        {/* Washing Machine Animation */}
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1, rotate: [0, 10, -10, 0] }}
@@ -89,7 +81,6 @@ const Loading = () => {
           <WashingMachine size={isMobile ? 80 : 100} className="text-birtu" />
         </motion.div>
 
-        {/* Shirt Animation */}
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1, y: [0, -10, 0] }}
@@ -105,7 +96,6 @@ const Loading = () => {
           <Shirt size={isMobile ? 50 : 64} className="text-oren" />
         </motion.div>
 
-        {/* Water Droplets */}
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1, y: [0, 5, 0] }}
@@ -121,7 +111,6 @@ const Loading = () => {
           <Droplets size={isMobile ? 32 : 42} className="text-birmud" strokeWidth={1.5} />
         </motion.div>
 
-        {/* Main Text Animation */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -145,7 +134,6 @@ const Loading = () => {
           ))}
         </motion.div>
 
-        {/* Tagline */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -155,7 +143,6 @@ const Loading = () => {
           <span className="text-birtu text-sm sm:text-lg font-medium italic">{tagline}</span>
         </motion.div>
 
-        {/* Animated Underline */}
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: "100%" }}
@@ -163,7 +150,6 @@ const Loading = () => {
           className="h-1.5 bg-gradient-to-r from-birtu to-oren mt-1 rounded-full"
         />
 
-        {/* Loading Text */}
         <motion.div className="mt-6 sm:mt-8">
           <motion.p
             initial={{ opacity: 0 }}
@@ -174,7 +160,6 @@ const Loading = () => {
             Loading your fresh laundry experience
           </motion.p>
 
-          {/* Loading Dots */}
           <motion.div className="flex justify-center mt-2 space-x-2">
             {[0, 1, 2].map((dot) => (
               <motion.div

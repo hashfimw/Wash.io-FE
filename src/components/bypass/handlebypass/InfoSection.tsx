@@ -1,4 +1,3 @@
-// src/components/admin/bypass-detail/InfoSection.tsx
 import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +13,6 @@ interface InfoSectionProps {
 export function InfoSection({ bypassRequest }: InfoSectionProps) {
   return (
     <>
-      {/* Order Information Card */}
       <Card>
         <CardHeader>
           <CardTitle>Order Information</CardTitle>
@@ -44,9 +42,7 @@ export function InfoSection({ bypassRequest }: InfoSectionProps) {
         </CardContent>
       </Card>
 
-      {/* Worker and Outlet Information Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Worker Information */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -75,7 +71,6 @@ export function InfoSection({ bypassRequest }: InfoSectionProps) {
           </CardContent>
         </Card>
 
-        {/* Outlet Information */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -99,7 +94,6 @@ export function InfoSection({ bypassRequest }: InfoSectionProps) {
   );
 }
 
-// Get badge for station
 function getStationBadge(station: WorkerStation) {
   switch (station) {
     case WorkerStation.WASHING:

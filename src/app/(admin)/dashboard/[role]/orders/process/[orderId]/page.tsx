@@ -19,7 +19,6 @@ export default function ProcessSpecificOrderPage() {
   const { getPendingOrders } = usePendingOrders();
   const { setBreadcrumbItems } = useBreadcrumb();
 
-  // Set breadcrumb based on role
   useEffect(() => {
     const roleName = role === "super-admin" ? "Super Admin" : "Outlet Admin";
     setBreadcrumbItems([

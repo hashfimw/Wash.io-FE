@@ -1,4 +1,3 @@
-// src/components/bypass/EmptyState.tsx
 import { AlertCircle } from "lucide-react";
 
 interface EmptyStateProps {

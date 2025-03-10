@@ -1,4 +1,3 @@
-// HOCs/RoleGuard.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -22,21 +21,17 @@ export const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
   useEffect(() => {
     const checkUserRole = async () => {
       try {
-        // Check if user is already loaded
         if (user) {
           if (allowedRoles.includes(user.role)) {
             setIsAuthorized(true);
           } else {
             setIsAuthorized(false);
             showUnauthorizedToast(user.role);
-            // Hapus token (logout) jika role tidak sesuai
             logout();
-            // Redirect to login page
             router.push("/login-admin");
             return;
           }
         } else {
-          // Try to get the current user
           const currentUser = await getCurrentUser();
 
           if (!currentUser) {
@@ -50,9 +45,7 @@ export const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
           } else {
             setIsAuthorized(false);
             showUnauthorizedToast(currentUser.role);
-            // Hapus token (logout) jika role tidak sesuai
             logout();
-            // Redirect to login page
             router.push("/login-admin");
             return;
           }
@@ -60,7 +53,6 @@ export const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
       } catch (error) {
         console.error("Error in RoleGuard:", error);
         setIsAuthorized(false);
-        // Hapus token (logout) karena ada error
         logout();
         router.push("/login-admin");
       }
@@ -102,7 +94,6 @@ export const OutletAdminGuard = ({ children }: { children: React.ReactNode }) =>
   return <RoleGuard allowedRoles={["OUTLET_ADMIN"]}>{children}</RoleGuard>;
 };
 
-// You can also create an AdminGuard that allows both roles
 export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
   return <RoleGuard allowedRoles={["SUPER_ADMIN", "OUTLET_ADMIN"]}>{children}</RoleGuard>;
 };

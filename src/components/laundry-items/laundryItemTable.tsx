@@ -1,14 +1,6 @@
-// src/components/laundry-item/LaundryItemTable.tsx
 import { useState } from "react";
 import { OrderItem } from "@/types/order";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,12 +24,7 @@ interface LaundryItemTableProps {
   onDelete: (id: number) => Promise<void>;
 }
 
-export function LaundryItemTable({
-  items,
-  isSuperAdmin,
-  onUpdate,
-  onDelete,
-}: LaundryItemTableProps) {
+export function LaundryItemTable({ items, isSuperAdmin, onUpdate, onDelete }: LaundryItemTableProps) {
   const [editItem, setEditItem] = useState<OrderItem | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [deleteItem, setDeleteItem] = useState<OrderItem | null>(null);
@@ -94,21 +81,15 @@ export function LaundryItemTable({
               <TableHead>Item Name</TableHead>
               <TableHead>Created At</TableHead>
               <TableHead>Updated At</TableHead>
-              {isSuperAdmin && (
-                <TableHead className="text-right">Actions</TableHead>
-              )}
+              {isSuperAdmin && <TableHead className="text-right">Actions</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
             {items.map((item) => (
               <TableRow key={item.id}>
                 <TableCell>{item.orderItemName}</TableCell>
-                <TableCell>
-                  {format(new Date(item.createdAt), "dd MMM yyyy HH:mm")}
-                </TableCell>
-                <TableCell>
-                  {format(new Date(item.updatedAt), "dd MMM yyyy HH:mm")}
-                </TableCell>
+                <TableCell>{format(new Date(item.createdAt), "dd MMM yyyy HH:mm")}</TableCell>
+                <TableCell>{format(new Date(item.updatedAt), "dd MMM yyyy HH:mm")}</TableCell>
                 {isSuperAdmin && item.id > 0 && (
                   <TableCell className="text-right">
                     <DropdownMenu>
@@ -125,10 +106,7 @@ export function LaundryItemTable({
                           <Edit className="mr-2 h-4 w-4" />
                           Edit Item
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleDeleteClick(item)}
-                          className="text-red-600"
-                        >
+                        <DropdownMenuItem onClick={() => handleDeleteClick(item)} className="text-red-600">
                           <Trash className="mr-2 h-4 w-4" />
                           Delete Item
                         </DropdownMenuItem>

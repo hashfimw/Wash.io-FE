@@ -1,4 +1,3 @@
-// src/components/outlets/outlet-table-filters.tsx
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, X } from "lucide-react";
@@ -9,11 +8,7 @@ interface OutletTableFiltersProps {
   onResetFilters: () => void;
 }
 
-export function OutletTableFilters({
-  searchQuery,
-  onSearchChange,
-  onResetFilters,
-}: OutletTableFiltersProps) {
+export function OutletTableFilters({ searchQuery, onSearchChange, onResetFilters }: OutletTableFiltersProps) {
   return (
     <div className="flex items-center gap-2">
       <div className="relative flex-1">

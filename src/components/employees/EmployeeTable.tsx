@@ -1,4 +1,3 @@
-// src/components/employees/EmployeeTable.tsx
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -44,14 +43,12 @@ export function EmployeeTable({ onEdit, onRefreshReady }: EmployeeTableProps) {
     refresh,
   } = useEmployeeTable();
 
-  // Expose the refresh function to the parent component
   useEffect(() => {
     if (onRefreshReady) {
       onRefreshReady(refresh);
     }
   }, [onRefreshReady, refresh]);
 
-  // Optimasi dengan useCallback untuk fungsi handler
   const handleDelete = useCallback(async () => {
     if (!deleteEmployeeId) return;
 
@@ -63,8 +60,6 @@ export function EmployeeTable({ onEdit, onRefreshReady }: EmployeeTableProps) {
         description: "Employee deleted successfully",
       });
       setDeleteEmployeeId(null);
-
-      // Refresh the employee list after deletion
       refresh();
     } catch (error) {
       toast({
@@ -78,7 +73,6 @@ export function EmployeeTable({ onEdit, onRefreshReady }: EmployeeTableProps) {
     }
   }, [deleteEmployeeId, deleteEmployee, toast, refresh]);
 
-  // Optimasi dengan useCallback untuk sort handler
   const handleSort = useCallback(
     (field: string) => {
       setSortBy({
@@ -89,7 +83,6 @@ export function EmployeeTable({ onEdit, onRefreshReady }: EmployeeTableProps) {
     [sortBy, setSortBy]
   );
 
-  // Memoize employee rows untuk mencegah re-render berulang
   const employeeRows = useMemo(() => {
     if (employees.length === 0) {
       return (
@@ -137,12 +130,10 @@ export function EmployeeTable({ onEdit, onRefreshReady }: EmployeeTableProps) {
     ));
   }, [employees, onEdit]);
 
-  // Memoize skeleton loading UI
   const loadingSkeleton = useMemo(() => {
     return <TableSkeleton columns={7} rows={5} />;
   }, []);
 
-  // Memoize error UI
   const errorUI = useMemo(() => {
     if (!error) return null;
 
@@ -154,7 +145,6 @@ export function EmployeeTable({ onEdit, onRefreshReady }: EmployeeTableProps) {
     );
   }, [error]);
 
-  // Memoize info text about displayed items
   const itemsInfoText = useMemo(() => {
     if (employees.length > 0 && !loading) {
       return (
@@ -209,7 +199,6 @@ export function EmployeeTable({ onEdit, onRefreshReady }: EmployeeTableProps) {
         )}
       </div>
 
-      {/* Pagination section */}
       <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-2">
         <div className="text-sm text-muted-foreground">{itemsInfoText}</div>
 

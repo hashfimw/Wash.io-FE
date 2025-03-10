@@ -91,16 +91,13 @@ export function SalesReportClient({
           const endDate = new Date().toISOString().split("T")[0];
           const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
 
-          // Update filters and URL
           const newFilters = { ...filters, startDate, endDate };
           setFilters(newFilters);
 
-          // Update URL params
           const params = new URLSearchParams(window.location.search);
           params.set("startDate", startDate);
           params.set("endDate", endDate);
 
-          // For OUTLET_ADMIN, ensure their outlet ID is in the URL
           if (userRole === "OUTLET_ADMIN" && userOutletId) {
             params.set("outletId", userOutletId);
           }
@@ -122,18 +119,15 @@ export function SalesReportClient({
     fetchSalesReport();
   }, [filters]);
 
-  // Handle filter changes
   const handleFilterChange = (newFilters: SalesReportParams) => {
     setFilters((prev) => ({ ...prev, ...newFilters }));
   };
 
-  // Get current outlet name if outletId is set
   const currentOutletName =
     outlets && filters.outletId
       ? outlets.find((o) => o.id === filters.outletId)?.outletName || "All Outlets"
       : "All Outlets";
 
-  // Configure export options
   const exportConfig: ExportConfig = {
     title: "Sales Report",
     period: filters.period,
@@ -147,10 +141,9 @@ export function SalesReportClient({
       key: "Date",
       value: "Sales Amount",
     },
-    currencyColumns: ["value"], // Mark 'value' column to be formatted as IDR
+    currencyColumns: ["value"],
   };
 
-  // Render error state
   if (reportError || outletsError) {
     return (
       <Alert variant="destructive">

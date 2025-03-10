@@ -1,17 +1,9 @@
-// src/components/bypass/BypassRequestsTable.tsx
 import { BypassRequest } from "@/types/bypass";
 import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,17 +22,13 @@ interface BypassRequestsTableProps {
   role: string;
 }
 
-export function BypassRequestsTable({
-  requests,
-  role,
-}: BypassRequestsTableProps) {
+export function BypassRequestsTable({ requests, role }: BypassRequestsTableProps) {
   return (
     <div className="rounded-md border">
       <SwipeIndicator className="md:hidden" />
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>ID</TableHead>
             <TableHead>Order</TableHead>
             <TableHead>Worker</TableHead>
             <TableHead>Station</TableHead>
@@ -53,23 +41,16 @@ export function BypassRequestsTable({
         <TableBody>
           {requests.map((request) => (
             <TableRow key={request.id}>
-              <TableCell className="font-medium">#{request.id}</TableCell>
-              <TableCell>#{request.order.id}</TableCell>
+              <TableCell className="font-medium hidden">#{request.id}</TableCell>
+              <TableCell>#{request.orderId}</TableCell>
               <TableCell>
                 {request.worker ? (
                   <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage
-                        src={request.worker.user.avatar}
-                        alt={request.worker.user.fullName}
-                      />
-                      <AvatarFallback>
-                        {request.worker.user.fullName[0]}
-                      </AvatarFallback>
+                      <AvatarImage src={request.worker.user.avatar} alt={request.worker.user.fullName} />
+                      <AvatarFallback>{request.worker.user.fullName[0]}</AvatarFallback>
                     </Avatar>
-                    <span className="truncate max-w-[120px]">
-                      {request.worker.user.fullName}
-                    </span>
+                    <span className="truncate max-w-[120px]">{request.worker.user.fullName}</span>
                   </div>
                 ) : (
                   <span>-</span>
@@ -90,9 +71,7 @@ export function BypassRequestsTable({
               <TableCell className="text-right">
                 {request.byPassStatus === null ? (
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/dashboard/${role}/bypass/${request.id}`}>
-                      Review
-                    </Link>
+                    <Link href={`/dashboard/${role}/bypass/${request.id}`}>Review</Link>
                   </Button>
                 ) : (
                   <DropdownMenu>
@@ -106,9 +85,7 @@ export function BypassRequestsTable({
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
-                        <Link href={`/dashboard/${role}/bypass/${request.id}`}>
-                          View Details
-                        </Link>
+                        <Link href={`/dashboard/${role}/bypass/${request.id}`}>View Details</Link>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

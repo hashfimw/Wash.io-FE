@@ -1,4 +1,3 @@
-// src/components/outlets/outlet-form/outlet-form.tsx
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,8 +21,6 @@ interface OutletFormProps {
 export function OutletForm({ open, onClose, outlet, onSuccess }: OutletFormProps) {
   const [loading, setLoading] = useState(false);
   const { createOutlet, updateOutlet } = useOutlets();
-
-  // Create form with empty default values first
   const form = useForm<OutletFormValues>({
     resolver: zodResolver(outletFormSchema),
     defaultValues: {
@@ -38,12 +35,10 @@ export function OutletForm({ open, onClose, outlet, onSuccess }: OutletFormProps
     },
   });
 
-  // Set form values when outlet changes or form is opened
   useEffect(() => {
     if (outlet && open) {
       console.log("Setting form values for outlet:", outlet);
 
-      // Use reset instead of defaultValues to update the form when outlet changes
       form.reset({
         outletName: outlet.outletName,
         addressLine: outlet.outletAddress.addressLine,
@@ -55,7 +50,6 @@ export function OutletForm({ open, onClose, outlet, onSuccess }: OutletFormProps
         longitude: outlet.outletAddress.longitude || "",
       });
     } else if (!outlet && open) {
-      // Reset form when creating a new outlet
       form.reset({
         outletName: "",
         addressLine: "",
@@ -72,7 +66,6 @@ export function OutletForm({ open, onClose, outlet, onSuccess }: OutletFormProps
   const onSubmit = async (values: OutletFormValues) => {
     try {
       setLoading(true);
-      // Kirim data sesuai format yang diharapkan API
       if (outlet) {
         await updateOutlet(outlet.id, {
           outletName: values.outletName,

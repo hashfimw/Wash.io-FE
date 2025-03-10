@@ -1,4 +1,3 @@
-// src/components/customers/breadCrumbClient.tsx
 "use client";
 
 import { useEffect, useMemo } from "react";
@@ -11,36 +10,19 @@ interface UserTableWithBreadcrumbProps {
   limit?: number;
 }
 
-export function UserTableWithBreadcrumb({
-  limit = 5,
-}: UserTableWithBreadcrumbProps) {
+export function UserTableWithBreadcrumb({ limit = 5 }: UserTableWithBreadcrumbProps) {
   const { setBreadcrumbItems } = useBreadcrumb();
   const params = useParams();
-  const role = Array.isArray(params.role)
-    ? params.role[0]
-    : params.role || "outlet-admin";
+  const role = Array.isArray(params.role) ? params.role[0] : params.role || "outlet-admin";
 
-  const {
-    users,
-    loading,
-    error,
-    currentPage,
-    totalPages,
-    searchQuery,
-    handleSearch,
-    handlePageChange,
-  } = useUserTable({ limit });
+  const { users, loading, error, currentPage, totalPages, searchQuery, handleSearch, handlePageChange } =
+    useUserTable({ limit });
 
-  // Set breadcrumb using useEffect to only run once
   useEffect(() => {
     const roleName = role === "super-admin" ? "Super Admin" : "Outlet Admin";
-    setBreadcrumbItems([
-      { label: roleName, href: `/dashboard/${role}` },
-      { label: "Laundry Items" },
-    ]);
+    setBreadcrumbItems([{ label: roleName, href: `/dashboard/${role}` }, { label: "Laundry Items" }]);
   }, [role, setBreadcrumbItems]);
 
-  // Memoize the UserTable component
   const userTableComponent = useMemo(
     () => (
       <UserTable
@@ -54,16 +36,7 @@ export function UserTableWithBreadcrumb({
         onPageChange={handlePageChange}
       />
     ),
-    [
-      users,
-      loading,
-      error,
-      searchQuery,
-      handleSearch,
-      currentPage,
-      totalPages,
-      handlePageChange,
-    ]
+    [users, loading, error, searchQuery, handleSearch, currentPage, totalPages, handlePageChange]
   );
 
   return userTableComponent;
