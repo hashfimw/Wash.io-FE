@@ -24,7 +24,7 @@ const CreatePickupOrder = () => {
         });
       }
     };
-    
+
     fetchAddresses();
   }, [getAllAddresses]);
 

@@ -74,10 +74,8 @@ const LoginPage = () => {
       const response = await login(credentials);
 
       if (response?.data?.user) {
-        // Tambahkan token ke cookie untuk server component
         if (response.data.token) {
-          // Gunakan helper function untuk set cookie
-          setCookie("token", response.data.token, 1); // Expired dalam 1 hari
+          setCookie("token", response.data.token, 1);
         }
 
         const { role } = response.data.user;

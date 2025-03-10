@@ -15,11 +15,10 @@ const base_url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 const SignIn = () => {
   const router = useRouter();
   const { login } = useSession();
-  const { toast } = useToast(); // 📌 Gunakan sistem toast baru
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  // 📌 Formik untuk login dengan email dan password
   const formik = useFormik({
     initialValues: { email: "", password: "" },
     validationSchema: Yup.object({
@@ -39,18 +38,57 @@ const SignIn = () => {
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || "Login failed");
 
-        // ✅ Simpan token & data user ke localStorage
-        await login(data.token);
-        localStorage.setItem("user", JSON.stringify(data.data));
+        console.log("Login response:", data);
 
-        toast({ title: "Login Successful", description: "Welcome back! ✅" }); // 📌 Toast sukses
-        router.push("/");
+        // Save token first
+        await login(data.token);
+
+        // Check if data.data exists and has a role property
+        if (data.data) {
+          // Store user data
+          localStorage.setItem("user", JSON.stringify(data.data));
+
+          if (data.data.role === "CUSTOMER") {
+            // Only show success toast for confirmed customers
+            toast({
+              variant: "default",
+              title: "Login Successful",
+              description: "Welcome back! ✅",
+            });
+
+            router.push("/");
+          } else if (data.data.role) {
+            // If role exists but is not CUSTOMER
+            toast({
+              variant: "destructive",
+              title: "Access Denied",
+              description:
+                "This application is only accessible to customers. Your session has been terminated for security reasons.",
+            });
+
+            // Log out non-customers
+            setTimeout(() => {
+              localStorage.removeItem("token");
+              localStorage.removeItem("user");
+              router.push("/login");
+            }, 100);
+          } else {
+            // If role property doesn't exist, just redirect without toast
+            // This allows the HOC to handle authorization
+            router.push("/");
+          }
+        } else {
+          // If user data is missing, just redirect without toast
+          // This allows the HOC to handle authorization
+          router.push("/");
+        }
       } catch (error: any) {
+        console.error("Login error:", error);
         toast({
           title: "Login Failed",
           description: error.message || "Something went wrong.",
           variant: "destructive",
-        }); // 📌 Toast error
+        });
       } finally {
         setLoading(false);
       }
@@ -189,12 +227,7 @@ const SignIn = () => {
             } transition-all`}
             disabled={googleLoading}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 48 48"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48">
               <path
                 fill="#4285F4"
                 d="M24 9.5c3.52 0 6.59 1.28 9.02 3.39l6.69-6.69C34.85 2.27 29.71 0 24 0 14.78 0 6.84 5.38 2.84 13.26l7.89 6.1C13.15 13.02 18.2 9.5 24 9.5z"
@@ -212,9 +245,7 @@ const SignIn = () => {
                 d="M24 48c6.48 0 11.91-2.15 15.88-5.84l-7.88-6.1c-2.22 1.49-5.02 2.37-8 2.37-5.8 0-10.85-3.52-13.27-8.61l-7.89 6.1C6.84 42.62 14.78 48 24 48z"
               />
             </svg>
-            {googleLoading
-              ? "Signing In with Google..."
-              : "Sign In with Google"}
+            {googleLoading ? "Signing In with Google..." : "Sign In with Google"}
           </Button>
 
           <div className="mt-4 text-center">
