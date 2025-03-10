@@ -1,4 +1,3 @@
-// src/components/orders/ProcessOrderForm.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -6,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Plus, Loader2 } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -18,7 +16,6 @@ import { useOrderItems } from "@/hooks/api/orders/useOrderItems";
 import { calculateLaundryPrice, formatCurrency } from "@/utils/price";
 import { OrderItemRow } from "./OrderItemRow";
 
-// Form schema validation
 const formSchema = z.object({
   orderId: z.number().positive(),
   laundryWeight: z.number().min(0.1, "Weight must be greater than 0"),
@@ -48,7 +45,6 @@ export function ProcessOrderForm({ orderId, onSuccess }: ProcessOrderFormProps) 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [templates, setTemplates] = useState<OrderItem[]>([]);
 
-  // Initialize form
   const form = useForm<ProcessOrderFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -58,7 +54,6 @@ export function ProcessOrderForm({ orderId, onSuccess }: ProcessOrderFormProps) 
     },
   });
 
-  // Use custom hook for item management
   const { fields, addItem, removeItem, handleItemChange, handleInputChange } = useOrderItems(form);
 
   useEffect(() => {
@@ -68,9 +63,7 @@ export function ProcessOrderForm({ orderId, onSuccess }: ProcessOrderFormProps) 
         console.log("Raw template response:", response);
 
         if (response && response.data) {
-          // Handle berbagai kemungkinan struktur response
           const templateData = Array.isArray(response.data) ? response.data : [];
-
           console.log("Processed templates:", templateData);
           setTemplates(templateData);
         } else {
@@ -90,9 +83,7 @@ export function ProcessOrderForm({ orderId, onSuccess }: ProcessOrderFormProps) 
     fetchTemplates();
   }, []);
 
-  // Handle form submission
   const onSubmit = async (data: ProcessOrderFormValues) => {
-    // Check for duplicate items
     const itemNames = new Set<string>();
     for (const item of data.orderItems) {
       const lowerCaseName = item.orderItemName.toLowerCase();
@@ -165,7 +156,7 @@ export function ProcessOrderForm({ orderId, onSuccess }: ProcessOrderFormProps) 
 
               {fields.map((field, index) => (
                 <OrderItemRow
-                  key={field.id} // Use field.id as key for proper reconciliation
+                  key={field.id}
                   index={index}
                   control={form.control}
                   templates={templates}

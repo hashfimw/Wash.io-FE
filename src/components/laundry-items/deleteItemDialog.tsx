@@ -1,4 +1,3 @@
-// src/components/laundry-item/DeleteItemDialog.tsx
 import { useState } from "react";
 import {
   AlertDialog,

@@ -1,4 +1,3 @@
-// src/app/login-admin/page.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -14,7 +13,6 @@ import VerificationModal from "@/components/admin/verficationModal";
 import CSSWave from "@/components/animations/Waves";
 import BackgroundIcons from "@/components/admin/backgroundLoginAdmin";
 
-// Helper function untuk set cookie tanpa library
 function setCookie(name: string, value: string, days: number) {
   let expires = "";
   if (days) {
@@ -23,7 +21,6 @@ function setCookie(name: string, value: string, days: number) {
     expires = "; expires=" + date.toUTCString();
   }
 
-  // Tambahkan secure flag jika di produksi
   const secure = process.env.NODE_ENV === "production" ? "; secure" : "";
 
   document.cookie = name + "=" + (value || "") + expires + "; path=/" + secure + "; samesite=strict";

@@ -35,21 +35,14 @@ export default function OrdersPage() {
 
   useEffect(() => {
     if (orders.length > 0) {
-      // Filter orders based on search query
       const filtered = orders.filter((order) => {
         const searchLower = searchQuery.toLowerCase();
         return (
           order.id.toString().includes(searchLower) ||
-          (order.outlet?.outletName || "")
-            .toLowerCase()
-            .includes(searchLower) ||
+          (order.outlet?.outletName || "").toLowerCase().includes(searchLower) ||
           order.orderStatus.toLowerCase().includes(searchLower) ||
-          (order.customerAddress?.addressLine || "")
-            .toLowerCase()
-            .includes(searchLower) ||
-          order.OrderItem?.some((item) =>
-            item.orderItemName.toLowerCase().includes(searchLower)
-          )
+          (order.customerAddress?.addressLine || "").toLowerCase().includes(searchLower) ||
+          order.OrderItem?.some((item) => item.orderItemName.toLowerCase().includes(searchLower))
         );
       });
       setFilteredOrders(filtered);
@@ -58,15 +51,13 @@ export default function OrdersPage() {
 
   const handleOrderComplete = (updatedOrder: Order) => {
     // Update both the main orders list and the filtered orders list
-    const updatedOrders = orders.map((order) => 
-      order.id === updatedOrder.id ? {...order, orderStatus: "COMPLETED"} : order
+    const updatedOrders = orders.map((order) =>
+      order.id === updatedOrder.id ? { ...order, orderStatus: "COMPLETED" } : order
     );
-    
+
     // Update the filtered orders list
     setFilteredOrders((prev) =>
-      prev.map((order) => 
-        order.id === updatedOrder.id ? {...order, orderStatus: "COMPLETED"} : order
-      )
+      prev.map((order) => (order.id === updatedOrder.id ? { ...order, orderStatus: "COMPLETED" } : order))
     );
   };
 
@@ -93,7 +84,6 @@ export default function OrdersPage() {
     }
   };
 
-  // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredOrders.slice(indexOfFirstItem, indexOfLastItem);
@@ -110,11 +100,7 @@ export default function OrdersPage() {
     return (
       <div className="bg-red-50 text-red-500 p-4 rounded-lg text-center mx-auto max-w-4xl">
         <p>Error loading orders: {error}</p>
-        <Button
-          variant="outline"
-          className="mt-2 text-sm"
-          onClick={() => getAllOrders()}
-        >
+        <Button variant="outline" className="mt-2 text-sm" onClick={() => getAllOrders()}>
           Try again
         </Button>
       </div>
@@ -156,13 +142,9 @@ export default function OrdersPage() {
           <Card>
             <CardContent className="p-6 text-center">
               <Box className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <h3 className="text-lg font-semibold text-gray-700">
-                No Orders Found
-              </h3>
+              <h3 className="text-lg font-semibold text-gray-700">No Orders Found</h3>
               <p className="text-gray-500 mt-1">
-                {searchQuery
-                  ? "No orders match your search criteria."
-                  : "You haven't placed any orders yet."}
+                {searchQuery ? "No orders match your search criteria." : "You haven't placed any orders yet."}
               </p>
               <Button className="mt-4 bg-orange-500 hover:bg-orange-600">
                 <Link href="/new-order">Create New Order</Link>
@@ -180,13 +162,9 @@ export default function OrdersPage() {
                   {/* Header with Order # and Status */}
                   <div className="flex justify-between items-center">
                     <div className="flex items-center">
-                      <span className="font-bold text-base sm:text-lg">
-                        WASH-{order.id}
-                      </span>
+                      <span className="font-bold text-base sm:text-lg">WASH-{order.id}</span>
                       <span
-                        className={`ml-3 px-2 py-1 rounded-full text-xs ${getStatusStyle(
-                          order.orderStatus
-                        )}`}
+                        className={`ml-3 px-2 py-1 rounded-full text-xs ${getStatusStyle(order.orderStatus)}`}
                       >
                         {order.orderStatus.replace(/_/g, " ")}
                       </span>
@@ -204,9 +182,7 @@ export default function OrdersPage() {
                       <div className="flex items-start">
                         <MapPinned className="w-4 h-4 mr-2 text-orange-500 mt-0.5" />
                         <div className="space-y-2">
-                          <p className="text-sm font-medium">
-                            {order.outlet?.outletName || "N/A"}
-                          </p>
+                          <p className="text-sm font-medium">{order.outlet?.outletName || "N/A"}</p>
                         </div>
                       </div>
 
@@ -238,16 +214,9 @@ export default function OrdersPage() {
                           </div>
                           <ul className="pl-6 text-sm space-y-1">
                             {order.OrderItem.slice(0, 3).map((item) => (
-                              <li
-                                key={item.id}
-                                className="flex justify-between"
-                              >
+                              <li key={item.id} className="flex justify-between">
                                 <span>{item.orderItemName}</span>
-                                {item.qty && (
-                                  <span className="text-gray-500">
-                                    x{item.qty}
-                                  </span>
-                                )}
+                                {item.qty && <span className="text-gray-500">x{item.qty}</span>}
                               </li>
                             ))}
                             {order.OrderItem.length > 3 && (
@@ -258,18 +227,14 @@ export default function OrdersPage() {
                           </ul>
                         </div>
                       ) : (
-                        <p className="text-sm text-gray-500">
-                          No items in this order
-                        </p>
+                        <p className="text-sm text-gray-500">No items in this order</p>
                       )}
 
                       {order.laundryWeight && (
                         <div className="mt-2">
                           <div className="flex items-center">
                             <Box className="w-4 h-4 mr-2 text-orange-500" />
-                            <span className="text-sm">
-                              Weight: {order.laundryWeight} kg
-                            </span>
+                            <span className="text-sm">Weight: {order.laundryWeight} kg</span>
                           </div>
                         </div>
                       )}
@@ -286,32 +251,29 @@ export default function OrdersPage() {
                           onComplete={handleOrderComplete}
                           className="text-sm bg-green-500 hover:bg-green-600 flex items-center"
                         />
-                      ) : order.orderStatus.toLowerCase() === "completed" && (
-                        <Button 
-                          className="text-sm bg-green-100 text-green-800 hover:bg-green-100 flex items-center"
-                          disabled
-                        >
-                          <CheckCircle className="mr-2 h-4 w-4" />
-                          Completed
-                        </Button>
+                      ) : (
+                        order.orderStatus.toLowerCase() === "completed" && (
+                          <Button
+                            className="text-sm bg-green-100 text-green-800 hover:bg-green-100 flex items-center"
+                            disabled
+                          >
+                            <CheckCircle className="mr-2 h-4 w-4" />
+                            Completed
+                          </Button>
+                        )
                       )}
                     </div>
 
                     <div className="flex justify-end space-x-2 sm:space-x-3">
                       <Link href={`/orders/${order.id}`}>
-                        <Button
-                          variant="outline"
-                          className="text-sm flex items-center"
-                        >
+                        <Button variant="outline" className="text-sm flex items-center">
                           View Details
                           <ExternalLink className="w-3 h-3 ml-1.5" />
                         </Button>
                       </Link>
                       {!order.isPaid && (
                         <Link href={`/orders/${order.id}/payment`}>
-                          <Button className="text-sm bg-orange-500 hover:bg-orange-600">
-                            Pay Now
-                          </Button>
+                          <Button className="text-sm bg-orange-500 hover:bg-orange-600">Pay Now</Button>
                         </Link>
                       )}
                     </div>
@@ -325,16 +287,13 @@ export default function OrdersPage() {
               <div className="flex justify-center items-center space-x-2 mt-6">
                 <Button
                   variant="secondary"
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(prev - 1, 1))
-                  }
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
                 >
                   Previous
                 </Button>
                 <div className="text-sm sm:text-base px-2">
-                  Page {currentPage} of{" "}
-                  {Math.ceil(filteredOrders.length / itemsPerPage)}
+                  Page {currentPage} of {Math.ceil(filteredOrders.length / itemsPerPage)}
                 </div>
                 <Button
                   className="bg-orange-500 hover:bg-orange-600"

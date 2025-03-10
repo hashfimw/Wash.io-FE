@@ -1,4 +1,3 @@
-// src/components/reports/SalesReportKPICards.tsx
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";

@@ -1,4 +1,3 @@
-// src/components/orders/OrderTable.tsx
 import { useCallback } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,6 @@ import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import SwipeIndicator from "../swipeIndicator";
 
-// Update OrderTable props
 interface OrderTableProps {
   orders: Order[];
   loading: boolean;
@@ -32,7 +30,6 @@ export function OrderTable({
   totalPages,
   onPageChange,
 }: OrderTableProps) {
-  // Optimasi dengan useCallback
   const handleTrack = useCallback(
     (orderId: number) => {
       onTrackOrder(orderId);
@@ -40,15 +37,12 @@ export function OrderTable({
     [onTrackOrder]
   );
 
-  // Tampilkan skeleton saat loading
   if (loading) return <TableSkeleton columns={7} rows={5} />;
 
-  // Tampilkan error jika ada
   if (error) return <div className="text-red-500 p-4">{error}</div>;
 
   return (
     <div className="space-y-4">
-      {/* Table container with horizontal scroll on mobile */}
       <div className="rounded-md border overflow-x-auto">
         <SwipeIndicator className="md:hidden" />
         <Table>

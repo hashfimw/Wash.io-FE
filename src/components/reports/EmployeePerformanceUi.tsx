@@ -1,4 +1,3 @@
-// src/components/reports/EmployeePerformancePart2.tsx
 "use client";
 
 import React, { RefObject } from "react";
@@ -54,7 +53,6 @@ export function EmployeePerformancePart2({
   handleWorkerPageChange,
   handleDriverPageChange,
 }: EmployeePerformancePart2Props) {
-  // Helper function to truncate text
   const truncateText = (text: string, maxLength: number): string => {
     if (!text) return "";
 
@@ -63,7 +61,6 @@ export function EmployeePerformancePart2({
     return text.substring(0, maxLength - 3) + "...";
   };
 
-  // Get current outlet name
   const currentOutletName =
     outlets && filters.outletId
       ? outlets.find((o) => o.id === filters.outletId)?.outletName || "All Outlets"
@@ -124,21 +121,20 @@ export function EmployeePerformancePart2({
             outlet: "Outlet",
             totalJobs: "Total Jobs",
           },
-    // Define custom column widths for better PDF rendering
     columnWidths:
       activeTab === "workers"
         ? {
-            id: 1, // ID lebih sempit
-            name: 3, // Nama diberi ruang lebih banyak
-            outlet: 2.5, // Outlet diberi ruang cukup
-            station: 2, // Station sedang
-            totalJobs: 1.5, // Total Jobs cukup sempit
+            id: 1,
+            name: 3,
+            outlet: 2.5,
+            station: 2,
+            totalJobs: 1.5,
           }
         : {
-            id: 1, // ID lebih sempit
-            name: 3.5, // Nama diberi ruang lebih banyak
-            outlet: 3, // Outlet diberi ruang lebih banyak
-            totalJobs: 2.5, // Total Jobs cukup lebar
+            id: 1,
+            name: 3.5,
+            outlet: 3,
+            totalJobs: 2.5,
           },
   };
 

@@ -20,7 +20,7 @@ export interface EmployeePerformanceParams {
 }
 
 export interface SalesReportData {
-  [key: string]: number; // date/month/year -> total amount
+  [key: string]: number;
 }
 
 export interface WorkerPerformance {

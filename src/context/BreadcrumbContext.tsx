@@ -1,4 +1,3 @@
-// src/contexts/BreadcrumbContext.tsx
 "use client";
 import { createContext, useContext, useState, ReactNode } from "react";
 
@@ -12,9 +11,7 @@ type BreadcrumbContextType = {
   setBreadcrumbItems: (items: BreadcrumbItem[]) => void;
 };
 
-const BreadcrumbContext = createContext<BreadcrumbContextType | undefined>(
-  undefined
-);
+const BreadcrumbContext = createContext<BreadcrumbContextType | undefined>(undefined);
 
 export function BreadcrumbProvider({ children }: { children: ReactNode }) {
   const [breadcrumbItems, setBreadcrumbItems] = useState<BreadcrumbItem[]>([]);

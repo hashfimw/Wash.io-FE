@@ -1,4 +1,3 @@
-// src/components/employees/employee-form/employee-form-fields.tsx
 import { UseFormReturn } from "react-hook-form";
 import {
   FormField,
@@ -9,19 +8,8 @@ import {
   FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Role,
-  EmployeeWorkShift,
-  WorkerStation,
-  Employee,
-} from "@/types/employee";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Role, EmployeeWorkShift, WorkerStation, Employee } from "@/types/employee";
 import { useOutlets } from "@/hooks/api/outlets/useOutlets";
 import { useEffect, useState } from "react";
 import { Outlet } from "@/types/outlet";
@@ -33,11 +21,7 @@ interface EmployeeFormFieldsProps {
   employee?: Employee;
 }
 
-export function EmployeeFormFields({
-  form,
-  isEditing = false,
-  employee,
-}: EmployeeFormFieldsProps) {
+export function EmployeeFormFields({ form, isEditing = false, employee }: EmployeeFormFieldsProps) {
   const [outlets, setOutlets] = useState<Outlet[]>([]);
   const { getOutlets } = useOutlets();
 
@@ -95,11 +79,7 @@ export function EmployeeFormFields({
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  type="password"
-                  placeholder="Enter password"
-                />
+                <Input {...field} type="password" placeholder="Enter password" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -144,9 +124,7 @@ export function EmployeeFormFields({
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value={EmployeeWorkShift.MORNING}>
-                    Morning
-                  </SelectItem>
+                  <SelectItem value={EmployeeWorkShift.MORNING}>Morning</SelectItem>
                   <SelectItem value={EmployeeWorkShift.NOON}>Noon</SelectItem>
                   <SelectItem value={EmployeeWorkShift.NIGHT}>Night</SelectItem>
                 </SelectContent>
@@ -194,11 +172,7 @@ export function EmployeeFormFields({
             >
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue
-                    placeholder={
-                      isEditing ? "Select outlet to assign" : "Select outlet"
-                    }
-                  />
+                  <SelectValue placeholder={isEditing ? "Select outlet to assign" : "Select outlet"} />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
@@ -210,9 +184,7 @@ export function EmployeeFormFields({
                   >
                     <span>{outlet.outletName}</span>
                     {isEditing && field.value === outlet.id && (
-                      <span className="text-xs text-muted-foreground">
-                        (Current)
-                      </span>
+                      <span className="text-xs text-muted-foreground">(Current)</span>
                     )}
                   </SelectItem>
                 ))}
@@ -220,9 +192,7 @@ export function EmployeeFormFields({
             </Select>
             {isEditing ? (
               <FormDescription>
-                Select which outlet this{" "}
-                {employee?.role?.toLowerCase() || "employee"} will be assigned
-                to
+                Select which outlet this {employee?.role?.toLowerCase() || "employee"} will be assigned to
               </FormDescription>
             ) : (
               <FormDescription>Select outlet for this employee</FormDescription>

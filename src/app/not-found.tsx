@@ -13,23 +13,18 @@ export default function NotFound() {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    // Check if we're on mobile
     const checkIfMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
 
-    // Initial check
     checkIfMobile();
 
-    // Add event listener for window resize
     window.addEventListener("resize", checkIfMobile);
 
-    // Animation timer
     const timer = setTimeout(() => {
       setShowSearchAnimation(true);
     }, 1500);
 
-    // Cleanup
     return () => {
       window.removeEventListener("resize", checkIfMobile);
       clearTimeout(timer);
@@ -66,19 +61,15 @@ export default function NotFound() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-putbir to-birmud overflow-hidden relative">
-      {/* Background layer */}
       <div className="absolute inset-0 bg-putbir opacity-40" style={{ zIndex: 0 }} />
 
-      {/* Reusable Animation Components */}
       <Bubbles isMobile={isMobile} />
       <LightBeam />
       <WavesAnimation />
 
       <div className="relative z-10 max-w-full md:max-w-2xl mx-auto px-4 text-center">
         <div className="relative mb-8 pt-16 md:pt-0">
-          {/* Main Content */}
           <div className="relative">
-            {/* Washing Machine Animation */}
             <motion.div
               initial={{ scale: 0, x: 100 }}
               animate={{ scale: 1, x: 0 }}
@@ -157,7 +148,6 @@ export default function NotFound() {
               )}
             </AnimatePresence>
 
-            {/* Lost Items */}
             <motion.div
               initial={{ opacity: 0, x: -120, y: 50, rotate: -20 }}
               animate={{
@@ -172,7 +162,6 @@ export default function NotFound() {
               <Shirt size={isMobile ? 40 : 54} className="text-oren" strokeWidth={1.5} />
             </motion.div>
 
-            {/* Water Droplets */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1, y: [0, -10, 0] }}
@@ -187,7 +176,6 @@ export default function NotFound() {
               <Droplets size={isMobile ? 30 : 40} className="text-birmud" strokeWidth={1.5} />
             </motion.div>
 
-            {/* 404 Text Animation with enhanced styling */}
             <motion.div
               variants={containerVariants}
               initial="hidden"
@@ -206,7 +194,7 @@ export default function NotFound() {
                   >
                     {letter}
                   </span>
-                  {/* Reflection effect */}
+
                   <span
                     className="absolute top-full left-0 text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold text-oren opacity-20"
                     style={{
@@ -221,7 +209,6 @@ export default function NotFound() {
               ))}
             </motion.div>
 
-            {/* wash.io Text with enhanced styling */}
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -249,7 +236,7 @@ export default function NotFound() {
               ))}
             </motion.div>
           </div>
-          {/* Alert Message */}
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

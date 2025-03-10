@@ -1,4 +1,3 @@
-// src/components/shared/Breadcrumb.tsx
 import { ChevronRight, Home } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -15,12 +14,10 @@ export const Breadcrumb = ({ items }: BreadcrumbProps) => {
   const [isMobile, setIsMobile] = useState(false);
   const params = useParams();
   const role = params.role as string;
-  const admin = !!(role === "superadmin" || role === "outlet-admin");
+  const admin = !!(role === "super-admin" || role === "outlet-admin");
 
-  // Determine home link based on role
   const homeLink = admin ? `/dashboard/${role}` : `/employee-dashboard/${role}`;
 
-  // Detect mobile viewport
   useEffect(() => {
     const checkIfMobile = () => {
       setIsMobile(window.innerWidth < 640);
@@ -34,12 +31,10 @@ export const Breadcrumb = ({ items }: BreadcrumbProps) => {
     };
   }, []);
 
-  // Get the last item for mobile view
   const lastItem = items.length > 0 ? items[items.length - 1] : null;
 
   return (
     <nav className="flex items-center text-sm overflow-hidden max-w-full">
-      {/* Always show home icon on both mobile and desktop */}
       <Link
         href={homeLink}
         className="flex-shrink-0 flex items-center text-slate-800 hover:text-putih transition-colors"
@@ -47,7 +42,6 @@ export const Breadcrumb = ({ items }: BreadcrumbProps) => {
         <Home className="h-4 w-4" />
       </Link>
 
-      {/* Desktop view - show all items */}
       {!isMobile &&
         items.map((item) => (
           <div key={item.label} className="flex items-center min-w-0">
@@ -66,7 +60,6 @@ export const Breadcrumb = ({ items }: BreadcrumbProps) => {
           </div>
         ))}
 
-      {/* Mobile view - show only last item (but keep the chevron) */}
       {isMobile && lastItem && (
         <div className="flex items-center min-w-0">
           <ChevronRight className="h-4 w-4 text-slate-800 flex-shrink-0 mx-1" />

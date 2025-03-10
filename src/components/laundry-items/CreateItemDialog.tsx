@@ -1,4 +1,3 @@
-// src/components/laundry-item/CreateItemDialog.tsx
 import { useState } from "react";
 import {
   Dialog,
@@ -18,7 +17,7 @@ interface CreateItemDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (itemName: string) => Promise<void>;
-  items: OrderItem[]; // Add items prop for validation
+  items: OrderItem[];
 }
 
 export function CreateItemDialog({ open, onOpenChange, onSubmit, items }: CreateItemDialogProps) {
@@ -35,7 +34,6 @@ export function CreateItemDialog({ open, onOpenChange, onSubmit, items }: Create
       return;
     }
 
-    // Check if an item with this name already exists
     const existingItem = items.find((item) => item.orderItemName.toLowerCase() === itemName.toLowerCase());
 
     if (existingItem) {
@@ -58,7 +56,6 @@ export function CreateItemDialog({ open, onOpenChange, onSubmit, items }: Create
         description: "Laundry item created successfully.",
       });
     } catch (err: string | unknown) {
-      // Check if error is due to duplicate item
       if (
         err instanceof Error &&
         (err as Error & { response?: { data?: { message?: string } } }).response?.data?.message?.includes(

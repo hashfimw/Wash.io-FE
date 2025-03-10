@@ -1,6 +1,4 @@
-// src/components/orders/order-tracking/OrderTrackingDialog.tsx
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-
 import { OrderTrackingResponse } from "@/types/order";
 import { Timeline } from "./Timeline";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +13,8 @@ interface OrderTrackingDialogProps {
 export function OrderTrackingDialog({ open, onClose, tracking, loading }: OrderTrackingDialogProps) {
   if (!tracking && !loading) return null;
 
+  const customerName = tracking?.order?.customerAddress.customer.fullName ?? undefined;
+  const customerAddress = tracking?.order?.customerAddress.addressLine;
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
@@ -26,7 +26,14 @@ export function OrderTrackingDialog({ open, onClose, tracking, loading }: OrderT
           <div>Loading tracking data...</div>
         ) : (
           <div className="space-y-6">
-            {/* Payment Information */}
+            <div className="bg-gray-50 p-4 rounded-md">
+              <h3 className="font-medium text-gray-800 mb-2">Customer Information</h3>
+              <div className="text-sm">
+                <p>Name: {customerName || "-"}</p>
+                {customerAddress && <p>Address: {customerAddress}</p>}
+              </div>
+            </div>
+
             {tracking?.payment && (
               <div className="bg-gray-50 p-4 rounded-md">
                 <h3 className="font-medium text-gray-800 mb-2">Payment Information</h3>
@@ -78,9 +85,12 @@ export function OrderTrackingDialog({ open, onClose, tracking, loading }: OrderT
               </div>
             )}
 
-            {/* Timeline */}
             <div className="grid gap-4">
-              <Timeline timeline={tracking?.timeline || []} orderId={tracking?.order.id} />
+              <Timeline
+                timeline={tracking?.timeline || []}
+                orderId={tracking?.order.id}
+                customerName={customerName}
+              />
             </div>
           </div>
         )}

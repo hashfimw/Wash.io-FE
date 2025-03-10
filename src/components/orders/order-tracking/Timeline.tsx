@@ -1,4 +1,3 @@
-// src/components/orders/order-tracking/Timeline.tsx
 import { Timeline as TimelineType, OrderStage } from "@/types/order";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -6,9 +5,9 @@ import { Badge } from "@/components/ui/badge";
 interface TimelineProps {
   timeline: TimelineType[];
   orderId?: number;
+  customerName?: string;
 }
 
-// Define all possible stages in order using the OrderStage enum
 const ALL_STAGES = [
   OrderStage.PICKUP,
   OrderStage.WASHING,
@@ -19,20 +18,17 @@ const ALL_STAGES = [
   OrderStage.COMPLETED,
 ];
 
-export function Timeline({ timeline }: TimelineProps) {
-  // Create a map of existing stages from the timeline
+export function Timeline({ timeline, customerName }: TimelineProps) {
   const existingStages = new Map<string, TimelineType>();
 
   timeline.forEach((item) => {
     existingStages.set(item.stage.toString(), item);
   });
 
-  // Create the complete timeline with all stages
   const completeTimeline = ALL_STAGES.map((stage) => {
     if (existingStages.has(stage)) {
       return existingStages.get(stage);
     } else {
-      // Return a placeholder for stages not yet reached
       return {
         stage,
         status: "Pending",
@@ -43,6 +39,12 @@ export function Timeline({ timeline }: TimelineProps) {
 
   return (
     <div className="space-y-4">
+      {customerName && (
+        <div className="mb-4 p-3 bg-birtu rounded-lg w-50">
+          <p className="font-medium text-white text-center">Order for : {customerName}</p>
+        </div>
+      )}
+
       {completeTimeline.map((item, index) => (
         <div key={index} className="flex gap-4">
           <div className="flex flex-col items-center">
@@ -62,6 +64,11 @@ export function Timeline({ timeline }: TimelineProps) {
             <p className="font-medium">{item?.stage.toString().replace(/_/g, " ")}</p>
             {item?.worker && <p className="text-sm text-gray-500">Worker: {item?.worker}</p>}
             {item?.driver && <p className="text-sm text-gray-500">Driver: {item?.driver}</p>}
+
+            {item?.stage === OrderStage.RECEIVED_BY_CUSTOMER && customerName && (
+              <p className="text-sm text-gray-500">Customer: {customerName}</p>
+            )}
+
             {item?.status !== "Pending" && (
               <p className="text-sm text-gray-500">
                 {item?.timestamp && new Date(item.timestamp).toLocaleString()}

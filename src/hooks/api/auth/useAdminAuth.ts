@@ -24,14 +24,12 @@ interface LoginResponse {
   token: string;
 }
 
-// Define a type for decoded token
 interface DecodedToken {
   id: string;
   role: string;
   exp: number;
 }
 
-// Helper function untuk menghapus cookie
 function deleteCookie(name: string) {
   document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; samesite=strict";
 }
@@ -57,21 +55,18 @@ export const useAdminAuth = () => {
       setLoading(true);
       setError(null);
 
-      // Login request
       const response = await api.post<LoginResponse>("/auth/login", credentials);
       const { token } = response.data;
 
       if (token) {
         localStorage.setItem("token", token);
 
-        // Decode token untuk mendapatkan user ID
         const decoded = decodeToken(token);
 
         if (!decoded) {
           throw new Error("Invalid token");
         }
 
-        // Get user details using ID
         const userResponse = await api.get(`/users/${decoded.id}`);
         const userData = userResponse.data.user;
         setUser(userData);
@@ -114,14 +109,12 @@ export const useAdminAuth = () => {
         return null;
       }
 
-      // Decode token untuk mendapatkan user ID
       const decoded = decodeToken(token);
 
       if (!decoded) {
         throw new Error("Invalid token");
       }
 
-      // Get user details using ID
       const response = await api.get(`/users/${decoded.id}`);
       const userData = response.data.user;
       setUser(userData);
@@ -139,19 +132,13 @@ export const useAdminAuth = () => {
   };
 
   const logout = (): void => {
-    // Hapus token dari localStorage
     localStorage.removeItem("token");
-
-    // Hapus token dari cookies
     deleteCookie("token");
 
-    // Simpan role sebelum reset user
     const userRole = user?.role;
 
-    // Reset user state
     setUser(null);
 
-    // Redirect sesuai dengan role user
     if (userRole === "SUPER_ADMIN" || userRole === "OUTLET_ADMIN") {
       window.location.href = "/login-admin";
     } else if (userRole === "DRIVER" || userRole === "WORKER") {
@@ -166,7 +153,6 @@ export const useAdminAuth = () => {
     return !!token;
   };
 
-  // Auto fetch user on mount
   useEffect(() => {
     getCurrentUser();
   }, []);

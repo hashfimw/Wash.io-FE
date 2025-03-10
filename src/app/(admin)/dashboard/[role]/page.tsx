@@ -1,6 +1,5 @@
 "use client";
 
-// File: app/dashboard/[role]/page.tsx
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { RefreshCw, Waves } from "lucide-react";
@@ -17,22 +16,15 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const { setBreadcrumbItems } = useBreadcrumb();
-  // Get role from URL parameter
-
   const roleFromUrl = params?.role as string;
 
-  // Debug info on component mount
   useEffect(() => {}, [roleFromUrl]);
 
-  // Function to fetch dashboard data
   const fetchDashboardData = async () => {
     setIsLoading(true);
     setError(null);
 
     try {
-      // Use the role from URL directly
-
-      // Get dashboard data - always fetches fresh data
       const data = await getDashboardData(roleFromUrl);
       setDashboardData(data);
     } catch (error) {
@@ -43,7 +35,6 @@ export default function DashboardPage() {
     }
   };
 
-  // Initialize dashboard on mount
   useEffect(() => {
     fetchDashboardData();
   }, [roleFromUrl]);
@@ -51,7 +42,6 @@ export default function DashboardPage() {
     const roleName = roleFromUrl === "super-admin" ? "Super Admin" : "Outlet Admin";
     setBreadcrumbItems([{ label: roleName, href: `/dashboard/${roleFromUrl}` }, { label: "Overview" }]);
   }, [setBreadcrumbItems, roleFromUrl]);
-  // Common header component for all states
   const DashboardHeader = () => (
     <div className="bg-gradient-to-r from-birtu to-birmud rounded-lg p-4 sm:p-6 text-oren shadow-lg overflow-hidden">
       <div className="flex flex-row items-center justify-between">
@@ -79,7 +69,6 @@ export default function DashboardPage() {
     </div>
   );
 
-  // If loading, show loading state
   if (isLoading) {
     return (
       <div className="space-y-4 sm:space-y-6 p-3 sm:p-6 max-w-full">
@@ -95,7 +84,6 @@ export default function DashboardPage() {
     );
   }
 
-  // If error, show error state
   if (error) {
     return (
       <div className="space-y-4 sm:space-y-6 p-3 sm:p-6 max-w-full">
@@ -115,7 +103,6 @@ export default function DashboardPage() {
     );
   }
 
-  // Render dashboard content if data is available
   return dashboardData ? (
     <DashboardContent
       dashboardData={dashboardData}

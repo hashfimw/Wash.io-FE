@@ -1,4 +1,3 @@
-// src/components/employees/employee-form/EmployeeForm.tsx
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -35,7 +34,7 @@ export function EmployeeForm({ open, onClose, employee, onSuccess }: EmployeeFor
     ? {
         fullName: employee.fullName || "",
         email: employee.email || "",
-        role: employee.role as Role, // Cast ke Role enum
+        role: employee.role as Role,
         workShift: (employee.Employee?.workShift as EmployeeWorkShift) || undefined,
         station: (employee.Employee?.station as WorkerStation) || undefined,
         outletId: employee.Employee?.outlet?.id || 0,
@@ -44,7 +43,7 @@ export function EmployeeForm({ open, onClose, employee, onSuccess }: EmployeeFor
         fullName: "",
         email: "",
         password: "", // Password hanya untuk create
-        role: Role.WORKER, // Default role
+        role: Role.WORKER,
         workShift: undefined,
         station: undefined,
         outletId: 0,
@@ -55,7 +54,6 @@ export function EmployeeForm({ open, onClose, employee, onSuccess }: EmployeeFor
     defaultValues,
   });
 
-  // Reset form ketika employee berubah
   useEffect(() => {
     if (employee) {
       form.reset({
@@ -79,12 +77,10 @@ export function EmployeeForm({ open, onClose, employee, onSuccess }: EmployeeFor
     }
   }, [employee, form]);
 
-  // src/components/employees/employee-form/EmployeeForm.tsx
   const onSubmit = async (values: EmployeeFormValues) => {
     try {
       setLoading(true);
       if (employee) {
-        // Untuk update, kita hanya kirim field yang ada
         const updateData: UpdateEmployeeInput = {
           fullName: values.fullName,
           email: values.email,
@@ -98,7 +94,6 @@ export function EmployeeForm({ open, onClose, employee, onSuccess }: EmployeeFor
           description: "Employee updated successfully",
         });
       } else {
-        // Untuk create, pastikan password ada
         if (!values.password) {
           toast({
             title: "Error",

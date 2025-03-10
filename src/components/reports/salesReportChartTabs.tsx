@@ -1,4 +1,3 @@
-// src/components/reports/SalesReportChartTabs.tsx
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -42,13 +41,10 @@ export function SalesReportChartTabs({
   activeChart,
   setActiveChart,
 }: SalesReportChartTabsProps) {
-  // Colors for charts
   const COLORS = ["#73A5A8", "#E5843F", "#97cfcf", "#F6BD60", "#84A59D"];
 
-  // Detect if mobile view - will be used for responsive adjustments
   const [isMobile, setIsMobile] = useState(typeof window !== "undefined" && window.innerWidth < 768);
 
-  // Add window resize listener to update isMobile state
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -68,7 +64,6 @@ export function SalesReportChartTabs({
         <TabsTrigger value="pie">Distribution</TabsTrigger>
       </TabsList>
 
-      {/* Bar Chart */}
       <TabsContent value="bar">
         <Card>
           <CardHeader>
@@ -134,7 +129,6 @@ export function SalesReportChartTabs({
         </Card>
       </TabsContent>
 
-      {/* Area Chart */}
       <TabsContent value="area">
         <Card>
           <CardHeader>
@@ -195,7 +189,6 @@ export function SalesReportChartTabs({
         </Card>
       </TabsContent>
 
-      {/* Pie Chart */}
       <TabsContent value="pie">
         <Card>
           <CardHeader>
@@ -215,7 +208,6 @@ export function SalesReportChartTabs({
                     innerRadius="0%"
                     fill="#8884d8"
                     label={({ name, sales, percent }) => {
-                      // Responsif label yang menyesuaikan ukuran layar
                       return isMobile ? `${percent.toFixed(0)}%` : `${name}: ${formatCurrency(sales)}`;
                     }}
                     labelLine={!isMobile}

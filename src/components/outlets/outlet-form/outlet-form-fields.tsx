@@ -1,13 +1,6 @@
-// src/components/outlets/outlet-form/outlet-form-fields.tsx
 import { UseFormReturn } from "react-hook-form";
 import { OutletFormValues } from "./schema";
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { LocationSection } from "./location-section";
 

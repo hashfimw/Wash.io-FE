@@ -40,7 +40,6 @@ export default function BypassRequestDetailPage() {
     const fetchBypassRequest = async () => {
       try {
         setIsLoading(true);
-        // Token will be handled by axios interceptor
         const result = await getBypassRequestById(Number(id));
         setBypassRequest(result.data);
       } catch (err) {
@@ -61,7 +60,6 @@ export default function BypassRequestDetailPage() {
     }
   }, [id]);
 
-  // Get badge for status
   const getStatusBadge = (status: ByPassStatus | null) => {
     if (status === null) {
       return (

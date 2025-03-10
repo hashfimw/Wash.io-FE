@@ -1,6 +1,5 @@
 import { Outlet } from "./outlet";
 
-// src/types/employee.ts
 export enum Role {
   SUPER_ADMIN = "SUPER_ADMIN",
   OUTLET_ADMIN = "OUTLET_ADMIN",

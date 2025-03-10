@@ -1,14 +1,11 @@
-// src/hooks/api/outlets/useOutlets.ts
 import { useState, useCallback, useRef } from "react";
 import axios from "axios";
 import { Outlet, CreateOutletInput, UpdateOutletInput, OutletParams, ApiResponse } from "@/types/outlet";
 
-// Buat axios instance yang hanya untuk client-side
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
 
-// Interceptor untuk autentikasi
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -17,7 +14,6 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Tambahkan simple cache untuk mengurangi request
 const cache = {
   outlets: new Map(),
   timestamp: new Map(),
@@ -39,82 +35,69 @@ export const useOutlets = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [outlets, setOutlets] = useState<Outlet[]>([]);
-
-  // Ref untuk menyimpan request terakhir
   const lastRequestRef = useRef<string | null>(null);
 
-  const getOutlets = useCallback(
-    async (params: OutletParams = {}): Promise<ApiResponseType> => {
-      try {
-        setLoading(true);
+  const getOutlets = useCallback(async (params: OutletParams = {}): Promise<ApiResponseType> => {
+    try {
+      setLoading(true);
+      const queryParams = new URLSearchParams();
+      if (params.page) queryParams.append("page", params.page.toString());
+      if (params.limit) queryParams.append("limit", params.limit.toString());
+      if (params.search) queryParams.append("search", params.search);
+      if (params.sortBy) queryParams.append("sortBy", params.sortBy);
+      if (params.sortList) queryParams.append("sortOrder", params.sortList);
 
-        // Build query parameters
-        const queryParams = new URLSearchParams();
-        if (params.page) queryParams.append("page", params.page.toString());
-        if (params.limit) queryParams.append("limit", params.limit.toString());
-        if (params.search) queryParams.append("search", params.search);
-        if (params.sortBy) queryParams.append("sortBy", params.sortBy);
-        if (params.sortList) queryParams.append("sortOrder", params.sortList);
+      const url = `/adm-outlets${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
+      const cacheKey = url;
 
-        const url = `/adm-outlets${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
-
-        // Buat cache key
-        const cacheKey = url;
-
-        // Cek cache
-        const now = Date.now();
-        if (
-          cache.outlets.has(cacheKey) &&
-          cache.timestamp.has(cacheKey) &&
-          now - cache.timestamp.get(cacheKey)! < cache.cacheDuration
-        ) {
-          const cachedData = cache.outlets.get(cacheKey);
-          setOutlets(cachedData.data || []);
-          return cachedData;
-        }
-
-        // Jika params sama dengan request terakhir, skip request
-        if (lastRequestRef.current === cacheKey && outlets.length > 0) {
-          setLoading(false);
-          return {
-            message: "From cache",
-            data: outlets,
-            meta: {
-              page: params.page || 1,
-              limit: params.limit || 10,
-              total: Math.ceil(outlets.length / (params.limit || 10)),
-              totalRecords: outlets.length,
-            },
-          };
-        }
-
-        lastRequestRef.current = cacheKey;
-
-        const response = await api.get<ApiResponseType>(url);
-
-        // Simpan ke cache
-        cache.outlets.set(cacheKey, response.data);
-        cache.timestamp.set(cacheKey, now);
-
-        setOutlets(response.data.data || []);
-        return response.data;
-      } catch (err) {
-        console.error("Failed to fetch outlets:", err);
-        setError("Failed to fetch outlets");
-        throw err;
-      } finally {
-        setLoading(false);
+      const now = Date.now();
+      if (
+        cache.outlets.has(cacheKey) &&
+        cache.timestamp.has(cacheKey) &&
+        now - cache.timestamp.get(cacheKey)! < cache.cacheDuration
+      ) {
+        const cachedData = cache.outlets.get(cacheKey);
+        setOutlets(cachedData.data || []);
+        return cachedData;
       }
-    },
-    [outlets]
-  );
+
+      if (lastRequestRef.current === cacheKey && outlets.length > 0) {
+        setLoading(false);
+        return {
+          message: "From cache",
+          data: outlets,
+          meta: {
+            page: params.page || 1,
+            limit: params.limit || 10,
+            total: Math.ceil(outlets.length / (params.limit || 10)),
+            totalRecords: outlets.length,
+          },
+        };
+      }
+
+      lastRequestRef.current = cacheKey;
+
+      const response = await api.get<ApiResponseType>(url);
+
+      cache.outlets.set(cacheKey, response.data);
+      cache.timestamp.set(cacheKey, now);
+
+      setOutlets(response.data.data || []);
+      return response.data;
+    } catch (err) {
+      console.error("Failed to fetch outlets:", err);
+      setError("Failed to fetch outlets");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const createOutlet = useCallback(async (data: CreateOutletInput): Promise<ApiResponse<Outlet>> => {
     try {
       setLoading(true);
       const response = await api.post<ApiResponse<Outlet>>("/adm-outlets", data);
 
-      // Invalidate cache
       cache.outlets.clear();
       cache.timestamp.clear();
 
@@ -133,7 +116,6 @@ export const useOutlets = () => {
         setLoading(true);
         const response = await api.put<ApiResponse<Outlet>>(`/adm-outlets/${id}`, data);
 
-        // Invalidate cache
         cache.outlets.clear();
         cache.timestamp.clear();
 
@@ -153,7 +135,6 @@ export const useOutlets = () => {
       setLoading(true);
       const response = await api.delete<ApiResponse<void>>(`/adm-outlets/${id}`);
 
-      // Invalidate cache
       cache.outlets.clear();
       cache.timestamp.clear();
 
@@ -170,7 +151,6 @@ export const useOutlets = () => {
     try {
       setLoading(true);
 
-      // Cek cache untuk outlet detail
       const cacheKey = `adm-outlets/${id}`;
       const now = Date.now();
 
@@ -184,7 +164,6 @@ export const useOutlets = () => {
 
       const response = await api.get<ApiResponse<Outlet>>(`adm-outlets/${id}`);
 
-      // Simpan ke cache
       cache.outlets.set(cacheKey, response.data);
       cache.timestamp.set(cacheKey, now);
 

@@ -1,4 +1,3 @@
-// src/components//UsePagination.tsx
 import { Button } from "@/components/ui/button";
 import { Pagination, PaginationContent, PaginationItem } from "@/components/ui/pagination";
 import { ChevronLeft, ChevronRight } from "lucide-react";

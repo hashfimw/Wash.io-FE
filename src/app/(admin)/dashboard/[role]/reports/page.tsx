@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { ChartBar, Users } from "lucide-react";
 import { useEffect } from "react";
 
-// Server Component
 export default function ReportsIndexPage({ params }: { params: { role: string } }) {
   const role = params.role;
   const { setBreadcrumbItems } = useBreadcrumb();
