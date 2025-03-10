@@ -74,6 +74,7 @@ export const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
       variant: "destructive",
       title: "Access Denied",
       description: `You do not have access to this page as a ${role}. Your session has been terminated for security reasons.`,
+      duration: 5000,
     });
   };
 
@@ -93,27 +94,15 @@ export const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
   return <>{children}</>;
 };
 
-export const SuperAdminGuard = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+export const SuperAdminGuard = ({ children }: { children: React.ReactNode }) => {
   return <RoleGuard allowedRoles={["SUPER_ADMIN"]}>{children}</RoleGuard>;
 };
 
-export const OutletAdminGuard = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+export const OutletAdminGuard = ({ children }: { children: React.ReactNode }) => {
   return <RoleGuard allowedRoles={["OUTLET_ADMIN"]}>{children}</RoleGuard>;
 };
 
 // You can also create an AdminGuard that allows both roles
 export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <RoleGuard allowedRoles={["SUPER_ADMIN", "OUTLET_ADMIN"]}>
-      {children}
-    </RoleGuard>
-  );
+  return <RoleGuard allowedRoles={["SUPER_ADMIN", "OUTLET_ADMIN"]}>{children}</RoleGuard>;
 };
