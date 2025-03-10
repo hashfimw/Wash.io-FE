@@ -7,19 +7,15 @@ import { Plus } from "lucide-react";
 import { OutletTable } from "@/components/outlets/outletTable";
 import { useBreadcrumb } from "@/context/BreadcrumbContext";
 import { Outlet } from "@/types/outlet";
+import { useRouter, useParams } from "next/navigation";
 
-interface PageProps {
-  initialData?: {
-    outlets: Outlet[];
-    totalPages: number;
-  };
-}
-
-export default function OutletsPage({ initialData }: PageProps) {
+export default function OutletsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedOutlet, setSelectedOutlet] = useState<Outlet | undefined>(undefined);
   const { setBreadcrumbItems } = useBreadcrumb();
   const refreshFnRef = useRef<(() => void) | null>(null);
+  const router = useRouter();
+  const params = useParams();
 
   useEffect(() => {
     setBreadcrumbItems([{ label: "Super Admin", href: "/super-admin/dashboard" }, { label: "Outlets" }]);
@@ -72,7 +68,7 @@ export default function OutletsPage({ initialData }: PageProps) {
 
       <div className="bg-white rounded-lg shadow-sm">
         <div className="p-4 sm:p-6">
-          <OutletTable onEdit={handleEdit} onRefreshReady={handleRefreshReady} initialData={initialData} />
+          <OutletTable onEdit={handleEdit} onRefreshReady={handleRefreshReady} />
         </div>
       </div>
       <OutletForm open={isFormOpen} onClose={handleClose} outlet={selectedOutlet} onSuccess={handleSuccess} />
