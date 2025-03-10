@@ -9,7 +9,6 @@ export default function Contact() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Show loading screen for a minimum of 5 seconds
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 5000);

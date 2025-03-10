@@ -5,16 +5,12 @@ import { toast } from '@/components/ui/use-toast';
 
 const API_URL =  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
-/**
- * Custom hook for fetching a user by ID
- */
 export const useUser = (userId: string) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchUser = async (): Promise<User> => {
     setIsLoading(true);
     try {
-      // In a real app, you would include the auth token in the headers
       const response = await fetch(`${API_URL}/users/${userId}`, {
         headers: {
           'Content-Type': 'application/json',

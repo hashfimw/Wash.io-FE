@@ -17,7 +17,6 @@ const validPathPatterns = [
   /^\/orders\/?$/, // Halaman orders
   /^\/new-order\/?$/, // Halaman orders
   /^\/payment\/?$/, // Halaman orders
-  /^\/forgot-password\/?$/, // Halaman orders
   /^\/register\/?$/, // Halaman register
   /^\/login\/?$/, // Halaman login
   /^\/driver\/?$/, // Halaman shop

@@ -1,6 +1,3 @@
-/**
- * Base address interface matching the Prisma schema
- */
 export interface AddressApiResponse {
   data?: Address[];
 }
@@ -22,9 +19,6 @@ export interface Address {
   customerId?: number;
 }
 
-/**
- * Order status enum matching the Prisma schema
- */
 export type OrderStatus =
   | "ARRIVED_AT_OUTLET"
   | "READY_FOR_WASHING"
@@ -45,19 +39,10 @@ export type OrderStatus =
   | "ON_THE_WAY_TO_CUSTOMER"
   | "ON_THE_WAY_TO_OUTLET";
 
-/**
- * Transport type enum matching the Prisma schema
- */
 export type TransportType = "PICKUP" | "DELIVERY";
 
-/**
- * Payment status enum matching the Prisma schema
- */
 export type PaymentStatus = "PENDING" | "CANCELLED" | "EXPIRED" | "SUCCEEDED";
 
-/**
- * OrderItem interface matching the Prisma schema
- */
 export interface OrderItem {
   id: number;
   qty?: number;
@@ -69,9 +54,6 @@ export interface OrderItem {
   orderId?: number;
 }
 
-/**
- * Payment interface matching the Prisma schema
- */
 export interface Payment {
   id: number;
   totalPrice: number;
@@ -86,9 +68,6 @@ export interface Payment {
   orderId?: number;
 }
 
-/**
- * TransportJob interface matching the Prisma schema
- */
 export interface TransportJob {
   id: number;
   transportType: TransportType;
@@ -110,9 +89,6 @@ export interface TransportJob {
   };
 }
 
-/**
- * Outlet interface matching the Prisma schema
- */
 export interface Outlet {
   id: number;
   outletName: string;
@@ -124,9 +100,6 @@ export interface Outlet {
   outletAddress: Address;
 }
 
-/**
- * Order interface matching the Prisma schema
- */
 export interface Order {
   id: number;
   orderStatus: OrderStatus;
@@ -146,9 +119,6 @@ export interface Order {
   laundryWeight?: number;
 }
 
-/**
- * InitiatePaymentResponse interface for payment initiation
- */
 export interface InitiatePaymentResponse {
   payment: Payment;
   snapToken?: string;

@@ -57,7 +57,6 @@ export default function OrdersPage() {
   }, [orders, searchQuery]);
 
   const handleOrderComplete = (updatedOrder: Order) => {
-    // Update both the main orders list and the filtered orders list
     const updatedOrders = orders.map((order) => 
       order.id === updatedOrder.id ? {...order, orderStatus: "COMPLETED"} : order
     );
@@ -93,7 +92,6 @@ export default function OrdersPage() {
     }
   };
 
-  // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredOrders.slice(indexOfFirstItem, indexOfLastItem);
@@ -279,7 +277,6 @@ export default function OrdersPage() {
                   {/* Action Buttons */}
                   <div className="mt-4 pt-3 border-t flex justify-between">
                     <div>
-                      {/* Complete button - only shows for "received_by_customer" status */}
                       {order.orderStatus.toLowerCase() === "received_by_customer" ? (
                         <CompleteOrderButton
                           order={order}
