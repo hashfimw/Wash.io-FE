@@ -7,9 +7,10 @@ import { useEditProfile } from "@/hooks/api/profile/useEditProfile";
 
 interface AvatarUploadProps {
   user: User;
+  onAvatarUpdate: (newAvatarUrl: string) => void; // Add this prop
 }
 
-const AvatarUpload: React.FC<AvatarUploadProps> = ({ user }) => {
+const AvatarUpload: React.FC<AvatarUploadProps> = ({ user, onAvatarUpdate }) => {
   const { updateAvatar, isUpdating, avatarUrl } = useEditProfile(); // Ambil avatar dari hook
   const [previewUrl, setPreviewUrl] = useState<string | null>(user.avatar);
   const [isDragging, setIsDragging] = useState(false);
@@ -29,14 +30,13 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({ user }) => {
     try {
       const newAvatarUrl = await updateAvatar(user.id, file);
       if (newAvatarUrl) {
-        setPreviewUrl(newAvatarUrl); // ✅ Update avatar jika berhasil
-      } else {
-        console.warn("Avatar updated but URL not provided by backend.");
+        setPreviewUrl(newAvatarUrl);
+        onAvatarUpdate(newAvatarUrl); // Call the callback
       }
     } catch (error) {
       console.error("Error updating avatar:", error);
     }
-  };  
+  };
   
 
   const previewFile = (file: File) => {

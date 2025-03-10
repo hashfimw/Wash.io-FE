@@ -7,15 +7,15 @@ import CSSWave from "../animations/Waves";
 
 const Footer = () => {
   return (
-    <footer className="bg-gradient-to-b from-putbir to-birmud/20 text-birtu w-full relative">
+    <footer className="bg-gradient-to-b from-putbir to-birmud/20 text-black w-full relative">
       <div className="container mx-auto px-4 py-6">
         {/* Top Section */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pb-6">
           <div className="col-span-1 md:col-span-1">
             <div className="flex flex-col items-start">
               <div className="flex items-center mb-4">
-                <Image src="/washio-oren.png" alt="Wash.io Logo" width={40} height={40} className="mr-2" />
-                <span className="text-oren font-semibold text-xl">ash.io</span>
+                <Image src="/washio-oren.png" alt="Wash.io Logo" width={40} height={40} className="mb-2" />
+                <span className="text-black font-semibold text-xl">ash<span className="text-oren">io</span></span>
               </div>
               <p className="text-sm mb-4">
                 Modern laundry service with premium quality for your clothes. Fast, clean, and reliable.
@@ -26,89 +26,80 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4 text-oren">Our Services</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="#" className="group flex items-center hover:text-oren transition-colors text-sm">
+                <div className="group flex items-center hover:text-oren transition-colors text-sm">
                   <ChevronRight
                     size={14}
                     className="mr-1 opacity-0 group-hover:opacity-100 transition-opacity text-oren"
                   />
                   <span>Washing</span>
-                </Link>
+                </div>
               </li>
               <li>
-                <Link href="#" className="group flex items-center hover:text-oren transition-colors text-sm">
+                <div className="group flex items-center hover:text-oren transition-colors text-sm">
                   <ChevronRight
                     size={14}
                     className="mr-1 opacity-0 group-hover:opacity-100 transition-opacity text-oren"
                   />
                   <span>Ironing</span>
-                </Link>
+                </div>
               </li>
               <li>
-                <Link href="#" className="group flex items-center hover:text-oren transition-colors text-sm">
+                <div className="group flex items-center hover:text-oren transition-colors text-sm">
                   <ChevronRight
                     size={14}
                     className="mr-1 opacity-0 group-hover:opacity-100 transition-opacity text-oren"
                   />
                   <span>Packing</span>
-                </Link>
+                </div>
               </li>
               <li>
-                <Link href="#" className="group flex items-center hover:text-oren transition-colors text-sm">
+                <div className="group flex items-center hover:text-oren transition-colors text-sm">
                   <ChevronRight
                     size={14}
                     className="mr-1 opacity-0 group-hover:opacity-100 transition-opacity text-oren"
                   />
                   <span>Pickup & Delivery</span>
-                </Link>
+                </div>
               </li>
             </ul>
           </div>
           <div className="col-span-1">
-            <h3 className="text-lg font-semibold mb-4 text-oren">Company</h3>
+            <h3 className="text-lg font-semibold mb-4 text-oren">Navigation</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="#" className="group flex items-center hover:text-oren transition-colors text-sm">
+                <Link href="/" className="group flex items-center hover:text-oren transition-colors text-sm">
                   <ChevronRight
                     size={14}
                     className="mr-1 opacity-0 group-hover:opacity-100 transition-opacity text-oren"
                   />
-                  <span>About Us</span>
+                  <span>Home</span>
                 </Link>
               </li>
               <li>
-                <Link href="#" className="group flex items-center hover:text-oren transition-colors text-sm">
+                <Link href="/outlets" className="group flex items-center hover:text-oren transition-colors text-sm">
                   <ChevronRight
                     size={14}
                     className="mr-1 opacity-0 group-hover:opacity-100 transition-opacity text-oren"
                   />
-                  <span>Careers</span>
+                  <span>Outlets</span>
                 </Link>
               </li>
               <li>
-                <Link href="#" className="group flex items-center hover:text-oren transition-colors text-sm">
+                <Link href="/about" className="group flex items-center hover:text-oren transition-colors text-sm">
                   <ChevronRight
                     size={14}
                     className="mr-1 opacity-0 group-hover:opacity-100 transition-opacity text-oren"
                   />
-                  <span>Blog</span>
+                  <span>About</span>
                 </Link>
               </li>
               <li>
-                <Link href="#" className="group flex items-center hover:text-oren transition-colors text-sm">
+                <Link href="/contact" className="group flex items-center hover:text-oren transition-colors text-sm">
                   <ChevronRight
                     size={14}
                     className="mr-1 opacity-0 group-hover:opacity-100 transition-opacity text-oren"
                   />
-                  <span>FAQ</span>
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="group flex items-center hover:text-oren transition-colors text-sm">
-                  <ChevronRight
-                    size={14}
-                    className="mr-1 opacity-0 group-hover:opacity-100 transition-opacity text-oren"
-                  />
-                  <span>Terms & Conditions</span>
+                  <span>Contact</span>
                 </Link>
               </li>
             </ul>
@@ -126,7 +117,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center">
                 <Mail size={18} className="mr-2 flex-shrink-0 text-oren" />
-                <span className="text-sm">hello@wash.io</span>
+                <span className="text-sm">evenext.corp@gmail.com</span>
               </li>
             </ul>
 

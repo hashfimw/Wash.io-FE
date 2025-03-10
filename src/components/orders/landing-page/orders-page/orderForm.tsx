@@ -13,6 +13,7 @@ import AddressSelector from "./addressSelector";
 import AddressForm from "./addressForm";
 import { Outlet } from "@/types/outlet"; // Import your types
 import { Order } from "@/types/requestOrder";
+import { useRouter } from "next/navigation"; // Import router for redirection
 
 // Define additional types needed
 interface OutletWithDistance extends Outlet {
@@ -29,7 +30,12 @@ interface LocationData {
   longitude: number;
 }
 
-const OrderForm = () => {
+interface OrderFormProps {
+  onOrderCreated?: () => void; // Optional callback prop
+}
+
+const OrderForm = ({ onOrderCreated }: OrderFormProps = {}) => {
+  const router = useRouter(); // Initialize router for redirection
   const { addresses, getAllAddresses } = useAddress();
   const { createPickupOrder, loading, error } = useOrders();
   const [showAddressForm, setShowAddressForm] = useState(false);
@@ -240,6 +246,14 @@ const OrderForm = () => {
         setShowAddressForm(false);
         // Refresh addresses to show the newly added one
         getAllAddresses();
+        
+        // If callback provided, call it (for parent component to handle)
+        if (onOrderCreated) {
+          onOrderCreated();
+        } else {
+          // Otherwise, handle redirect directly
+          router.push("/orders");
+        }
       } catch (err) {
         console.error("Failed to create order:", err);
         toast({

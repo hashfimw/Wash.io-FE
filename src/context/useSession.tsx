@@ -10,6 +10,7 @@ interface SessionContextType {
   checkSession: () => Promise<void>;
   login: (token: string) => Promise<void>;
   logout: () => void;
+  updateSessionUser: (userData: User) => void; // New function added
 }
 
 export const SessionContext = createContext<SessionContextType | undefined>(undefined);
@@ -73,6 +74,20 @@ export const SessionProvider: React.FC<{ children: ReactNode }> = ({ children })
     setUser(null);
   };
 
+  // New function to update user data in session and localStorage
+  const updateSessionUser = (userData: User) => {
+    // Update the user state in the session
+    setUser(userData);
+    setIsAuth(true); // Ensure auth state is set to true when updating user
+    
+    // Also update localStorage if you're using it
+    try {
+      localStorage.setItem('user', JSON.stringify(userData));
+    } catch (error) {
+      console.error("Error updating user in localStorage:", error);
+    }
+  };
+
   useEffect(() => {
     console.log("🔹 Checking session on mount...");
     if (localStorage.getItem("token")) {
@@ -83,7 +98,15 @@ export const SessionProvider: React.FC<{ children: ReactNode }> = ({ children })
   }, [checkSession]);
 
   return (
-    <SessionContext.Provider value={{ isAuth, user, loading, checkSession, login, logout }}>
+    <SessionContext.Provider value={{ 
+      isAuth, 
+      user, 
+      loading, 
+      checkSession, 
+      login, 
+      logout,
+      updateSessionUser // Added the new function to the context
+    }}>
       {children}
     </SessionContext.Provider>
   );

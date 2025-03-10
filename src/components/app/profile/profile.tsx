@@ -12,28 +12,39 @@ import AvatarUpload from "./avatarUpload";
 import ProfileEditForm from "./profileEditForm";
 
 export default function ProfilePage() {
-  const { user, isAuth } = useSession();
+  const { user: initialUser, isAuth } = useSession();
+  const [user, setUser] = useState(initialUser);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     // Check if user is authenticated
-    if (user) {
+    if (initialUser) {
+      setUser(initialUser);
       setIsLoading(false);
     } else if (!isAuth && !isLoading) {
       router.push("/login");
     }
-  }, [user, isAuth, router, isLoading]);
+  }, [initialUser, isAuth, router, isLoading]);
 
   const toggleEdit = () => {
     setIsEditing(!isEditing);
   };
 
-  const handleSave = () => {
-    // The actual submission is handled in the ProfileEditForm component
-    // This function just prepares to exit edit mode
+  const handleSave = (updatedData = {}) => {
+    // Update the local user state with new data, handling the null case
+    setUser((prevUser) => {
+      if (!prevUser) return null;
+      return {
+        ...prevUser,
+        ...updatedData,
+      };
+    });
+
+    // Exit edit mode
     setIsEditing(false);
+
     toast.success("Profile updated successfully!", {
       position: "bottom-right",
       autoClose: 3000,
@@ -42,6 +53,12 @@ export default function ProfilePage() {
 
   const handleCancel = () => {
     setIsEditing(false);
+  };
+
+  const handleBackClick = (e: any) => {
+    e.preventDefault();
+    // Force a refresh of the home page
+    window.location.href = "/";
   };
 
   if (isLoading) {
@@ -54,10 +71,13 @@ export default function ProfilePage() {
         <div className="text-center px-4">
           <h1 className="text-2xl font-semibold mb-4">User Not Found</h1>
           <p className="text-gray-600 mb-6">
-            The user profile you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to
-            view it.
+            The user profile you&apos;re looking for doesn&apos;t exist or you
+            don&apos;t have permission to view it.
           </p>
-          <Link href="/" className="text-birtu hover:text-oren transition-colors underline">
+          <Link
+            href="/"
+            className="text-birtu hover:text-oren transition-colors underline"
+          >
             Return to Home
           </Link>
         </div>
@@ -70,13 +90,14 @@ export default function ProfilePage() {
       <div className="w-full max-w-4xl mx-auto px-4 py-8 space-y-8">
         <div className="flex flex-col space-y-6">
           <div className="flex items-center justify-between w-full">
-            <Link
+            <a
               href="/"
+              onClick={handleBackClick}
               className="flex items-center text-gray-500 hover:text-birtu transition-colors duration-300"
             >
               <ArrowLeft className="h-5 w-5 mr-2" />
               <span>Back</span>
-            </Link>
+            </a>
 
             {isEditing ? (
               <div className="flex space-x-3">
@@ -87,13 +108,6 @@ export default function ProfilePage() {
                   className="transition-all duration-300 hover:bg-red-100"
                 >
                   Cancel
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={handleSave}
-                  className="bg-birtu hover:bg-oren transition-all duration-300"
-                >
-                  Save Changes
                 </Button>
               </div>
             ) : (
@@ -119,7 +133,9 @@ export default function ProfilePage() {
             <p className="text-gray-600 max-w-md">
               {isEditing
                 ? "Update your personal information and save the changes when you're done."
-                : `Member since ${new Date(user.createdAt || new Date()).toLocaleDateString("en-US", {
+                : `Member since ${new Date(
+                    user.createdAt || new Date()
+                  ).toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
@@ -133,7 +149,18 @@ export default function ProfilePage() {
             <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 md:gap-12">
               <div className="flex flex-col items-center space-y-4">
                 {isEditing ? (
-                  <AvatarUpload user={user} />
+                  <AvatarUpload
+                    user={user}
+                    onAvatarUpdate={(newAvatarUrl) => {
+                      setUser((prevUser) => {
+                        if (!prevUser) return null;
+                        return {
+                          ...prevUser,
+                          avatar: newAvatarUrl,
+                        };
+                      });
+                    }}
+                  />
                 ) : (
                   <div className="h-36 w-36 relative rounded-full overflow-hidden border-4 border-white shadow-lg">
                     <Image
@@ -147,7 +174,9 @@ export default function ProfilePage() {
 
                 {!isEditing && (
                   <div className="mt-4 text-center space-y-1">
-                    <h2 className="text-xl font-semibold">{user.fullName || "No Name Set"}</h2>
+                    <h2 className="text-xl font-semibold">
+                      {user.fullName || "No Name Set"}
+                    </h2>
                     <p className="text-gray-500 text-sm flex items-center justify-center">
                       <Mail className="h-3.5 w-3.5 mr-1" />
                       {user.email}
@@ -182,12 +211,16 @@ export default function ProfilePage() {
                       <InfoItem
                         icon={<Shield className="h-4 w-4" />}
                         label="Account Type"
-                        value={user.role ? user.role.replace("_", " ") : "CUSTOMER"}
+                        value={
+                          user.role ? user.role.replace("_", " ") : "CUSTOMER"
+                        }
                       />
                       <InfoItem
                         icon={<Clock className="h-4 w-4" />}
                         label="Joined"
-                        value={new Date(user.createdAt || new Date()).toLocaleDateString("en-US", {
+                        value={new Date(
+                          user.createdAt || new Date()
+                        ).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "long",
                           day: "numeric",

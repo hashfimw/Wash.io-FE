@@ -1,11 +1,11 @@
 "use client";
 
-import Homepage from "@/components/app/homepage";
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import Loading from "./loading";
+import { AnimatePresence, motion } from "framer-motion";
+import React, { useEffect, useState } from "react";
+import ForgotPassword from "@/components/auth/forgotPassword";
+import Loading from "@/app/loading";
 
-export default function Home() {
+export default function ForgotPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export default function Home() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
           >
-            <Homepage />
+            <ForgotPassword />
           </motion.div>
         )}
       </AnimatePresence>

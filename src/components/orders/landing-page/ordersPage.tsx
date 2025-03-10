@@ -57,9 +57,16 @@ export default function OrdersPage() {
   }, [orders, searchQuery]);
 
   const handleOrderComplete = (updatedOrder: Order) => {
-    // Update the filtered orders list when an order is completed
+    // Update both the main orders list and the filtered orders list
+    const updatedOrders = orders.map((order) => 
+      order.id === updatedOrder.id ? {...order, orderStatus: "COMPLETED"} : order
+    );
+    
+    // Update the filtered orders list
     setFilteredOrders((prev) =>
-      prev.map((order) => (order.id === updatedOrder.id ? updatedOrder : order))
+      prev.map((order) => 
+        order.id === updatedOrder.id ? {...order, orderStatus: "COMPLETED"} : order
+      )
     );
   };
 
@@ -273,13 +280,20 @@ export default function OrdersPage() {
                   <div className="mt-4 pt-3 border-t flex justify-between">
                     <div>
                       {/* Complete button - only shows for "received_by_customer" status */}
-                      {order.orderStatus.toLowerCase() ===
-                        "received_by_customer" && (
+                      {order.orderStatus.toLowerCase() === "received_by_customer" ? (
                         <CompleteOrderButton
                           order={order}
                           onComplete={handleOrderComplete}
                           className="text-sm bg-green-500 hover:bg-green-600 flex items-center"
                         />
+                      ) : order.orderStatus.toLowerCase() === "completed" && (
+                        <Button 
+                          className="text-sm bg-green-100 text-green-800 hover:bg-green-100 flex items-center"
+                          disabled
+                        >
+                          <CheckCircle className="mr-2 h-4 w-4" />
+                          Completed
+                        </Button>
                       )}
                     </div>
 
