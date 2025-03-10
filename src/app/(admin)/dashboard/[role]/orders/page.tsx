@@ -17,12 +17,8 @@ export default function OrdersPage() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
-  // State for pagination
   const [currentPage, setCurrentPage] = useState(() => Number(searchParams.get("page")) || 1);
   const [totalPages, setTotalPages] = useState(0);
-
-  // State for filters
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOutletId, setSelectedOutletId] = useState<number | null>(() =>
     searchParams.get("outletId") ? Number(searchParams.get("outletId")) : null
@@ -53,12 +49,10 @@ export default function OrdersPage() {
   const { getAllOrders, trackOrder, loading: apiLoading_, error } = useOrders();
   const { setBreadcrumbItems } = useBreadcrumb();
 
-  // Update URL with filters
   const updateUrl = useCallback(
     (newParams: Record<string, string | null>) => {
       const params = new URLSearchParams(searchParams.toString());
 
-      // Update params
       Object.entries(newParams).forEach(([key, value]) => {
         if (value === null || value === "") {
           params.delete(key);
@@ -85,7 +79,6 @@ export default function OrdersPage() {
           sortOrder: "desc",
         };
         if (dateRange) {
-          // Menggunakan startOfDay dan endOfDay untuk memastikan rentang penuh hari dipilih
           requestParams.startDate = startOfDay(dateRange.startDate).toISOString();
           requestParams.endDate = endOfDay(dateRange.endDate).toISOString();
         }
@@ -93,7 +86,6 @@ export default function OrdersPage() {
 
         if (response.data && Array.isArray(response.data.data)) {
           setOrders(response.data.data);
-          // Set total pages from metadata
           setTotalPages(response.data.meta.total);
         } else {
           setOrders([]);
@@ -102,14 +94,13 @@ export default function OrdersPage() {
       } catch (error) {
         console.error("Error fetching orders:", error);
       } finally {
-        setLocalLoading(false); // Set loading ke false setelah fetch
+        setLocalLoading(false);
       }
     };
 
     fetchOrders();
   }, [selectedOutletId, selectedStatus, searchQuery, dateRange, currentPage, getAllOrders]);
 
-  // Update URL when filters change
   useEffect(() => {
     const urlParams: Record<string, string | null> = {
       page: currentPage.toString(),
@@ -126,13 +117,11 @@ export default function OrdersPage() {
     updateUrl(urlParams);
   }, [currentPage, selectedStatus, selectedOutletId, searchQuery, dateRange, updateUrl]);
 
-  // Set breadcrumb based on role
   useEffect(() => {
     const roleName = role === "super-admin" ? "Super Admin" : "Outlet Admin";
     setBreadcrumbItems([{ label: roleName, href: `/dashboard/${role}` }, { label: "Orders" }]);
   }, [setBreadcrumbItems, role]);
 
-  // Handlers for filters
   const handleOutletChange = (outletId: number | null) => {
     setSelectedOutletId(outletId);
     setCurrentPage(1);
@@ -177,7 +166,6 @@ export default function OrdersPage() {
 
       <div className="bg-white rounded-lg shadow-sm">
         <div className="p-4 sm:p-6">
-          {/* Filter section */}
           <div className="mb-6">
             <OrderFilters
               onStatusChange={handleStatusChange}
@@ -187,7 +175,6 @@ export default function OrdersPage() {
             />
           </div>
 
-          {/* Table section */}
           <OrderTable
             orders={orders}
             loading={localLoading || apiLoading_}

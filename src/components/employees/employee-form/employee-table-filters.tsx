@@ -1,13 +1,6 @@
-// src/components/employees/employee-form/employee-table-filters.tsx
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Role } from "@/types/employee";
 import { useOutlets } from "@/hooks/api/outlets/useOutlets";
 import { useEffect, useState } from "react";
@@ -50,7 +43,6 @@ export function EmployeeTableFilters({
   }, []);
 
   const handleRoleChange = (value: string) => {
-    // Handle "ALL Role" selection as empty string
     if (value === "ALL Role") {
       onRoleChange("");
     } else {
@@ -59,7 +51,6 @@ export function EmployeeTableFilters({
   };
 
   const handleOutletChange = (value: string) => {
-    // Handle "ALL Outlets" selection as null
     if (value === "ALL Outlets") {
       onOutletChange(null);
     } else {
@@ -86,24 +77,15 @@ export function EmployeeTableFilters({
             className="w-full md:w-[300px] pl-8 pr-8"
           />
           {searchQuery && (
-            <button
-              onClick={clearSearch}
-              className="absolute right-2 top-2.5"
-              aria-label="Clear search"
-            >
+            <button onClick={clearSearch} className="absolute right-2 top-2.5" aria-label="Clear search">
               <X className="h-4 w-4 text-muted-foreground" />
             </button>
           )}
         </div>
       </div>
 
-      {/* Filter Selects */}
       <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-        {/* Role Filter */}
-        <Select
-          value={selectedRole || "ALL Role"}
-          onValueChange={handleRoleChange}
-        >
+        <Select value={selectedRole || "ALL Role"} onValueChange={handleRoleChange}>
           <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="Select role" />
           </SelectTrigger>
@@ -115,7 +97,6 @@ export function EmployeeTableFilters({
           </SelectContent>
         </Select>
 
-        {/* Outlet Filter */}
         <Select
           value={selectedOutlet?.toString() || "ALL Outlets"}
           onValueChange={handleOutletChange}
@@ -135,7 +116,6 @@ export function EmployeeTableFilters({
         </Select>
       </div>
 
-      {/* Reset Button */}
       <Button
         variant="birtu"
         onClick={onResetFilters}

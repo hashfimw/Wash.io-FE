@@ -91,7 +91,6 @@ export function EmployeePerformanceClient({
           const endDate = new Date().toISOString().split("T")[0];
           const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
 
-          // Update filter and URL
           const newFilters = {
             ...filters,
             startDate,
@@ -102,7 +101,6 @@ export function EmployeePerformanceClient({
 
           setFilters(newFilters);
 
-          // Ensure outletId is in filters for OUTLET_ADMIN
           if (userRole === "OUTLET_ADMIN" && userOutletId) {
             newFilters.outletId = Number(userOutletId);
           }
@@ -120,7 +118,6 @@ export function EmployeePerformanceClient({
     fetchPerformanceReport();
   }, [filters]);
 
-  // Handle workers page change
   const handleWorkerPageChange = (page: number) => {
     setFilters((prev) => ({
       ...prev,
@@ -128,7 +125,6 @@ export function EmployeePerformanceClient({
     }));
   };
 
-  // Handle drivers page change
   const handleDriverPageChange = (page: number) => {
     setFilters((prev) => ({
       ...prev,
@@ -136,9 +132,7 @@ export function EmployeePerformanceClient({
     }));
   };
 
-  // Handle filter change
   const handleFilterChange = (newFilters: EmployeePerformanceParams) => {
-    // For OUTLET_ADMIN, ensure their outlet ID is always used
     if (userRole === "OUTLET_ADMIN" && userOutletId) {
       newFilters.outletId = Number(userOutletId);
     }
@@ -146,16 +140,14 @@ export function EmployeePerformanceClient({
     setFilters((prev) => ({
       ...prev,
       ...newFilters,
-      page: 1, // Reset to first page when filter changes
+      page: 1,
     }));
   };
 
-  // Handle tab change
   const handleTabChange = (tab: "workers" | "drivers") => {
     setActiveTab(tab);
   };
 
-  // Mengalihkan ke part 2
   return (
     <EmployeePerformancePart2
       activeTab={activeTab}

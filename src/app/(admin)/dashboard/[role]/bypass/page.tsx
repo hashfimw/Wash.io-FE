@@ -1,16 +1,9 @@
-// src/app/dashboard/(admin)/bypass-requests/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -24,7 +17,6 @@ import { useBreadcrumb } from "@/context/BreadcrumbContext";
 export default function BypassRequestsPage() {
   const params = useParams();
   const role = params.role as string;
-
   const { getBypassRequests, error: apiError } = useBypassRequest();
   const [bypassRequests, setBypassRequests] = useState<BypassRequest[]>([]);
   const [filteredRequests, setFilteredRequests] = useState<BypassRequest[]>([]);
@@ -36,10 +28,7 @@ export default function BypassRequestsPage() {
 
   useEffect(() => {
     const roleName = role === "super-admin" ? "Super Admin" : "Outlet Admin";
-    setBreadcrumbItems([
-      { label: roleName, href: `/dashboard/${role}` },
-      { label: "Bypass Requests" },
-    ]);
+    setBreadcrumbItems([{ label: roleName, href: `/dashboard/${role}` }, { label: "Bypass Requests" }]);
   }, [role, setBreadcrumbItems]);
 
   useEffect(() => {
@@ -65,7 +54,6 @@ export default function BypassRequestsPage() {
     fetchBypassRequests();
   }, []);
 
-  // Filter based on search
   useEffect(() => {
     if (searchQuery.trim() === "") {
       setFilteredRequests(bypassRequests);
@@ -122,13 +110,8 @@ export default function BypassRequestsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Bypass Requests List</CardTitle>
-          <CardDescription>
-            Manage bypass requests from workers in the laundry process
-          </CardDescription>
-          <SearchBar
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-          />
+          <CardDescription>Manage bypass requests from workers in the laundry process</CardDescription>
+          <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
         </CardHeader>
         <CardContent>
           {filteredRequests.length === 0 ? (

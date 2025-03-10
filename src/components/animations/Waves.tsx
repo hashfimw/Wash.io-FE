@@ -7,7 +7,6 @@ interface CSSWaveProps {
   height?: number;
 }
 
-// Animasi gelombang menggunakan CSS murni untuk menghindari masalah hydration
 const CSSWave: React.FC<CSSWaveProps> = ({ opacity = 0.3, height = 100 }) => {
   return (
     <div

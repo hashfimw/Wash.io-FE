@@ -1,4 +1,3 @@
-// src/components/employees/employee-delete-alert.tsx
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,20 +17,14 @@ interface EmployeeDeleteAlertProps {
   loading: boolean;
 }
 
-export function EmployeeDeleteAlert({
-  open,
-  onClose,
-  onConfirm,
-  loading,
-}: EmployeeDeleteAlertProps) {
+export function EmployeeDeleteAlert({ open, onClose, onConfirm, loading }: EmployeeDeleteAlertProps) {
   return (
     <AlertDialog open={open} onOpenChange={onClose}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Employee</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete this employee? This action cannot be
-            undone.
+            Are you sure you want to delete this employee? This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

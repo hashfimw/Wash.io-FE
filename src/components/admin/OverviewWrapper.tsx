@@ -1,6 +1,5 @@
 "use client";
 
-// File: components/DashboardContent.tsx
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Store, Users, Waves, BarChart, Shirt, RefreshCw } from "lucide-react";
@@ -9,7 +8,6 @@ import Link from "next/link";
 import { useToast } from "@/components/ui/use-toast";
 import { DashboardData } from "@/services/dashboardService";
 
-// Komponen Card untuk Pending Orders
 function PendingOrdersCard({ count, userRoleForPath }: { count: number; userRoleForPath: string }) {
   return (
     <Link href={`/dashboard/${userRoleForPath}/orders/process`} className="block h-full">
@@ -27,7 +25,6 @@ function PendingOrdersCard({ count, userRoleForPath }: { count: number; userRole
   );
 }
 
-// Komponen Card untuk Today's Orders
 function TodayOrdersCard({ count, userRoleForPath }: { count: number; userRoleForPath: string }) {
   return (
     <Link href={`/dashboard/${userRoleForPath}/orders`} className="block h-full">
@@ -58,12 +55,9 @@ export default function DashboardContent({
 }: DashboardContentProps) {
   const { toast } = useToast();
   const [isRefreshing, setIsRefreshing] = useState(false);
-
-  // Determine user role
   const isSuperAdmin = userRoleForPath === "super-admin";
   const isOutletAdmin = userRoleForPath === "outlet-admin";
 
-  // Handle refresh
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
@@ -84,7 +78,6 @@ export default function DashboardContent({
     }
   };
 
-  // Helper untuk mendapatkan nilai display outlet
   const getOutletDisplay = () => {
     if (!isOutletAdmin) {
       return dashboardData.outletsCount;
@@ -94,7 +87,6 @@ export default function DashboardContent({
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
-      {/* Welcome Section with Refresh Button */}
       <div className="bg-gradient-to-r from-birtu to-birmud rounded-lg p-6 text-oren shadow-lg">
         <div className="flex items-center justify-between">
           <div>
@@ -117,7 +109,6 @@ export default function DashboardContent({
         </div>
       </div>
 
-      {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
         <div className="h-full">
           <Card className="hover:shadow-md transition-shadow h-full">
@@ -156,7 +147,6 @@ export default function DashboardContent({
         <TodayOrdersCard count={dashboardData.todayOrdersCount} userRoleForPath={userRoleForPath} />
       </div>
 
-      {/* Quick Actions */}
       <div className="mt-6">
         <Card>
           <CardHeader>

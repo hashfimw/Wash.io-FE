@@ -13,7 +13,6 @@ export type ExportConfig = {
   columnWidths?: Record<string, number>;
 };
 
-// Helper function to format currency in IDR
 export const formatToIDR = (value: number | string): string => {
   const numValue = typeof value === "string" ? parseFloat(value) : value;
   return new Intl.NumberFormat("id-ID", {
@@ -24,13 +23,11 @@ export const formatToIDR = (value: number | string): string => {
   }).format(numValue);
 };
 
-// Helper to truncate text with ellipsis
 export const truncateText = (text: string, maxLength: number): string => {
   if (!text) return "";
   return text.length <= maxLength ? text : text.substring(0, maxLength - 3) + "...";
 };
 
-// Helper to prepare data rows for export
 export const prepareDataRows = (data: ExportData, config: ExportConfig) => {
   return Object.entries(data).map(([key, value]) => {
     const rowValues = [];
@@ -44,7 +41,6 @@ export const prepareDataRows = (data: ExportData, config: ExportConfig) => {
         cellValue = value || "";
       }
 
-      // Format currency values if needed
       if (config.currencyColumns?.includes(dataKey)) {
         if (typeof cellValue === "string" || typeof cellValue === "number") {
           cellValue = formatToIDR(cellValue);

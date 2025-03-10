@@ -1,19 +1,7 @@
-// src/components/orders/OrderItemRow.tsx
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -44,24 +32,19 @@ export function OrderItemRow({
   const [selectedTab, setSelectedTab] = useState<"select" | "custom">("select");
   const isExistingTemplate = (value: string): boolean => {
     return templates.some(
-      (template) =>
-        template.orderItemName.toLowerCase().trim() ===
-        value.toLowerCase().trim()
+      (template) => template.orderItemName.toLowerCase().trim() === value.toLowerCase().trim()
     );
   };
 
-  // Handle input change with template check
   const handleCustomInputChange = (value: string) => {
     if (isExistingTemplate(value)) {
-      // If item already exists in template, show error message
       onInputChange(""); // Reset input
       toast({
         title: "Item already exists",
-        description:
-          "This item already exists in the template. Please select it from 'Select Existing'.",
+        description: "This item already exists in the template. Please select it from 'Select Existing'.",
         variant: "destructive",
       });
-      setSelectedTab("select"); // Switch to select tab
+      setSelectedTab("select");
       return;
     }
     onInputChange(value);
@@ -79,21 +62,15 @@ export function OrderItemRow({
                 value={selectedTab}
                 onValueChange={(value) => {
                   setSelectedTab(value as "select" | "custom");
-                  field.onChange(""); // Reset field when changing tabs
+                  field.onChange("");
                 }}
                 className="w-full"
               >
                 <TabsList className="mb-2 w-full sm:w-auto">
-                  <TabsTrigger
-                    value="select"
-                    className="flex-1 text-xs sm:text-sm"
-                  >
+                  <TabsTrigger value="select" className="flex-1 text-xs sm:text-sm">
                     Select Existing
                   </TabsTrigger>
-                  <TabsTrigger
-                    value="custom"
-                    className="flex-1 text-xs sm:text-sm"
-                  >
+                  <TabsTrigger value="custom" className="flex-1 text-xs sm:text-sm">
                     Add New
                   </TabsTrigger>
                 </TabsList>
@@ -113,10 +90,7 @@ export function OrderItemRow({
                           </SelectTrigger>
                           <SelectContent>
                             {templates.map((template) => (
-                              <SelectItem
-                                key={template.id}
-                                value={template.orderItemName}
-                              >
+                              <SelectItem key={template.id} value={template.orderItemName}>
                                 {template.orderItemName}
                               </SelectItem>
                             ))}
@@ -140,7 +114,6 @@ export function OrderItemRow({
                     </TabsContent>
                   </div>
 
-                  {/* Remove button positioned next to input fields on mobile */}
                   <div className="block sm:hidden">
                     <Button
                       type="button"
@@ -174,8 +147,7 @@ export function OrderItemRow({
                     placeholder="Qty"
                     {...field}
                     onChange={(e) => {
-                      const value =
-                        e.target.value === "" ? undefined : e.target.value;
+                      const value = e.target.value === "" ? undefined : e.target.value;
                       field.onChange(value);
                     }}
                     className="w-full"
@@ -187,15 +159,8 @@ export function OrderItemRow({
           />
         </div>
 
-        {/* Remove button shown only on desktop */}
         <div className="hidden sm:block">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={onRemove}
-            disabled={!canRemove}
-          >
+          <Button type="button" variant="ghost" size="icon" onClick={onRemove} disabled={!canRemove}>
             <X className="h-4 w-4" />
           </Button>
         </div>

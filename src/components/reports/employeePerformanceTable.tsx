@@ -22,16 +22,13 @@ export function EmployeePerformanceTable({ data, isLoading, onTabChange }: Emplo
   const [activeTab, setActiveTab] = useState<"workers" | "drivers">("workers");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Handler untuk perubahan tab
   const handleTabChange = (tab: "workers" | "drivers") => {
     setActiveTab(tab);
-    // Panggil onTabChange jika prop tersedia
     if (onTabChange) {
       onTabChange(tab);
     }
   };
 
-  // Filter workers based on search query
   const filteredWorkers =
     data.workers?.filter(
       (worker) =>
@@ -40,7 +37,6 @@ export function EmployeePerformanceTable({ data, isLoading, onTabChange }: Emplo
         worker.station.toLowerCase().includes(searchQuery.toLowerCase())
     ) || [];
 
-  // Filter drivers based on search query
   const filteredDrivers =
     data.drivers?.filter(
       (driver) =>
@@ -48,7 +44,6 @@ export function EmployeePerformanceTable({ data, isLoading, onTabChange }: Emplo
         driver.outletName.toLowerCase().includes(searchQuery.toLowerCase())
     ) || [];
 
-  // Get badge for worker station
   const getStationBadge = (station: string) => {
     switch (station) {
       case "WASHING":

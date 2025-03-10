@@ -28,7 +28,6 @@ export function OutletTable({ onEdit, initialData, onRefreshReady }: OutletTable
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Gunakan initialData dari server jika tersedia
   const {
     outlets,
     loading,
@@ -43,28 +42,24 @@ export function OutletTable({ onEdit, initialData, onRefreshReady }: OutletTable
     resetFilters,
     refresh,
   } = useOutletTable({
-    initialData, // Pass initialData ke custom hook
+    initialData,
     pageSize: 10,
   });
 
-  // Expose refresh function ke parent component
   useEffect(() => {
     if (onRefreshReady) {
       onRefreshReady(refresh);
     }
   }, [onRefreshReady, refresh]);
 
-  // Tambahkan fungsi refresh dengan animasi
   const handleRefresh = useCallback(() => {
     setIsRefreshing(true);
     refresh();
-    // Tampilkan animasi refresh selama 1 detik
     setTimeout(() => {
       setIsRefreshing(false);
     }, 1000);
   }, [refresh]);
 
-  // Menggunakan useCallback untuk fungsi yang sering digunakan
   const handleDelete = useCallback(async () => {
     if (!deleteOutletId) return;
 
@@ -77,7 +72,6 @@ export function OutletTable({ onEdit, initialData, onRefreshReady }: OutletTable
       });
       setDeleteOutletId(null);
 
-      // Langsung refresh table setelah delete berhasil
       refresh();
     } catch (error) {
       toast({
@@ -91,17 +85,13 @@ export function OutletTable({ onEdit, initialData, onRefreshReady }: OutletTable
     }
   }, [deleteOutletId, deleteOutlet, toast, refresh]);
 
-  // Membuat handle untuk edit yang bisa merefresh data
   const handleEdit = useCallback(
     (outlet: Outlet) => {
       onEdit(outlet);
-      // Tidak memanggil refresh di sini karena akan dipanggil oleh parent
-      // setelah operasi edit selesai
     },
     [onEdit]
   );
 
-  // Gunakan useMemo untuk memoize table rows agar mengurangi re-renders
   const tableRows = useMemo(() => {
     return (
       outlets?.map((outlet: Outlet) => (
@@ -135,7 +125,6 @@ export function OutletTable({ onEdit, initialData, onRefreshReady }: OutletTable
 
   return (
     <div className="space-y-4">
-      {/* Filters section with refresh button */}
       <div className="w-full flex justify-between items-center">
         <OutletTableFilters
           searchQuery={searchQuery}
@@ -211,7 +200,6 @@ export function OutletTable({ onEdit, initialData, onRefreshReady }: OutletTable
         </Table>
       </div>
 
-      {/* Pagination dengan proper spacing */}
       <div className="flex justify-center sm:justify-end mt-4">
         <TablePagination
           currentPage={currentPage}

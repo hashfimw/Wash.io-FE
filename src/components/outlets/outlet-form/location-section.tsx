@@ -1,22 +1,13 @@
-// src/components/outlets/outlet-form/location-section.tsx
 import { UseFormReturn, useWatch } from "react-hook-form";
 import { OutletFormValues } from "./schema";
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import dynamic from "next/dynamic";
 import { SearchableAddress } from "@/components/address/SearchableAddress";
 import { useEffect } from "react";
 
-// Dynamic import untuk LocationPicker
 const LocationPicker = dynamic(
-  () =>
-    import("@/components/map/locationPicker").then((mod) => mod.LocationPicker),
+  () => import("@/components/map/locationPicker").then((mod) => mod.LocationPicker),
   {
     ssr: false,
     loading: () => (
@@ -32,18 +23,15 @@ interface LocationSectionProps {
 }
 
 export function LocationSection({ form }: LocationSectionProps) {
-  // Gunakan useWatch untuk memantau perubahan pada field latitude & longitude
   const latitude = useWatch({ control: form.control, name: "latitude" });
   const longitude = useWatch({ control: form.control, name: "longitude" });
 
-  // Debugging
   useEffect(() => {
     console.log("Current form values:", form.getValues());
   }, [form]);
 
   return (
     <div className="space-y-4">
-      {/* Address Line */}
       <FormField
         control={form.control}
         name="addressLine"
@@ -58,7 +46,6 @@ export function LocationSection({ form }: LocationSectionProps) {
         )}
       />
 
-      {/* Map Picker */}
       <div>
         <FormLabel>Select Location</FormLabel>
         <LocationPicker form={form} latitude={latitude} longitude={longitude} />
@@ -66,7 +53,6 @@ export function LocationSection({ form }: LocationSectionProps) {
 
       <SearchableAddress form={form} />
 
-      {/* Province and Regency */}
       <div className="grid grid-cols-2 gap-4">
         <FormField
           control={form.control}
@@ -96,7 +82,6 @@ export function LocationSection({ form }: LocationSectionProps) {
         />
       </div>
 
-      {/* District and Village */}
       <div className="grid grid-cols-2 gap-4">
         <FormField
           control={form.control}
@@ -126,7 +111,6 @@ export function LocationSection({ form }: LocationSectionProps) {
         />
       </div>
 
-      {/* Coordinates */}
       <div className="grid grid-cols-2 gap-4">
         <FormField
           control={form.control}

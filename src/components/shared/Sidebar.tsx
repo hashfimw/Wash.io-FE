@@ -1,5 +1,5 @@
-// src/components/shared/Sidebar.tsx
 "use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Store,
@@ -38,9 +38,7 @@ interface MenuItem {
   isExpanded?: boolean;
 }
 
-// Function to generate menu configurations
 const generateMenuConfig = (roleParam: string): MenuItem[] => {
-  // Common items for both roles
   const outletAdminItems: MenuItem[] = [
     {
       title: "Overview",
@@ -81,7 +79,6 @@ const generateMenuConfig = (roleParam: string): MenuItem[] => {
     },
   ];
 
-  // Super admin specific items
   const superAdminItems: MenuItem[] = [
     {
       title: "Outlets",
@@ -165,8 +162,6 @@ const generateMenuConfig = (roleParam: string): MenuItem[] => {
     },
   ];
 
-  // Convert component role to URL parameter
-
   return roleParam === "super-admin"
     ? [...outletAdminItems.slice(0, 1), ...superAdminItems, ...outletAdminItems.slice(1)]
     : roleParam === "outlet-admin"
@@ -176,7 +171,6 @@ const generateMenuConfig = (roleParam: string): MenuItem[] => {
     : workerItems;
 };
 
-// Map component role formats to URL parameters
 const roleToParam = {
   SUPER_ADMIN: "super-admin",
   OUTLET_ADMIN: "outlet-admin",
@@ -186,11 +180,8 @@ const roleToParam = {
 
 export const SidebarContent = ({ role, isMobile = false }: SidebarProps) => {
   const pathname = usePathname();
-
-  // Convert component role to URL parameter
   const roleParam = roleToParam[role];
 
-  // Generate menu based on role parameter
   const menuItems = useMemo(() => {
     const items = generateMenuConfig(roleParam);
     return items.map((item) => ({
@@ -201,7 +192,6 @@ export const SidebarContent = ({ role, isMobile = false }: SidebarProps) => {
 
   const [expandedItems, setExpandedItems] = useState<MenuItem[]>(menuItems);
 
-  // Update menu items when role or pathname changes
   useEffect(() => {
     setExpandedItems(menuItems);
   }, [menuItems]);
@@ -214,7 +204,6 @@ export const SidebarContent = ({ role, isMobile = false }: SidebarProps) => {
   const isActive = (path: string) => {
     if (!path) return false;
 
-    // Normalisasi path dengan menghapus trailing slash
     const normalizedPathname = pathname.replace(/\/$/, "");
     const normalizedPath = path.replace(/\/$/, "");
 
@@ -231,22 +220,17 @@ export const SidebarContent = ({ role, isMobile = false }: SidebarProps) => {
 
   return (
     <div className="relative h-full flex flex-col">
-      {/* Glass effect background overlay - dihilangkan backdrop-blur untuk mobile */}
       <div
         className={`absolute inset-0 bg-gradient-to-b from-putbir via-transparent to-birmud/20 ${
           !isMobile && "backdrop-blur-[2px]"
         } z-0`}
       ></div>
-
-      {/* Dynamic bubble animations - disembunyikan pada mobile */}
       {!isMobile && (
         <>
           <div className="absolute top-0 right-0 w-20 h-20 rounded-full bg-oren/10 blur-xl"></div>
           <div className="absolute bottom-20 left-0 w-40 h-40 rounded-full bg-birtu/5 blur-xl"></div>
         </>
       )}
-
-      {/* Top decorative design */}
       <div className="absolute top-0 left-0 right-0 h-24 overflow-hidden z-0">
         <div className="absolute top-0 left-0 right-0 h-full bg-gradient-to-b from-birmud/70 to-transparent"></div>
         <svg
@@ -261,7 +245,6 @@ export const SidebarContent = ({ role, isMobile = false }: SidebarProps) => {
         </svg>
       </div>
 
-      {/* Bottom decorative design */}
       <div className="absolute bottom-0 left-0 right-0 h-32 overflow-hidden z-0">
         <div className="absolute bottom-0 left-0 right-0 h-full bg-gradient-to-t from-birmud/40 to-transparent"></div>
         <svg
@@ -276,7 +259,6 @@ export const SidebarContent = ({ role, isMobile = false }: SidebarProps) => {
         </svg>
       </div>
 
-      {/* Logo section with incorporated image - dihilangkan backdrop-blur untuk mobile */}
       <div className="relative px-4 py-6 z-10">
         <div className="flex flex-col items-center justify-center">
           <div className="rounded-xl shadow-lg bg-gradient-to-r from-birmud/30 to-birmud p-1.5">
@@ -313,7 +295,6 @@ export const SidebarContent = ({ role, isMobile = false }: SidebarProps) => {
         </div>
       </div>
 
-      {/* Sparkles effect - disembunyikan pada mobile */}
       {!isMobile && (
         <>
           <div className="absolute top-16 right-8 z-5 opacity-60">
@@ -325,7 +306,6 @@ export const SidebarContent = ({ role, isMobile = false }: SidebarProps) => {
         </>
       )}
 
-      {/* Navigation with enhanced styling */}
       <nav className="relative space-y-0.5 px-3 flex-grow z-10 pb-6 mt-2 overflow-y-auto scrollbar-thin scrollbar-thumb-birtu/20 scrollbar-track-transparent">
         {expandedItems.map((item, index) => (
           <div key={item.path || index} className="group">
@@ -415,7 +395,6 @@ export const SidebarContent = ({ role, isMobile = false }: SidebarProps) => {
         ))}
       </nav>
 
-      {/* Version info */}
       <div className="relative px-4 py-2 mt-auto z-10 opacity-70">
         <div className="text-xs text-center text-birtu/60">Washio v1.0</div>
       </div>

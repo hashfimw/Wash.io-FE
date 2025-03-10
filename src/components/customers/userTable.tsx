@@ -1,13 +1,5 @@
-// src/components/customers/UserTable.tsx
 import { useState, useCallback, useEffect, useMemo } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -38,14 +30,12 @@ export function UserTable({
 }: UserTableProps) {
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
 
-  // Sync local search with prop when props change
   useEffect(() => {
     if (searchQuery !== localSearchQuery) {
       setLocalSearchQuery(searchQuery);
     }
   }, [searchQuery]);
 
-  // Debounced search effect
   useEffect(() => {
     const timerId = setTimeout(() => {
       if (localSearchQuery !== searchQuery) {
@@ -58,22 +48,14 @@ export function UserTable({
     };
   }, [localSearchQuery, onSearch, searchQuery]);
 
-  // Handle search input change with useCallback
-  const handleSearchChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setLocalSearchQuery(e.target.value);
-    },
-    []
-  );
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalSearchQuery(e.target.value);
+  }, []);
 
-  // Memoize empty state message
   const emptyStateMessage = useMemo(() => {
-    return localSearchQuery
-      ? "No users found matching your search."
-      : "No users available.";
+    return localSearchQuery ? "No users found matching your search." : "No users available.";
   }, [localSearchQuery]);
 
-  // Memoize user rows to prevent re-renders
   const userRows = useMemo(() => {
     if (!users || users.length === 0) {
       return (
@@ -95,18 +77,13 @@ export function UserTable({
           </Badge>
         </TableCell>
         <TableCell className="text-right">
-          {user.createdAt
-            ? new Date(user.createdAt).toLocaleDateString()
-            : "N/A"}
+          {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}
         </TableCell>
-        <TableCell className="text-right">
-          {/* Add action buttons if needed */}
-        </TableCell>
+        <TableCell className="text-right"></TableCell>
       </TableRow>
     ));
   }, [users, emptyStateMessage]);
 
-  // Memoize the search input component
   const searchInput = useMemo(
     () => (
       <Input
@@ -143,7 +120,6 @@ export function UserTable({
         </Table>
       </div>
 
-      {/* Pagination - only show if there are users */}
       {!isEmptyUsers && (
         <div className="flex justify-end">
           <TablePagination

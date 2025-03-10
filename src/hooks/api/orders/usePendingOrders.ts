@@ -1,9 +1,7 @@
-// src/hooks/api/orders/usePendingOrders.ts
 import { useState, useCallback } from "react";
 import { useOrders } from "./useOrders";
 import { Order } from "@/types/order";
 
-// Versi yang lebih sederhana
 export const usePendingOrders = () => {
   const { loading: ordersLoading, error: ordersError, getAllOrders } = useOrders();
   const [pendingOrders] = useState<Order[]>([]);
@@ -13,11 +11,7 @@ export const usePendingOrders = () => {
   const getPendingOrders = useCallback(async () => {
     try {
       setLoading(true);
-
-      // Gunakan getAllOrders untuk semua kasus
       const response = await getAllOrders();
-
-      // Filter untuk status ARRIVED_AT_OUTLET
       const filtered = response.data.data.filter((order) => order.orderStatus === "ARRIVED_AT_OUTLET");
       return filtered;
     } catch (err) {

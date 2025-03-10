@@ -1,4 +1,3 @@
-// src/components/reports/SalesReportChart.tsx
 "use client";
 
 import { useState } from "react";
@@ -18,7 +17,6 @@ interface SalesReportChartProps {
 export function SalesReportChart({ data, period, isLoading }: SalesReportChartProps) {
   const [activeChart, setActiveChart] = useState<string>("bar");
 
-  // Format number to currency
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -27,19 +25,13 @@ export function SalesReportChart({ data, period, isLoading }: SalesReportChartPr
     }).format(value);
   };
 
-  // Generate complete data for months and years
   const formatChartData = () => {
     let formattedData = [];
 
     if (period === "monthly") {
-      // Get current year
       const currentYear = new Date().getFullYear();
-
-      // Create all months for the current year
       const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
       formattedData = monthNames.map((month, index) => {
-        // Format key for lookup (e.g., "2023-01")
         const monthKey = `${currentYear}-${String(index + 1).padStart(2, "0")}`;
 
         return {
@@ -48,15 +40,11 @@ export function SalesReportChart({ data, period, isLoading }: SalesReportChartPr
         };
       });
 
-      // For pie chart, filter out months with zero sales
       if (activeChart === "pie") {
         formattedData = formattedData.filter((item) => item.sales > 0);
       }
     } else if (period === "yearly") {
-      // Get current year
       const currentYear = new Date().getFullYear();
-
-      // Create array of years (current and 4 future years)
       formattedData = Array.from({ length: 5 }, (_, i) => {
         const year = currentYear + i;
         return {
@@ -65,12 +53,10 @@ export function SalesReportChart({ data, period, isLoading }: SalesReportChartPr
         };
       });
 
-      // For pie chart, filter out years with zero sales
       if (activeChart === "pie") {
         formattedData = formattedData.filter((item) => item.sales > 0);
       }
     } else {
-      // Daily data - format as before
       formattedData = Object.entries(data).map(([key, value]) => {
         const date = new Date(key);
         const label = date.toLocaleDateString("en-US", {
@@ -81,17 +67,15 @@ export function SalesReportChart({ data, period, isLoading }: SalesReportChartPr
 
         return {
           name: label,
-          date: key, // Store the full date for sorting
+          date: key,
           sales: value,
         };
       });
 
-      // Sort chronologically
       formattedData.sort((a, b) => {
         return new Date(a.date).getTime() - new Date(b.date).getTime();
       });
 
-      // For pie chart, filter out days with zero sales
       if (activeChart === "pie") {
         formattedData = formattedData.filter((item) => item.sales > 0);
       }
@@ -100,7 +84,6 @@ export function SalesReportChart({ data, period, isLoading }: SalesReportChartPr
     return formattedData;
   };
 
-  // KPI calculation
   const calculateKPIs = () => {
     const formattedData = formatChartData();
 

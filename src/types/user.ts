@@ -1,5 +1,3 @@
-// src/types/customer.ts\
-
 import type { Metadata } from "next";
 export interface User {
   id: number;

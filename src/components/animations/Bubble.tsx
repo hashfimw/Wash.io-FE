@@ -12,8 +12,6 @@ const Bubbles: React.FC<BubblesProps> = ({ count = 15, isMobile = false }) => {
   const bubbleCount = isMobile ? Math.floor(count / 2) : count;
   const id = useId();
 
-  // Buat array statis untuk posisi gelembung
-  // Ini akan konsisten antara server dan client
   const bubbles = Array.from({ length: bubbleCount }, (_, i) => ({
     id: `${id}-bubble-${i}`,
     width: 8 + ((i * 13) % 12),
@@ -21,14 +19,11 @@ const Bubbles: React.FC<BubblesProps> = ({ count = 15, isMobile = false }) => {
     left: 10 + ((i * 6) % 90),
     top: 90 - ((i * 3) % 40),
     delay: i * 0.3,
-    colorIndex: i % 3, // Untuk menentukan warna
+    colorIndex: i % 3,
   }));
 
   return (
-    <div
-      className="absolute inset-0 overflow-hidden pointer-events-none"
-      style={{ zIndex: 1 }}
-    >
+    <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 1 }}>
       {bubbles.map((bubble) => (
         <motion.div
           key={bubble.id}
@@ -52,11 +47,7 @@ const Bubbles: React.FC<BubblesProps> = ({ count = 15, isMobile = false }) => {
             times: [0, 0.6, 1],
           }}
           className={`absolute rounded-full ${
-            bubble.colorIndex === 0
-              ? "bg-oren"
-              : bubble.colorIndex === 1
-              ? "bg-birtu"
-              : "bg-birmud"
+            bubble.colorIndex === 0 ? "bg-oren" : bubble.colorIndex === 1 ? "bg-birtu" : "bg-birmud"
           }`}
           style={{
             width: `${bubble.width}px`,

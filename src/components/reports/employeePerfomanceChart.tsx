@@ -1,4 +1,3 @@
-// src/components/reports/EmployeePerformanceChart.tsx
 "use client";
 
 import { useState } from "react";
@@ -36,7 +35,6 @@ interface DriverPerformance {
   totalJobs: number;
 }
 
-// Tipe untuk data yang ditampilkan di chart
 interface TopWorkerData {
   name: string;
   totalJobs: number;
@@ -64,9 +62,7 @@ interface EmployeePerformanceChartProps {
 export function EmployeePerformanceChart({ data, activeTab, isLoading }: EmployeePerformanceChartProps) {
   const [chartType, setChartType] = useState<string>("bar");
 
-  // Calculate metrics for workers
   const calculateWorkerMetrics = () => {
-    // Group workers by station
     const stationGroups = data.workers.reduce((acc, worker) => {
       const station = worker.station || "Unknown";
       if (!acc[station]) {
@@ -81,7 +77,6 @@ export function EmployeePerformanceChart({ data, activeTab, isLoading }: Employe
       return acc;
     }, {} as Record<string, { station: string; totalJobs: number; workerCount: number }>);
 
-    // Convert to array for charts
     const stationData = Object.values(stationGroups).map((group) => ({
       name: group.station,
       value: group.totalJobs,
@@ -89,7 +84,6 @@ export function EmployeePerformanceChart({ data, activeTab, isLoading }: Employe
       avg: group.workerCount > 0 ? Math.round(group.totalJobs / group.workerCount) : 0,
     }));
 
-    // Get top workers by job count
     const topWorkers = [...data.workers]
       .sort((a, b) => b.totalJobs - a.totalJobs)
       .slice(0, 5)
@@ -106,9 +100,7 @@ export function EmployeePerformanceChart({ data, activeTab, isLoading }: Employe
     return { stationData, topWorkers };
   };
 
-  // Calculate metrics for drivers
   const calculateDriverMetrics = () => {
-    // Group drivers by outlet
     const outletGroups = data.drivers.reduce((acc, driver) => {
       const outlet = driver.outletName;
       if (!acc[outlet]) {
@@ -123,7 +115,6 @@ export function EmployeePerformanceChart({ data, activeTab, isLoading }: Employe
       return acc;
     }, {} as Record<string, { outlet: string; totalJobs: number; driverCount: number }>);
 
-    // Convert to array for charts
     const outletData = Object.values(outletGroups).map((group) => ({
       name: group.outlet,
       value: group.totalJobs,
@@ -131,7 +122,6 @@ export function EmployeePerformanceChart({ data, activeTab, isLoading }: Employe
       avg: group.driverCount > 0 ? Math.round(group.totalJobs / group.driverCount) : 0,
     }));
 
-    // Get top drivers by job count
     const topDrivers = [...data.drivers]
       .sort((a, b) => b.totalJobs - a.totalJobs)
       .slice(0, 5)
@@ -147,7 +137,6 @@ export function EmployeePerformanceChart({ data, activeTab, isLoading }: Employe
     return { outletData, topDrivers };
   };
 
-  // Get badge for worker station
   const getStationBadge = (station: string) => {
     switch (station) {
       case "WASHING":
@@ -213,14 +202,11 @@ export function EmployeePerformanceChart({ data, activeTab, isLoading }: Employe
     );
   }
 
-  // Colors
   const COLORS = ["#73A5A8", "#E5843F", "#97cfcf", "#F6BD60", "#84A59D"];
 
-  // Prepare chart data based on active tab
   const { stationData, topWorkers } = calculateWorkerMetrics();
   const { outletData, topDrivers } = calculateDriverMetrics();
 
-  // Employee type specific data
   const chartData =
     activeTab === "workers"
       ? chartType === "distribution"
@@ -230,7 +216,6 @@ export function EmployeePerformanceChart({ data, activeTab, isLoading }: Employe
       ? outletData
       : topDrivers;
 
-  // Prepare typed data for rendering
   const employeeData =
     activeTab === "workers" ? (topWorkers as TopWorkerData[]) : (topDrivers as TopDriverData[]);
 
@@ -246,7 +231,6 @@ export function EmployeePerformanceChart({ data, activeTab, isLoading }: Employe
             <TabsTrigger value="distribution">Job Distribution</TabsTrigger>
           </TabsList>
 
-          {/* Bar Chart - Top Performers */}
           <TabsContent value="bar">
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
@@ -275,7 +259,6 @@ export function EmployeePerformanceChart({ data, activeTab, isLoading }: Employe
               </ResponsiveContainer>
             </div>
 
-            {/* Top Performers List */}
             <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-2">
               {employeeData.map((employee, index) => (
                 <div key={index} className="p-3 bg-gray-50 rounded-lg flex justify-between items-center">
@@ -296,7 +279,6 @@ export function EmployeePerformanceChart({ data, activeTab, isLoading }: Employe
             </div>
           </TabsContent>
 
-          {/* Pie Chart - Distribution */}
           <TabsContent value="distribution">
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
@@ -320,7 +302,6 @@ export function EmployeePerformanceChart({ data, activeTab, isLoading }: Employe
               </ResponsiveContainer>
             </div>
 
-            {/* Distribution Summary */}
             <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
               {(activeTab === "workers" ? stationData : outletData).map((item, index) => (
                 <div key={index} className="p-3 bg-gray-50 rounded-lg">

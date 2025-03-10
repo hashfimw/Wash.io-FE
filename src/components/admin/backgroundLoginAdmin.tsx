@@ -1,4 +1,3 @@
-// src/components/ui/BackgroundIcons.tsx (fixed version)
 import React from "react";
 import {
   Shirt,
@@ -15,9 +14,7 @@ interface BackgroundIconsProps {
   opacity?: number;
 }
 
-const BackgroundIcons: React.FC<BackgroundIconsProps> = ({
-  opacity = 0.07,
-}) => {
+const BackgroundIcons: React.FC<BackgroundIconsProps> = ({ opacity = 0.07 }) => {
   return (
     <div className="absolute inset-0 overflow-hidden z-0" style={{ opacity }}>
       {/* baris atas */}

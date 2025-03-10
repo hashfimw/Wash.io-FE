@@ -1,4 +1,3 @@
-// (dashboard)/layout.tsx
 "use client";
 
 import { AdminGuard } from "@/hoc/AdminGuard";

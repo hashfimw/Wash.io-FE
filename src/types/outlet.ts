@@ -1,5 +1,3 @@
-// src/types/outlet.ts
-// Field yang bisa di-sort
 export type OutletSortField = "outletName" | "addressLine" | "province" | "district" | "regency" | "village";
 
 export interface SortConfig {

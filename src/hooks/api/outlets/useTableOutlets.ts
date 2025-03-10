@@ -17,13 +17,9 @@ export function useOutletTable({ pageSize = 10, initialData }: UseOutletTablePro
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Check if component is mounted
   const isMounted = useRef(false);
-  // Store if initial data has been used
   const initialDataUsed = useRef(false);
-  // Prevent excessive URL updates
   const pendingUpdateRef = useRef(false);
-  // Add a forceRefresh flag
   const forceRefreshRef = useRef(false);
 
   const [_isLoading, setIsLoading] = useState(true);
@@ -38,19 +34,12 @@ export function useOutletTable({ pageSize = 10, initialData }: UseOutletTablePro
   });
   const [loading, setLoading] = useState(!initialData);
   const [error, setError] = useState<string | null>(null);
-  // Add a refreshCounter to force re-fetches
   const [refreshCounter, setRefreshCounter] = useState(0);
-
-  // Hooks
   const { getOutlets } = useOutlets();
   const debouncedSearch = useDebounce(searchQuery, 500);
-
-  // Cache to prevent repeated fetches with same params
   const lastParamsRef = useRef<string | null>(null);
-  // Add timestamp to track last refresh
   const lastRefreshTimeRef = useRef<number>(Date.now());
 
-  // Update URL with new parameters - with batching
   const updateUrl = useCallback(
     (newParams: Record<string, string | null>) => {
       if (isMounted.current && !pendingUpdateRef.current) {
@@ -81,9 +70,7 @@ export function useOutletTable({ pageSize = 10, initialData }: UseOutletTablePro
     [pathname, router, searchParams]
   );
 
-  // Fetch outlets with cache optimization
   const fetchOutlets = useCallback(async () => {
-    // Use initial data if available and not used yet
     if (initialData && !initialDataUsed.current) {
       initialDataUsed.current = true;
       setOutlets(initialData.outlets);
@@ -92,23 +79,21 @@ export function useOutletTable({ pageSize = 10, initialData }: UseOutletTablePro
       return;
     }
 
-    // Create params key for cache
     const paramsKey = JSON.stringify({
       page: currentPage,
       limit: pageSize,
       search: debouncedSearch,
       sortBy: sortBy.field,
       sortOrder: sortBy.direction,
-      refreshCounter, // Include refreshCounter to make sure new fetches happen when refreshed
+      refreshCounter,
     });
 
-    // Only skip if params are the same AND it's not a forced refresh AND it's been less than 10 seconds
     const timeSinceLastRefresh = Date.now() - lastRefreshTimeRef.current;
     if (
       lastParamsRef.current === paramsKey &&
       !forceRefreshRef.current &&
       outlets.length > 0 &&
-      timeSinceLastRefresh < 10000 // 10 seconds cache - fixed from 1ms
+      timeSinceLastRefresh < 10000
     ) {
       console.log("Using cached data, time since last refresh:", timeSinceLastRefresh, "ms");
       setLoading(false);
@@ -127,7 +112,7 @@ export function useOutletTable({ pageSize = 10, initialData }: UseOutletTablePro
         sortBy: sortBy.field,
         sortOrder: sortBy.direction,
         search: debouncedSearch,
-        refreshCounter, // Log for debugging
+        refreshCounter,
       });
 
       const response = await getOutlets({
@@ -167,9 +152,8 @@ export function useOutletTable({ pageSize = 10, initialData }: UseOutletTablePro
     initialData,
     outlets.length,
     refreshCounter,
-  ]); // Add refreshCounter to dependencies
+  ]);
 
-  // Effect to mark component as mounted
   useEffect(() => {
     isMounted.current = true;
     fetchOutlets();
@@ -179,7 +163,6 @@ export function useOutletTable({ pageSize = 10, initialData }: UseOutletTablePro
     };
   }, []);
 
-  // Effect to update URL when parameters change
   useEffect(() => {
     if (initialData && !initialDataUsed.current) {
       return;
@@ -193,12 +176,10 @@ export function useOutletTable({ pageSize = 10, initialData }: UseOutletTablePro
     });
   }, [currentPage, debouncedSearch, sortBy, updateUrl, initialData]);
 
-  // Effect to fetch data when parameters change
   useEffect(() => {
     fetchOutlets();
   }, [fetchOutlets]);
 
-  // Optimized handlers with useCallback
   const handleSearchChange = useCallback((value: string) => {
     setSearchQuery(value);
     setCurrentPage(1);
@@ -235,43 +216,27 @@ export function useOutletTable({ pageSize = 10, initialData }: UseOutletTablePro
     lastParamsRef.current = null;
   }, [pathname, router]);
 
-  // Improved refresh function to force new data fetch
   const refresh = useCallback(() => {
     setLoading(true);
-    // Force refresh flag
     forceRefreshRef.current = true;
-    // Reset cache params
     lastParamsRef.current = null;
-    // Update refresh timestamp
     lastRefreshTimeRef.current = Date.now();
-    // Increment refresh counter to force dependency change
     setRefreshCounter((prev) => prev + 1);
-
-    // Fetch immediately, no need for timeout
     fetchOutlets();
   }, [fetchOutlets]);
 
   return {
-    // Data
     outlets,
     loading,
     error,
     totalPages,
     totalItems,
-
-    // Pagination
     currentPage,
     setCurrentPage: handlePageChange,
-
-    // Search and filter
     searchQuery,
     onSearchChange: handleSearchChange,
-
-    // Sorting
     sortBy,
     onSortChange: handleSortChange,
-
-    // Actions
     resetFilters,
     refresh,
   };
