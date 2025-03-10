@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { User, Mail } from "lucide-react";
 import { useEditProfile } from "@/hooks/api/profile/useEditProfile";
 import { UserUpdatePayload } from "@/types/profile";
@@ -11,7 +11,7 @@ interface ProfileEditFormProps {
     fullName: string;
     email: string;
   };
-  onSaveComplete: () => void;
+  onSaveComplete: (updatedData: {fullName?: string; email?: string}) => void;
 }
 
 const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
@@ -21,13 +21,21 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
 }) => {
   const [values, setValues] = useState({
     fullName: initialValues.fullName || "",
-    email: initialValues.email,
+    email: initialValues.email || "",
   });
 
   const [errors, setErrors] = useState({
     fullName: "",
     email: "",
   });
+
+  // Update local state when initialValues change
+  useEffect(() => {
+    setValues({
+      fullName: initialValues.fullName || "",
+      email: initialValues.email || "",
+    });
+  }, [initialValues]);
 
   const { updateProfile, isUpdating } = useEditProfile();
 
@@ -64,7 +72,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
     return isValid;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateForm()) return;
 
     const payload: UserUpdatePayload = {};
@@ -80,10 +88,17 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
 
     // Only make the API call if something has changed
     if (Object.keys(payload).length > 0) {
-      updateProfile(userId, payload);
+      try {
+        const result = await updateProfile(userId, payload);
+        // Pass the updated values back to the parent component
+        onSaveComplete(values);
+      } catch (error) {
+        console.error("Error updating profile:", error);
+      }
+    } else {
+      // If nothing changed, still call onSaveComplete with no changes
+      onSaveComplete({});
     }
-
-    onSaveComplete();
   };
 
   return (

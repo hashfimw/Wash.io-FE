@@ -329,7 +329,7 @@ export default function MobileLaundrySearchBar() {
       <div className="p-3 bg-transparent">
         <div className="relative flex items-center gap-2 bg-white rounded-full shadow-sm border border-gray-200">
           <div className="relative flex-1">
-            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400">
+            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-birtu">
               <MapPin className="w-4 h-4" />
             </div>
             <input
@@ -382,8 +382,8 @@ export default function MobileLaundrySearchBar() {
           <button
             onClick={handleSearch}
             disabled={isLoading || apiLoading}
-            className={`px-3 py-2.5 mr-1 bg-orange-500 text-white rounded-full 
-              hover:bg-orange-600 transition-colors flex items-center justify-center
+            className={`px-3 py-2.5 bg-oren text-white rounded-full 
+              hover:bg-orange-400 transition-colors flex items-center justify-center
               ${isLoading || apiLoading ? "opacity-70" : ""}
               w-10 h-10
             `}

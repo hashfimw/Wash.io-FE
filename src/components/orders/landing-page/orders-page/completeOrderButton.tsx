@@ -22,11 +22,6 @@ export const CompleteOrderButton = ({
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  // Only show the button if the status is RECEIVED_BY_CUSTOMER
-  if (order.orderStatus !== "RECEIVED_BY_CUSTOMER") {
-    return null;
-  }
-
   const handleCompleteOrder = async () => {
     setIsLoading(true);
     try {
@@ -40,7 +35,7 @@ export const CompleteOrderButton = ({
         });
         
         // Call the onComplete callback if provided
-        if (onComplete && updatedOrder) {
+        if (onComplete) {
           onComplete(updatedOrder);
         }
       } else {
@@ -60,10 +55,9 @@ export const CompleteOrderButton = ({
 
   return (
     <Button
+      className={className}
       onClick={handleCompleteOrder}
       disabled={isLoading}
-      variant="oren"
-      className={`bg-green-600 hover:bg-green-700 text-white ${className}`}
     >
       {isLoading ? (
         <>
