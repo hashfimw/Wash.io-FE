@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { useSearchParams } from "next/navigation"; // Import useSearchParams
+import { useSearchParams } from "next/navigation";
 import { Search, MapPin, Phone, Clock, Star, ExternalLink } from "lucide-react";
 import { Button } from "../ui/button";
 
@@ -16,7 +16,6 @@ const LocationPickerNoSSR = dynamic(
   { ssr: false }
 );
 
-// Modified interface to match your API structure
 interface OutletData {
   id: number;
   outletName: string;
@@ -29,23 +28,11 @@ interface OutletData {
     latitude?: string;
     longitude?: string;
   };
-  // Additional properties we'll add for UI needs
   phone?: string;
   hours?: string;
   rating?: number;
   services?: string[];
   image?: string;
-}
-
-// Simplified form type for LocationPicker (normally you'd import this)
-interface OutletFormValues {
-  latitude: string;
-  longitude: string;
-  addressLine: string;
-  province: string;
-  regency: string;
-  district: string;
-  village: string;
 }
 
 interface OutletSearchParams {
@@ -56,11 +43,11 @@ interface OutletSearchParams {
 }
 
 const LaundryOutlets = () => {
-  const searchParams = useSearchParams(); // Get search params from URL
-  const urlSearchQuery = searchParams.get("search") || ""; // Get 'search' parameter
+  const searchParams = useSearchParams();
+  const urlSearchQuery = searchParams.get("search") || "";
 
   const [activeOutlet, setActiveOutlet] = useState(0);
-  const [searchQuery, setSearchQuery] = useState(urlSearchQuery); // Initialize with URL query
+  const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
   const [outletData, setOutletData] = useState<OutletData[]>([]);
   const { getPublicOutlets, loading, error } = usePublicOutlets();
   const [currentPage, setCurrentPage] = useState(1);
@@ -71,31 +58,43 @@ const LaundryOutlets = () => {
   } | null>(null);
   const itemsPerPage = 3;
 
-  // Mock form for LocationPicker (since we're not editing, just viewing)
+  // Check for mobile view on mount and window resize
+  useEffect(() => {
+    const checkMobileView = () => {
+      setMobileView(window.innerWidth < 1024); // 1024px is the lg breakpoint in Tailwind
+    };
+
+    // Initial check
+    checkMobileView();
+
+    // Listen for window resize events
+    window.addEventListener("resize", checkMobileView);
+
+    // Cleanup
+    return () => window.removeEventListener("resize", checkMobileView);
+  }, []);
+
+  // Mock form for LocationPicker
   const mockForm = {
     setValue: (field: string, value: any) => {
-      // This is just a viewer so we don't need to do anything with the values
       console.log(`Setting ${field} to ${value}`);
     },
-  } as any; // Type assertion to satisfy LocationPicker props
+  } as any;
 
   const fetchOutlets = async () => {
     try {
       const searchParams: OutletSearchParams = {
         search: searchQuery,
-        limit: 10, // You can adjust this as needed
+        limit: 20, // Increased to prevent pagination issues with small datasets
       };
 
-      // If we have location parameters, add them to the search
       if (locationParams) {
         searchParams.latitude = locationParams.lat;
         searchParams.longitude = locationParams.lng;
       }
 
-      // Use the existing getOutlets function with search parameters
       const response = await getPublicOutlets(searchParams);
 
-      // The rest of your code remains the same...
       const enrichedData = response.data.map((outlet) => ({
         ...outlet,
         phone: "+62 89 1011 1213",
@@ -107,29 +106,47 @@ const LaundryOutlets = () => {
       }));
 
       setOutletData(enrichedData);
+      // Reset activeOutlet when data changes
+      setActiveOutlet(0);
     } catch (err) {
       console.error("Error fetching outlets:", err);
     }
   };
 
-  // Also update the dependency array of the useEffect that calls fetchOutlets:
+  // Update data when search or location changes
   useEffect(() => {
     fetchOutlets();
+    // Reset to first page when search/location changes
+    setCurrentPage(1);
   }, [searchQuery, locationParams]);
 
-  // Implement debounce for search to avoid too many API calls
+  // Handle page change effect
+  useEffect(() => {
+    // When the currentPage changes, update the activeOutlet to the first item on the new page
+    const indexOfFirstItem = (currentPage - 1) * itemsPerPage;
+    if (outletData.length > 0) {
+      setActiveOutlet(indexOfFirstItem);
+    }
+  }, [currentPage, outletData.length, itemsPerPage]);
+
+  // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
-      // This will trigger the useEffect above
       window.dispatchEvent(new Event("resize"));
     }, 500);
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = outletData.slice(indexOfFirstItem, indexOfLastItem);
+  // Get current items for the current page
+  const getCurrentItems = () => {
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    return outletData.slice(indexOfFirstItem, indexOfLastItem);
+  };
+
+  // Current items for the current page - computed, not stored in state
+  const currentItems = getCurrentItems();
 
   // Handle search input changes
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -139,7 +156,12 @@ const LaundryOutlets = () => {
   // Handle search form submission
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // The search will trigger through the useEffect dependency on searchQuery
+    fetchOutlets();
+  };
+
+  // Handle pagination
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
   };
 
   return (
@@ -188,7 +210,7 @@ const LaundryOutlets = () => {
             <p>{error}</p>
             <button
               className="mt-2 text-xs sm:text-sm underline"
-              onClick={() => getPublicOutlets()}
+              onClick={() => fetchOutlets()}
             >
               Try again
             </button>
@@ -207,7 +229,7 @@ const LaundryOutlets = () => {
                       ? "border-b-2 border-orange-500 text-orange-500"
                       : "text-gray-500"
                   }`}
-                  onClick={() => setActiveOutlet(-1)} // Menampilkan daftar outlet
+                  onClick={() => setActiveOutlet(-1)}
                 >
                   Outlets List
                 </button>
@@ -217,7 +239,11 @@ const LaundryOutlets = () => {
                       ? "border-b-2 border-orange-500 text-orange-500"
                       : "text-gray-500"
                   }`}
-                  onClick={() => setActiveOutlet(0)} // Menampilkan detail outlet pertama
+                  onClick={() => {
+                    // Set to the first outlet in the current page
+                    const indexOfFirstItem = (currentPage - 1) * itemsPerPage;
+                    setActiveOutlet(indexOfFirstItem);
+                  }}
                   disabled={outletData.length === 0}
                 >
                   Outlet Details
@@ -227,10 +253,10 @@ const LaundryOutlets = () => {
 
             {/* Mobile: Conditionally render either list or details */}
             {mobileView ? (
-              activeOutlet >= 0 ? (
+              activeOutlet >= 0 && outletData[activeOutlet] ? (
                 // Mobile Details View
                 <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                  {/* Map - Fixed with z-index and position relative */}
+                  {/* Map */}
                   <div className="h-48 sm:h-64 bg-gray-200 relative z-10">
                     {outletData[activeOutlet] &&
                       outletData[activeOutlet].outletAddress && (
@@ -350,7 +376,11 @@ const LaundryOutlets = () => {
                       <div
                         key={outlet.id}
                         className="border rounded-lg p-3 bg-white cursor-pointer transition-all"
-                        onClick={() => setActiveOutlet(index)}
+                        onClick={() => {
+                          // Calculate the actual index in the full data array
+                          const actualIndex = (currentPage - 1) * itemsPerPage + index;
+                          setActiveOutlet(actualIndex);
+                        }}
                       >
                         <h3 className="font-semibold text-base">
                           {outlet.outletName}
@@ -386,45 +416,50 @@ const LaundryOutlets = () => {
                 </div>
               )
             ) : (
-              // Desktop View - Original layout with improvements
+              // Desktop View
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                 {/* Outlet List */}
                 <div className="lg:col-span-1 space-y-3 sm:space-y-4">
                   {currentItems.length > 0 ? (
-                    currentItems.map((outlet, index) => (
-                      <div
-                        key={outlet.id}
-                        className={`border rounded-lg p-3 sm:p-4 cursor-pointer transition-all ${
-                          activeOutlet === index
-                            ? "border-orange-500 bg-orange-50"
-                            : "border-gray-200 bg-white"
-                        }`}
-                        onClick={() => setActiveOutlet(index)}
-                      >
-                        <h3 className="font-semibold text-base sm:text-lg">
-                          {outlet.outletName}
-                        </h3>
-                        <div className="flex items-center text-xs sm:text-sm text-gray-600 mt-1 sm:mt-2">
-                          <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1 text-orange-500" />
-                          <p className="line-clamp-1">
-                            {outlet.outletAddress.addressLine}
-                          </p>
-                        </div>
-                        <div className="flex items-center text-xs sm:text-sm text-gray-600 mt-1">
-                          <Clock className="w-3 h-3 sm:w-4 sm:h-4 mr-1 text-orange-500" />
-                          <p>{outlet.hours}</p>
-                        </div>
-                        <div className="flex items-center text-xs sm:text-sm mt-1">
-                          <div className="flex items-center">
-                            <Star
-                              className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 mr-1"
-                              fill="#FACC15"
-                            />
-                            <span>{outlet.rating}</span>
+                    currentItems.map((outlet, index) => {
+                      // Calculate the actual index in the full data array
+                      const actualIndex = (currentPage - 1) * itemsPerPage + index;
+                      
+                      return (
+                        <div
+                          key={outlet.id}
+                          className={`border rounded-lg p-3 sm:p-4 cursor-pointer transition-all ${
+                            activeOutlet === actualIndex
+                              ? "border-orange-500 bg-orange-50"
+                              : "border-gray-200 bg-white"
+                          }`}
+                          onClick={() => setActiveOutlet(actualIndex)}
+                        >
+                          <h3 className="font-semibold text-base sm:text-lg">
+                            {outlet.outletName}
+                          </h3>
+                          <div className="flex items-center text-xs sm:text-sm text-gray-600 mt-1 sm:mt-2">
+                            <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1 text-orange-500" />
+                            <p className="line-clamp-1">
+                              {outlet.outletAddress.addressLine}
+                            </p>
+                          </div>
+                          <div className="flex items-center text-xs sm:text-sm text-gray-600 mt-1">
+                            <Clock className="w-3 h-3 sm:w-4 sm:h-4 mr-1 text-orange-500" />
+                            <p>{outlet.hours}</p>
+                          </div>
+                          <div className="flex items-center text-xs sm:text-sm mt-1">
+                            <div className="flex items-center">
+                              <Star
+                                className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 mr-1"
+                                fill="#FACC15"
+                              />
+                              <span>{outlet.rating}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                   ) : (
                     <div className="text-center py-6 sm:py-8 bg-white rounded-lg">
                       <p className="text-sm sm:text-base">
@@ -435,9 +470,9 @@ const LaundryOutlets = () => {
                 </div>
 
                 {/* Map and Details Section */}
-                {outletData.length > 0 && (
+                {outletData.length > 0 && outletData[activeOutlet] && (
                   <div className="lg:col-span-2 bg-white rounded-lg shadow-md overflow-hidden">
-                    {/* Map - Fixed with z-index and position relative */}
+                    {/* Map */}
                     <div className="h-48 sm:h-64 bg-gray-200 relative">
                       <div className="absolute inset-0 z-10">
                         <LocationPickerNoSSR
@@ -557,25 +592,23 @@ const LaundryOutlets = () => {
               </div>
             )}
 
-            {/* Pagination - Improved for mobile */}
-            {currentItems.length > 0 && (
+            {/* Pagination */}
+            {outletData.length > itemsPerPage && (
               <div className="flex justify-center items-center space-x-2 mt-4 sm:mt-6">
                 <button
-                  className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-700 hover:bg-gray-800 text-white text-sm rounded-md"
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(prev - 1, 1))
-                  }
+                  className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-700 hover:bg-gray-800 text-white text-sm rounded-md disabled:bg-gray-400"
+                  onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
                 >
                   Previous
                 </button>
                 <div className="text-sm sm:text-base px-2">
-                  Page {currentPage}
+                  Page {currentPage} of {Math.ceil(outletData.length / itemsPerPage)}
                 </div>
                 <button
-                  className="px-3 py-1.5 sm:px-4 sm:py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm rounded-md"
-                  onClick={() => setCurrentPage((prev) => prev + 1)}
-                  disabled={indexOfLastItem >= outletData.length}
+                  className="px-3 py-1.5 sm:px-4 sm:py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm rounded-md disabled:bg-orange-300"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage >= Math.ceil(outletData.length / itemsPerPage)}
                 >
                   Next
                 </button>

@@ -9,13 +9,52 @@ import { useSession } from "@/hooks/useSession";
 import { LogOut, ShoppingCartIcon, UserRoundPen } from "lucide-react";
 
 export default function Avatar() {
-  const { isAuth, user, logout } = useSession();
+  const { isAuth, user, logout, updateSessionUser } = useSession();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(user?.avatar || null);
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const toggleDropdown = () => setIsDropdownOpen((prev) => !prev);
+
+  // Update local avatar state when user changes
+  useEffect(() => {
+    if (user?.avatar) {
+      setAvatarUrl(user.avatar);
+    }
+  }, [user?.avatar]);
+
+  // Check for updated avatar in localStorage on mount and focus
+  useEffect(() => {
+    const checkForUpdatedAvatar = () => {
+      try {
+        const storedUserData = localStorage.getItem('user');
+        if (storedUserData) {
+          const userData = JSON.parse(storedUserData);
+          if (userData.avatar && userData.avatar !== avatarUrl) {
+            setAvatarUrl(userData.avatar);
+            // Update session user if needed
+            if (updateSessionUser) {
+              updateSessionUser(userData);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error checking for updated avatar:", error);
+      }
+    };
+
+    // Check on mount
+    checkForUpdatedAvatar();
+
+    // Check when window gets focus (user comes back from another tab/page)
+    window.addEventListener('focus', checkForUpdatedAvatar);
+    
+    return () => {
+      window.removeEventListener('focus', checkForUpdatedAvatar);
+    };
+  }, [avatarUrl, updateSessionUser]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -79,7 +118,7 @@ export default function Avatar() {
         >
           <div className="w-9 h-9 relative">
             <Image
-              src={user.avatar || "/default-user-avatar.png"}
+              src={avatarUrl || user.avatar || "/default-user-avatar.png"}
               alt="User Avatar"
               fill
               className="rounded-full border-2 border-gray-900 object-cover"

@@ -20,9 +20,17 @@ interface ProfileCardProps {
   user: UserType;
 }
 
-const ProfileCard: React.FC<ProfileCardProps> = ({ user }) => {
+const ProfileCard: React.FC<ProfileCardProps> = ({ user: initialUser }) => {
+  const [user, setUser] = useState(initialUser);
   const [isEditing, setIsEditing] = useState(false);
   const { isUpdating } = useEditProfile();
+
+  const handleAvatarUpdate = (newAvatarUrl: string) => {
+    setUser((prevUser) => ({
+      ...prevUser,
+      avatar: newAvatarUrl,
+    }));
+  };
 
   const toggleEdit = () => {
     setIsEditing(!isEditing);
@@ -54,7 +62,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ user }) => {
         <CardContent className="p-6 md:p-8">
           <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 md:gap-12">
             <div className="flex flex-col items-center space-y-4">
-              <AvatarUpload user={user} />
+              <AvatarUpload user={user} onAvatarUpdate={handleAvatarUpdate} />
 
               {!isEditing && (
                 <div className="mt-4 text-center space-y-1">

@@ -60,7 +60,7 @@ export default function Homepage() {
                 <Button className="bg-oren hover:bg-orange-400 text-white text-sm">
                   <Link href={"/register"}>Get Started Now</Link>
                 </Button>
-                <Button className="bg-birtu hover:bg-gray-800 text-white text-sm">
+                <Button className="bg-birtu hover:bg-teal-700 text-white text-sm">
                   <Link href={"/about"}>Learn More</Link>
                 </Button>
               </div>
