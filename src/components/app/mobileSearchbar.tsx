@@ -340,7 +340,7 @@ export default function MobileLaundrySearchBar() {
                 setSearchValues({ ...searchValues, location: e.target.value })
               }
               placeholder="Find outlets..."
-              className="w-full pl-10 pr-10 py-2.5 rounded-full outline-none text-sm focus:ring-2 focus:ring-blue-300 transition-shadow"
+              className="w-[200px] pl-10 pr-10 py-2.5 rounded-full outline-none text-sm focus:ring-2 focus:ring-blue-300 transition-shadow"
               onFocus={() => {
                 if (
                   searchValues.location.trim() !== "" &&

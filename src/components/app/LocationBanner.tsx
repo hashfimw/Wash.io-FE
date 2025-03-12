@@ -1,25 +1,38 @@
-// components/app/LocationPermissionBanner.tsx
 "use client";
 
 import { useLocation } from "@/context/LocationContext";
 import { useState, useEffect } from "react";
+import { X } from "lucide-react";
 
 const LocationPermissionBanner = () => {
   const { permissionStatus, requestLocation, error } = useLocation();
   const [showBanner, setShowBanner] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
 
   // Only show the banner after client-side hydration
   useEffect(() => {
     setShowBanner(true);
   }, []);
 
-  if (!showBanner) return null;
+  const handleClose = () => {
+    setDismissed(true);
+  };
+
+  if (!showBanner || dismissed) return null;
 
   if (permissionStatus === "granted") return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white shadow-lg border-t border-gray-200">
-      <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 relative">
+        <button 
+          onClick={handleClose} 
+          className="absolute top-0 right-0 -mt-2 -mr-2 sm:static sm:mt-0 sm:mr-0 p-1 text-gray-500 hover:text-gray-700"
+          aria-label="Close banner"
+        >
+          <X size={20} />
+        </button>
+        
         {permissionStatus === "prompt" ? (
           <>
             <p className="text-sm">

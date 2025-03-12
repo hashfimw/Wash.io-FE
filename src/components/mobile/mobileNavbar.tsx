@@ -42,9 +42,9 @@ export default function MobileNavbar() {
       style={{ backgroundColor: navbarColor }}
     >
       {/* Header */}
-      <div className="flex justify-between items-center p-4">
+      <div className="flex justify-between items-center p-6">
         <div className="flex flex-row">
-          <Link href={"/"} className="w-[36px] h-[36px] relative bottom-2">
+          <Link href={"/"} className="w-[36px] h-[36px] relative">
             <Image
               src={"/washio-oren.png"}
               alt="washio-logo"
@@ -52,13 +52,10 @@ export default function MobileNavbar() {
               className="object-cover"
             />
           </Link>
-          <Link href={"/"} className="text-xl font-semibold">
-            ash<span className="text-oren">io</span>
-          </Link>
         </div>
 
         {/* Avatar atau Burger Menu */}
-        <div className="text-gray-700 font-bold hover:cursor-pointer flex items-center space-x-4">
+        <div className="text-gray-700 font-bold hover:cursor-pointer flex items-center">
           <MobileLaundrySearchBar />
           {isOpen ? (
             <X size={24} onClick={toggleMenu} />
