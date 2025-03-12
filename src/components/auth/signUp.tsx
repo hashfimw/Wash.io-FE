@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import LaundrySearchBar from "../app/searchbar";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Mail, Loader2, CheckCircle, ArrowRight } from "lucide-react";
 
 const base_url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
@@ -16,11 +18,13 @@ const SignUp = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [emailSubmitted, setEmailSubmitted] = useState<boolean>(false);
 
-  // 📌 Formik untuk verifikasi email
+  // Formik for email verification
   const formikEmail = useFormik({
     initialValues: { email: "" },
     validationSchema: Yup.object({
-      email: Yup.string().email("Invalid email").required("Email is required"),
+      email: Yup.string()
+        .email("Invalid email address")
+        .required("Email is required"),
     }),
     onSubmit: async (values) => {
       try {
@@ -61,7 +65,7 @@ const SignUp = () => {
   }, []);
 
   return (
-    <div className="bg-gradient-to-b from-[#E7FAFE] to-white min-h-screen text-center p-4 mb-24">
+    <div className="bg-gradient-to-b from-[#E7FAFE] to-white min-h-screen p-4">
       <div
         className={`fixed top-0 left-80 right-80 z-50 transition-all ${
           isScrolled ? "bg-transparent" : "bg-transparent py-6"
@@ -72,61 +76,143 @@ const SignUp = () => {
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row justify-center items-center text-start space-y-10 md:space-y-0 md:space-x-10 mt-10 md:mt-44">
-        <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-lg">
-          <h2 className="text-xl font-semibold text-center mb-4">Sign Up</h2>
-          {!emailSubmitted ? (
-            <form onSubmit={formikEmail.handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-gray-600">Email</label>
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="w-full p-3 border rounded-lg"
-                  {...formikEmail.getFieldProps("email")}
-                />
-                {formikEmail.touched.email && formikEmail.errors.email && (
-                  <p className="text-red-500 text-sm">
-                    {formikEmail.errors.email}
-                  </p>
-                )}
+      {/* Main Content */}
+      <div className="container mx-auto pt-32 md:pt-28 lg:pt-36">
+        <div className="flex flex-col md:flex-row-reverse justify-center items-center gap-8 md:gap-12 lg:gap-16">
+          {/* Right Column - Video (Hidden on small screens) */}
+          <div className="hidden md:block w-full md:w-1/2 lg:w-5/12">
+            <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-lg transition-all hover:shadow-xl border border-gray-100">
+              <h2 className="text-lg font-semibold mb-4 flex items-center text-blue-700">
+                <div className="w-5 h-5 mr-2" />
+                See How Our Laundry Service Works
+              </h2>
+              <div className="relative w-full aspect-video rounded-xl overflow-hidden">
+                <iframe
+                  className="w-full h-full rounded-lg"
+                  src="https://www.youtube.com/embed/AITFo973Jro?autoplay=1&mute=1"
+                  title="YouTube Video"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
               </div>
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className={`w-full p-3 rounded-lg text-white ${
-                  isLoading ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-600"
-                } transition-all`}
-              >
-                {isLoading ? "Sending..." : "Verify Email"}
-              </Button>
-            </form>
-          ) : (
-            <p className="text-green-600 text-center">
-              Check your email for verification link! ✅
-            </p>
-          )}
-          <div className="mt-4 text-center">
-            <p className="text-sm text-gray-600">
-              Already have an account?{" "}
-              <a href="/login" className="text-blue-500 hover:underline">
-                Sign In
-              </a>
-            </p>
+              <p className="mt-4 text-sm text-gray-600">
+                Watch our video to learn how easy it is to get your laundry done
+                with our service.
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div className="hidden md:block w-1/2 p-8 bg-white shadow-lg rounded-lg">
-          <h2 className="text-lg font-semibold mb-2">Commercial Videos</h2>
-          <div className="relative w-full aspect-video">
-            <iframe
-              className="w-full h-full rounded-lg"
-              src="https://www.youtube.com/embed/AITFo973Jro?autoplay=1&mute=1"
-              title="YouTube Video"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
+          {/* Left Column - Sign Up Form */}
+          <div className="w-full md:w-1/2 lg:w-5/12 max-w-md">
+            <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg transition-all hover:shadow-xl border border-gray-100">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-800">
+                  Join Wash<span className="text-oren">io</span>
+                </h2>
+                <p className="text-gray-600 mt-1">
+                  Create your account in just one step
+                </p>
+              </div>
+
+              {!emailSubmitted ? (
+                <div className="space-y-6">
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                    <h3 className="text-sm font-medium text-blue-800 mb-2 flex items-center">
+                      <Mail className="w-4 h-4 mr-1.5" />
+                      How it works:
+                    </h3>
+                    <p className="text-xs text-blue-700 leading-relaxed">
+                      1. Enter your email address below
+                      <br />
+                      2. We&apos;ll send you a verification link
+                      <br />
+                      3. Click the link to complete your registration
+                    </p>
+                  </div>
+
+                  <form
+                    onSubmit={formikEmail.handleSubmit}
+                    className="space-y-5"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <label className="text-sm font-medium text-gray-700 flex items-center">
+                          <Mail className="w-4 h-4 mr-1.5 text-gray-400" />
+                          Email Address
+                        </label>
+                        {formikEmail.touched.email &&
+                          formikEmail.errors.email && (
+                            <span className="text-xs text-red-500">
+                              {formikEmail.errors.email}
+                            </span>
+                          )}
+                      </div>
+                      <Input
+                        type="email"
+                        placeholder="Enter your email"
+                        className={`w-full ${
+                          formikEmail.touched.email && formikEmail.errors.email
+                            ? "border-red-300 focus:ring-red-500"
+                            : "border-gray-300 focus:ring-blue-500"
+                        }`}
+                        {...formikEmail.getFieldProps("email")}
+                      />
+                    </div>
+
+                    <Button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center justify-center"
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />{" "}
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          Get Verification Link{" "}
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </div>
+              ) : (
+                <div className="bg-green-50 p-6 rounded-lg border border-green-100 text-center">
+                  <div className="flex justify-center mb-3">
+                    <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
+                      <CheckCircle className="h-6 w-6 text-green-600" />
+                    </div>
+                  </div>
+                  <h3 className="text-lg font-medium text-green-800 mb-2">
+                    Email Sent!
+                  </h3>
+                  <p className="text-sm text-green-700 mb-4">
+                    We&apos;ve sent a verification link to your email address. Please
+                    check your inbox and click the link to complete your
+                    registration.
+                  </p>
+                  <p className="text-xs text-green-600">
+                    (If you don&apos;t see the email, check your spam folder)
+                  </p>
+                </div>
+              )}
+
+              {/* Sign In Link */}
+              <div className="mt-6 text-center">
+                <p className="text-sm text-gray-600">
+                  Already have an account?{" "}
+                  <a
+                    href="/login"
+                    className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                  >
+                    Sign In
+                  </a>
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

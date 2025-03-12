@@ -165,7 +165,7 @@ const LaundryOutlets = () => {
   };
 
   return (
-    <section className="bg-gradient-to-b from-[#E7FAFE] to-white p-4 pt-20 sm:p-6 py-8 sm:py-12 sm:mt-8">
+    <section className="bg-gradient-to-b from-[#E7FAFE] to-white p-4 pt-32 sm:p-6 py-8 sm:py-12 sm:mt-8">
       <div className="max-w-6xl mx-auto px-2 sm:px-4">
         <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 sm:mb-8">
           Our <span className="text-orange-500">Laundry</span> Outlets

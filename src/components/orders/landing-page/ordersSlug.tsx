@@ -157,7 +157,7 @@ const OrderDetail: React.FC = () => {
         </div>
       )}
     
-      <div className="max-w-3xl mx-auto pt-20">
+      <div className="max-w-3xl mx-auto">
         <button
           onClick={() => router.push("/orders")}
           className="flex items-center text-gray-600 hover:text-gray-900 transition"
@@ -221,7 +221,7 @@ const OrderDetail: React.FC = () => {
                 <h3 className="text-sm font-semibold text-gray-800 mb-3">Delivery Information</h3>
                 <div className="space-y-3">
                   <div className="flex items-start text-sm">
-                    <MapPin className="w-7 h-7 mr-3 text-orange-500" />
+                    <MapPin className="w-4 h-4 mr-3 text-orange-500 mt-1" />
                     <div>
                       <span className="text-gray-600">Delivery Address:</span>
                       <p className="mt-1 text-xs">

@@ -7,8 +7,10 @@ import { useRouter } from "next/navigation";
 import { useGoogleLogin } from "@react-oauth/google";
 import LaundrySearchBar from "../app/searchbar";
 import { useSession } from "@/hooks/useSession";
-import { useToast } from "@/components/ui/use-toast"; // 📌 Gunakan toast custom
+import { useToast } from "@/components/ui/use-toast";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Loader2, Mail, KeyRound, LogIn,  } from "lucide-react";
 
 const base_url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
@@ -22,7 +24,7 @@ const SignIn = () => {
   const formik = useFormik({
     initialValues: { email: "", password: "" },
     validationSchema: Yup.object({
-      email: Yup.string().email("Invalid email").required("Email is required"),
+      email: Yup.string().email("Invalid email address").required("Email is required"),
       password: Yup.string().required("Password is required"),
     }),
     onSubmit: async (values) => {
@@ -95,7 +97,7 @@ const SignIn = () => {
     },
   });
 
-  // 📌 Login dengan Google OAuth
+  // Login with Google OAuth
   const handleGoogleLogin = useGoogleLogin({
     flow: "auth-code",
     onSuccess: async (response) => {
@@ -111,18 +113,18 @@ const SignIn = () => {
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Google login failed");
 
-        // ✅ Simpan token & data user ke localStorage
+        // Save token & user data to localStorage
         await login(data.token);
         localStorage.setItem("user", JSON.stringify(data.data));
 
-        toast({ title: "Google Login Successful", description: "Welcome! ✅" }); // 📌 Toast sukses
+        toast({ title: "Google Login Successful", description: "Welcome! ✅" });
         router.push("/");
       } catch (error: any) {
         toast({
           title: "Google Login Failed",
           description: error.message || "Please try again.",
           variant: "destructive",
-        }); // 📌 Toast error
+        });
       } finally {
         setGoogleLoading(false);
       }
@@ -132,7 +134,7 @@ const SignIn = () => {
         title: "Google Login Failed",
         description: "An error occurred.",
         variant: "destructive",
-      }); // 📌 Toast error
+      });
       setGoogleLoading(false);
     },
   });
@@ -145,7 +147,7 @@ const SignIn = () => {
   }, []);
 
   return (
-    <div className="bg-gradient-to-b from-[#E7FAFE] to-white min-h-screen text-center p-4 mb-24">
+    <div className="bg-gradient-to-b from-[#E7FAFE] to-white min-h-screen text-center">
       <div
         className={`fixed top-0 left-80 right-80 z-50 transition-all ${
           isScrolled ? "bg-transparent" : "bg-transparent py-6"
@@ -156,105 +158,168 @@ const SignIn = () => {
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row justify-center items-center text-start space-y-10 md:space-y-0 md:space-x-10 mt-10 md:mt-44">
-        <div className="hidden md:block w-1/2 p-8 bg-white shadow-lg rounded-lg">
-          <h2 className="text-lg font-semibold mb-2">Commercial Videos</h2>
-          <div className="relative w-full aspect-video">
-            <iframe
-              className="w-full h-full rounded-lg"
-              src="https://www.youtube.com/embed/AITFo973Jro?autoplay=1&mute=1"
-              title="YouTube Video"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
-          </div>
-        </div>
 
-        <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-lg">
-          <h2 className="text-xl font-semibold text-center mb-4">Sign In</h2>
-
-          {/* 📌 Form Login */}
-          <form onSubmit={formik.handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-gray-600">Email</label>
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="w-full p-3 border rounded-lg"
-                {...formik.getFieldProps("email")}
-              />
-              {formik.touched.email && formik.errors.email && (
-                <p className="text-red-500 text-sm">{formik.errors.email}</p>
-              )}
+      {/* Main Content */}
+      <div className="container mx-auto pt-32 md:pt-28 lg:pt-40 pb-8">
+        <div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-12 lg:gap-16">
+          {/* Left Column - Video (Hidden on small screens) */}
+          <div className="hidden md:block w-full md:w-1/2 lg:w-5/12">
+            <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-lg transition-all hover:shadow-xl border border-gray-100">
+              <h2 className="text-lg font-semibold mb-4 flex items-center text-blue-700">
+                <div className="w-5 h-5 mr-2" />
+                See How Our Laundry Service Works
+              </h2>
+              <div className="relative w-full aspect-video rounded-xl overflow-hidden">
+                <iframe
+                  className="w-full h-full rounded-lg"
+                  src="https://www.youtube.com/embed/AITFo973Jro?autoplay=1&mute=1"
+                  title="YouTube Video"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </div>
+              <p className="mt-4 text-sm text-gray-600">
+                Watch our video to learn how easy it is to get your laundry done with our service.
+              </p>
             </div>
-            <div>
-              <label className="block text-gray-600">Password</label>
-              <input
-                type="password"
-                placeholder="Enter your password"
-                className="w-full p-3 border rounded-lg"
-                {...formik.getFieldProps("password")}
-              />
-              {formik.touched.password && formik.errors.password && (
-                <p className="text-red-500 text-sm">{formik.errors.password}</p>
-              )}
-            </div>
-            <Button
-              type="submit"
-              className={`w-full p-3 rounded-lg text-white ${
-                loading ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-600"
-              } transition-all`}
-              disabled={loading}
-            >
-              {loading ? "Signing in..." : "Sign In"}
-            </Button>
-          </form>
-
-          <div className="text-center mt-3">
-            <a href="/forgot-password" className="text-blue-500 text-sm">
-              Forgot Password?
-            </a>
           </div>
 
-          <div className="mt-4 text-center">OR</div>
+          {/* Right Column - Login Form */}
+          <div className="w-full md:w-1/2 lg:w-5/12 max-w-md">
+            <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg transition-all hover:shadow-xl border border-gray-100">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-800">Welcome Back</h2>
+                <p className="text-gray-600 mt-1">Sign in to continue to your account</p>
+              </div>
 
-          {/* 📌 Tombol Login dengan Google */}
-          <Button
-            onClick={() => handleGoogleLogin()}
-            className={`w-full flex items-center justify-center gap-2 p-3 rounded-lg text-black ${
-              googleLoading ? "bg-gray-400" : "bg-white hover:bg-gray-100"
-            } transition-all`}
-            disabled={googleLoading}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48">
-              <path
-                fill="#4285F4"
-                d="M24 9.5c3.52 0 6.59 1.28 9.02 3.39l6.69-6.69C34.85 2.27 29.71 0 24 0 14.78 0 6.84 5.38 2.84 13.26l7.89 6.1C13.15 13.02 18.2 9.5 24 9.5z"
-              />
-              <path
-                fill="#34A853"
-                d="M46.07 24.55c0-1.37-.12-2.7-.35-3.99H24v7.56h12.65c-.66 3.22-2.54 5.94-5.32 7.75l7.88 6.1c4.63-4.29 7.34-10.6 7.34-17.42z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M10.73 28.54c-.51-1.52-.78-3.12-.78-4.77s.27-3.25.78-4.77l-7.89-6.1C.93 16.01 0 19.91 0 24s.93 7.99 2.84 11.1l7.89-6.1z"
-              />
-              <path
-                fill="#EA4335"
-                d="M24 48c6.48 0 11.91-2.15 15.88-5.84l-7.88-6.1c-2.22 1.49-5.02 2.37-8 2.37-5.8 0-10.85-3.52-13.27-8.61l-7.89 6.1C6.84 42.62 14.78 48 24 48z"
-              />
-            </svg>
-            {googleLoading ? "Signing In with Google..." : "Sign In with Google"}
-          </Button>
+              {/* Login Form */}
+              <form onSubmit={formik.handleSubmit} className="space-y-5">
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-gray-700 flex items-center">
+                      <Mail className="w-4 h-4 mr-1.5 text-gray-400" />
+                      Email Address
+                    </label>
+                    {formik.touched.email && formik.errors.email && (
+                      <span className="text-xs text-red-500">{formik.errors.email}</span>
+                    )}
+                  </div>
+                  <Input
+                    type="email"
+                    placeholder="Enter your email"
+                    className={`w-full ${
+                      formik.touched.email && formik.errors.email
+                        ? "border-red-300 focus:ring-red-500"
+                        : "border-gray-300 focus:ring-blue-500"
+                    }`}
+                    {...formik.getFieldProps("email")}
+                  />
+                </div>
 
-          <div className="mt-4 text-center">
-            <p className="text-sm text-gray-600">
-              Don&apos;t have an account?{" "}
-              <a href="/register" className="text-blue-500 hover:underline">
-                Sign Up
-              </a>
-            </p>
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-gray-700 flex items-center">
+                      <KeyRound className="w-4 h-4 mr-1.5 text-gray-400" />
+                      Password
+                    </label>
+                    {formik.touched.password && formik.errors.password && (
+                      <span className="text-xs text-red-500">{formik.errors.password}</span>
+                    )}
+                  </div>
+                  <Input
+                    type="password"
+                    placeholder="Enter your password"
+                    className={`w-full ${
+                      formik.touched.password && formik.errors.password
+                        ? "border-red-300 focus:ring-red-500"
+                        : "border-gray-300 focus:ring-blue-500"
+                    }`}
+                    {...formik.getFieldProps("password")}
+                  />
+                </div>
+
+                <div className="text-right">
+                  <a href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-800 hover:underline">
+                    Forgot password?
+                  </a>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center justify-center"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Signing in...
+                    </>
+                  ) : (
+                    <>
+                      <LogIn className="w-4 h-4 mr-2" /> Sign In
+                    </>
+                  )}
+                </Button>
+              </form>
+
+              {/* Divider */}
+              <div className="flex items-center my-6">
+                <div className="flex-grow border-t border-gray-300"></div>
+                <span className="mx-4 text-sm text-gray-500">OR</span>
+                <div className="flex-grow border-t border-gray-300"></div>
+              </div>
+
+              {/* Google Sign-in Button */}
+              <Button
+                onClick={() => handleGoogleLogin()}
+                className="w-full h-11 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 rounded-lg font-medium flex items-center justify-center"
+                disabled={googleLoading}
+              >
+                {googleLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Signing in with Google...
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 48 48"
+                      width="20"
+                      height="20"
+                      className="mr-2"
+                    >
+                      <path
+                        fill="#FFC107"
+                        d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"
+                      />
+                      <path
+                        fill="#FF3D00"
+                        d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"
+                      />
+                      <path
+                        fill="#4CAF50"
+                        d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"
+                      />
+                      <path
+                        fill="#1976D2"
+                        d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"
+                      />
+                    </svg>
+                    Sign in with Google
+                  </>
+                )}
+              </Button>
+
+              {/* Sign Up Link */}
+              <div className="mt-6 text-center">
+                <p className="text-sm text-gray-600">
+                  Don&apos;t have an account?{" "}
+                  <a href="/register" className="text-blue-600 hover:text-blue-800 hover:underline font-medium">
+                    Sign Up
+                  </a>
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
