@@ -15,7 +15,6 @@ const CreatePickupOrder = () => {
   const [formStep, setFormStep] = useState(0);
   
   useEffect(() => {
-    // Fetch addresses when component mounts
     const fetchAddresses = async () => {
       try {
         await getAllAddresses();
@@ -32,7 +31,6 @@ const CreatePickupOrder = () => {
     fetchAddresses();
   }, [getAllAddresses, toast]);
 
-  // Handle successful order creation
   const handleOrderCreated = () => {
     toast({
       title: "Order Created Successfully",
@@ -40,7 +38,6 @@ const CreatePickupOrder = () => {
       variant: "default",
     });
     
-    // Short delay before redirect for better UX
     setTimeout(() => {
       router.push("/orders");
     }, 1500);

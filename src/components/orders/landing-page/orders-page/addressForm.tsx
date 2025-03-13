@@ -24,10 +24,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 
-// Import the CSS (if using CSS modules)
-// import styles from '@/styles/map-styles.css'
-
-// Dynamically import the map component to prevent SSR issues
 const MapPicker = dynamic(
   () => import("./mapPickerFormik").then((mod) => mod.default),
   {
