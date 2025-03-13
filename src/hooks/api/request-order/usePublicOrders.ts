@@ -140,19 +140,20 @@ export const useOrders = () => {
     [api, currentOrder]
   );
 
-  // Add the cancelOrder function based on the backend implementation
+  const canCancelOrder = (order: Order): boolean => {
+    return order.orderStatus === "WAITING_FOR_PICKUP_DRIVER";
+  };
+  
   const cancelOrder = useCallback(
     async (orderId: number, { reason }: { reason?: string } = {}) => {
       setLoading(true);
       setError(null);
-
+  
       try {
-        // Use DELETE method to match your backend's deletePickupOrderService
         const response = await api.delete<ApiResponse<{ message: string }>>(
           `/pickup-orders/${orderId}`
         );
-
-        // After successful cancellation, update local state
+  
         setOrders((prevOrders) =>
           prevOrders.map((order) =>
             order.id === orderId
@@ -165,8 +166,7 @@ export const useOrders = () => {
               : order
           )
         );
-
-        // If this is the current order, update it too
+  
         if (currentOrder && currentOrder.id === orderId) {
           setCurrentOrder({
             ...currentOrder,
@@ -175,24 +175,14 @@ export const useOrders = () => {
             deletedAt: new Date().toISOString()
           });
         }
-
-        console.log("Order has been cancelled:", response.data.message);
-        
-        // Return the updated order structure even though the API doesn't return it
-        const cancelledOrder = orders.find(order => order.id === orderId);
-        if (cancelledOrder) {
-          const updatedOrder = {
-            ...cancelledOrder,
-            orderStatus: "CANCELLED_BY_CUSTOMER" as OrderStatus,
-            isDeleted: true,
-            deletedAt: new Date().toISOString()
-          };
-          return updatedOrder;
-        }
-        return null;
+  
+        return {
+          id: orderId,
+          orderStatus: "CANCELLED_BY_CUSTOMER" as OrderStatus,
+          isDeleted: true,
+          deletedAt: new Date().toISOString()
+        };
       } catch (error) {
-        console.error("Error cancelling order:", error);
-        // Extract error message from API response if available
         let errorMessage: string;
         if (error && typeof error === 'object' && 'response' in error) {
           const responseData = (error as any).response?.data;
@@ -203,7 +193,7 @@ export const useOrders = () => {
             : "Failed to cancel order";
         }
         setError(errorMessage);
-        throw new Error(errorMessage); // Throw error to handle in the UI
+        throw new Error(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -211,7 +201,6 @@ export const useOrders = () => {
     [api, currentOrder, orders]
   );
 
-  // Automatically refresh orders at intervals
   useEffect(() => {
     const interval = setInterval(() => {
       getAllOrders();
@@ -230,6 +219,7 @@ export const useOrders = () => {
     getOrderById,
     resetOrderState,
     updateOrderStatus,
-    cancelOrder, // Export the new cancelOrder function
+    cancelOrder,
+    canCancelOrder
   };
 };

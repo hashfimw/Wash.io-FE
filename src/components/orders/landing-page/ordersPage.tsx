@@ -36,7 +36,6 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
 
-// Define enum to match the schema
 enum OrderStatus {
   ARRIVED_AT_OUTLET = "ARRIVED_AT_OUTLET",
   READY_FOR_WASHING = "READY_FOR_WASHING",
@@ -66,13 +65,11 @@ export default function OrdersPage() {
   const itemsPerPage = 5;
   const { toast } = useToast();
 
-  // Cancel order dialog state
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [orderToCancel, setOrderToCancel] = useState<Order | null>(null);
   const [cancelReason, setCancelReason] = useState("");
   const [isCancelling, setIsCancelling] = useState(false);
   
-  // Status info dialog
   const [statusInfoOpen, setStatusInfoOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
@@ -93,7 +90,6 @@ export default function OrdersPage() {
         );
       });
       setFilteredOrders(filtered);
-      // Reset to first page when search results change
       setCurrentPage(1);
     }
   }, [orders, searchQuery]);
@@ -103,7 +99,6 @@ export default function OrdersPage() {
       order.id === updatedOrder.id ? {...order, orderStatus: OrderStatus.COMPLETED} : order
     );
     
-    // Update the filtered orders list
     setFilteredOrders((prev) =>
       prev.map((order) => 
         order.id === updatedOrder.id ? {...order, orderStatus: OrderStatus.COMPLETED} : order
@@ -111,37 +106,31 @@ export default function OrdersPage() {
     );
   };
 
-  // Function to open the cancel dialog
   const openCancelDialog = (order: Order) => {
     setOrderToCancel(order);
     setCancelDialogOpen(true);
     setCancelReason("");
   };
   
-  // Function to open status info dialog
   const openStatusInfo = (order: Order) => {
     setSelectedOrder(order);
     setStatusInfoOpen(true);
   };
 
-  // Function to handle order cancellation
   const handleCancelOrder = async () => {
     if (!orderToCancel) return;
     
     setIsCancelling(true);
     
     try {
-      // Call the API to cancel the order
       await cancelOrder(orderToCancel.id, { reason: cancelReason });
       
-      // Update the local state to reflect the cancellation
       const updatedOrders = orders.map((order) => 
         order.id === orderToCancel.id 
           ? {...order, orderStatus: OrderStatus.CANCELLED_BY_CUSTOMER} 
           : order
       );
-      
-      // Update the filtered orders list
+
       setFilteredOrders((prev) =>
         prev.map((order) => 
           order.id === orderToCancel.id 
@@ -156,14 +145,17 @@ export default function OrdersPage() {
         variant: "default",
       });
       
-      // Close the dialog
       setCancelDialogOpen(false);
       setOrderToCancel(null);
     } catch (err) {
       console.error("Failed to cancel order:", err);
+      const errorMessage = err instanceof Error 
+        ? err.message 
+        : "Failed to cancel the order. Please try again.";
+      
       toast({
         title: "Error",
-        description: "Failed to cancel the order. Please try again.",
+        description: errorMessage,
         variant: "destructive", 
       });
     } finally {
@@ -171,9 +163,7 @@ export default function OrdersPage() {
     }
   };
 
-  // Check if an order can be cancelled
   const canCancelOrder = (order: Order): boolean => {
-    // Define statuses that allow cancellation based on your schema
     const cancellableStatuses = [
       OrderStatus.WAITING_FOR_PICKUP_DRIVER,
       OrderStatus.WAITING_FOR_DELIVERY_DRIVER,
@@ -181,7 +171,6 @@ export default function OrdersPage() {
       OrderStatus.AWAITING_PAYMENT
     ];
     
-    // Check if the order status is in the cancellable list
     return cancellableStatuses.includes(order.orderStatus as OrderStatus);
   };
 
@@ -214,7 +203,6 @@ export default function OrdersPage() {
     }
   };
 
-  // Get a human readable status description
   const getStatusDescription = (status: string): string => {
     switch (status) {
       case OrderStatus.WAITING_FOR_PICKUP_DRIVER:

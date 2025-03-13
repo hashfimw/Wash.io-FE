@@ -1,4 +1,5 @@
-// components/MapPickerFormik.tsx
+"use client"
+
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap, ZoomControl } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -6,8 +7,6 @@ import L from "leaflet";
 import { FormikProps } from "formik";
 import { Loader2, MapPin, Compass, AlertCircle, Check } from "lucide-react";
 
-// Fix Leaflet icon issue
-// Ensure this code runs only on client side
 const customIcon = new L.Icon({
   iconUrl: "/images/marker-icon.png",
   iconSize: [25, 41],
@@ -17,7 +16,6 @@ const customIcon = new L.Icon({
   shadowUrl: "/images/marker-shadow.png"
 });
 
-// Create a pulsing marker icon for current location
 const pulsingIcon = new L.DivIcon({
   className: "map-marker-pulsing",
   html: `<div class="marker-pin"></div>`,
@@ -41,7 +39,6 @@ interface AddressResult {
   longitude: string;
 }
 
-// Function to get and process address from coordinates
 async function getAddressFromCoordinates(
   lat: number,
   lng: number
@@ -53,7 +50,6 @@ async function getAddressFromCoordinates(
     const data = await response.json();
     const address = data.address;
 
-    // Extract district with several possible fields
     const district =
       address.district ||
       address.suburb ||
@@ -62,11 +58,9 @@ async function getAddressFromCoordinates(
       address.neighbourhood ||
       "";
 
-    // Extract village with several possible fields
     const village =
       address.village || address.suburb || address.neighbourhood || "";
 
-    // Create structured addressLine
     const addressLine = [
       address.road,
       district,
@@ -91,7 +85,6 @@ async function getAddressFromCoordinates(
   }
 }
 
-// Component to handle map click events
 function MapEvents({ formik }: { formik: FormikProps<any> }) {
   const [isLoading, setIsLoading] = useState(false);
   const map = useMap();
@@ -115,7 +108,6 @@ function MapEvents({ formik }: { formik: FormikProps<any> }) {
         const address = await getAddressFromCoordinates(lat, lng);
 
         if (address) {
-          // Update Formik values
           formik.setFieldValue("latitude", address.latitude);
           formik.setFieldValue("longitude", address.longitude);
           formik.setFieldValue("addressLine", address.addressLine);
@@ -123,8 +115,7 @@ function MapEvents({ formik }: { formik: FormikProps<any> }) {
           formik.setFieldValue("regency", address.regency);
           formik.setFieldValue("district", address.district);
           formik.setFieldValue("village", address.village);
-          
-          // Update status message to success
+        
           statusDiv.innerHTML = `
             <div class="status-content success">
               <div class="status-icon-success"></div>
@@ -132,7 +123,6 @@ function MapEvents({ formik }: { formik: FormikProps<any> }) {
             </div>
           `;
           
-          // Remove status after a delay
           setTimeout(() => {
             if (document.getElementById('map-container')?.contains(statusDiv)) {
               document.getElementById('map-container')?.removeChild(statusDiv);
@@ -142,7 +132,6 @@ function MapEvents({ formik }: { formik: FormikProps<any> }) {
       } catch (error) {
         console.error("Error updating form:", error);
         
-        // Update status message to error
         statusDiv.innerHTML = `
           <div class="status-content error">
             <div class="status-icon-error"></div>
@@ -150,7 +139,6 @@ function MapEvents({ formik }: { formik: FormikProps<any> }) {
           </div>
         `;
         
-        // Remove status after a delay
         setTimeout(() => {
           if (document.getElementById('map-container')?.contains(statusDiv)) {
             document.getElementById('map-container')?.removeChild(statusDiv);
@@ -165,7 +153,6 @@ function MapEvents({ formik }: { formik: FormikProps<any> }) {
   return null;
 }
 
-// Component to recenter map when coordinates change
 function RecenterMap({ lat, lng }: { lat: number; lng: number }) {
   const map = useMap();
   useEffect(() => {
@@ -174,16 +161,14 @@ function RecenterMap({ lat, lng }: { lat: number; lng: number }) {
   return null;
 }
 
-// Main component
 const MapPickerFormik = ({ formik, latitude, longitude }: MapPickerFormikProps) => {
   const [currentLocation, setCurrentLocation] = useState<[number, number]>([
-    -6.2, 106.816666, // Default to Jakarta coordinates
+    -6.2, 106.816666, 
   ]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasGeolocation, setHasGeolocation] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
 
-  // Function to find current location
   const findCurrentLocation = () => {
     setIsLoading(true);
     setLocationError(null);
@@ -199,7 +184,6 @@ const MapPickerFormik = ({ formik, latitude, longitude }: MapPickerFormikProps) 
           try {
             const address = await getAddressFromCoordinates(lat, lng);
             if (address) {
-              // Update Formik values
               formik.setFieldValue("latitude", address.latitude);
               formik.setFieldValue("longitude", address.longitude);
               formik.setFieldValue("addressLine", address.addressLine);
@@ -230,7 +214,6 @@ const MapPickerFormik = ({ formik, latitude, longitude }: MapPickerFormikProps) 
     }
   };
 
-  // Initialize map with coordinates or geolocation
   useEffect(() => {
     if (latitude && longitude) {
       setCurrentLocation([parseFloat(latitude), parseFloat(longitude)]);
@@ -241,7 +224,6 @@ const MapPickerFormik = ({ formik, latitude, longitude }: MapPickerFormikProps) 
     findCurrentLocation();
   }, [latitude, longitude, formik]);
 
-  // Loading state
   if (isLoading) {
     return (
       <div className="h-[300px] w-full flex items-center justify-center border rounded-md bg-gray-50">
@@ -257,7 +239,7 @@ const MapPickerFormik = ({ formik, latitude, longitude }: MapPickerFormikProps) 
     <div className="space-y-2">
       <div id="map-container" className="h-[300px] w-full rounded-md border relative overflow-hidden">
         {/* Map instructions overlay */}
-        <div className="absolute top-3 left-1/2 transform -translate-x-1/2 z-[1000] bg-white py-1 px-3 rounded-full shadow-md text-xs font-medium flex items-center">
+        <div className="absolute top-3 left-1/2 transform -translate-x-1/2 z-20 bg-white py-1 px-3 rounded-full shadow-md text-xs font-medium flex items-center">
           <MapPin className="w-3 h-3 mr-1 text-orange-500" />
           Click anywhere on the map to select location
         </div>
@@ -276,7 +258,7 @@ const MapPickerFormik = ({ formik, latitude, longitude }: MapPickerFormikProps) 
           center={currentLocation}
           zoom={15}
           style={{ height: "100%", width: "100%" }}
-          zoomControl={false} // We'll add our own zoom control in a better position
+          zoomControl={false}
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -296,8 +278,7 @@ const MapPickerFormik = ({ formik, latitude, longitude }: MapPickerFormikProps) 
             />
           )}
         </MapContainer>
-        
-        {/* Add CSS for the pulsing marker and status overlay */}
+
         <style jsx global>{`
           .map-marker-pulsing .marker-pin {
             width: 16px;
