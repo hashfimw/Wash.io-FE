@@ -257,7 +257,7 @@ const MapPickerFormik = ({ formik, latitude, longitude }: MapPickerFormikProps) 
     <div className="space-y-2">
       <div id="map-container" className="h-[300px] w-full rounded-md border relative overflow-hidden">
         {/* Map instructions overlay */}
-        <div className="absolute top-3 left-1/2 transform -translate-x-1/2 z-[1000] bg-white py-1 px-3 rounded-full shadow-md text-xs font-medium flex items-center">
+        <div className="absolute top-3 left-1/2 transform -translate-x-1/2 z-20 bg-white py-1 px-3 rounded-full shadow-md text-xs font-medium flex items-center">
           <MapPin className="w-3 h-3 mr-1 text-orange-500" />
           Click anywhere on the map to select location
         </div>

@@ -24,6 +24,9 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 
+// Import the CSS (if using CSS modules)
+// import styles from '@/styles/map-styles.css'
+
 // Dynamically import the map component to prevent SSR issues
 const MapPicker = dynamic(
   () => import("./mapPickerFormik").then((mod) => mod.default),
@@ -155,7 +158,8 @@ const AddressForm = ({ onAddressCreated, onCancel }: AddressFormProps) => {
               Select Location on Map
             </Label>
             
-            <div className="rounded-md overflow-hidden shadow-sm border border-gray-200">
+            {/* The key container for the map with proper dimensions */}
+            <div className="rounded-md overflow-hidden shadow-sm border border-gray-200 h-[300px] relative">
               <MapPicker 
                 formik={addressFormik}
                 latitude={addressFormik.values.latitude}
@@ -163,12 +167,7 @@ const AddressForm = ({ onAddressCreated, onCancel }: AddressFormProps) => {
               />
             </div>
             
-            <div className="flex items-center text-xs text-gray-500">
-              <AlertCircle className="w-3.5 h-3.5 mr-1.5 text-blue-500" />
-              Click on the map to automatically fill address details
-            </div>
-            
-            {/* Coordinates display with badge */}
+            {/* Coordinates badges (moved outside the map container) */}
             {addressFormik.values.latitude && addressFormik.values.longitude && (
               <div className="flex items-center space-x-2 text-xs pt-1">
                 <Badge variant="outline" className="bg-blue-50 text-blue-700 hover:bg-blue-50">

@@ -47,7 +47,7 @@ const CreatePickupOrder = () => {
   };
 
   return (
-    <section className="bg-gradient-to-b from-[#E7FAFE] to-white min-h-screen p-4 sm:p-6 md:p-8 pt-16 sm:pt-20 md:pt-24">
+    <section className="bg-gradient-to-b from-[#E7FAFE] to-white min-h-screen p-4 sm:p-6 md:p-8 pt-32 sm:pt-20 md:pt-24">
       <div className="max-w-4xl mx-auto px-2 sm:px-4">
         {/* Header */}
         <div className="text-center mb-6 sm:mb-10">

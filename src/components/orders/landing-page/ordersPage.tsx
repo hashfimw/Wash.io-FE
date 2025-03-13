@@ -124,7 +124,6 @@ export default function OrdersPage() {
     setStatusInfoOpen(true);
   };
 
-  // Function to handle order cancellation
   const handleCancelOrder = async () => {
     if (!orderToCancel) return;
     
@@ -161,9 +160,14 @@ export default function OrdersPage() {
       setOrderToCancel(null);
     } catch (err) {
       console.error("Failed to cancel order:", err);
+      // Show more specific error message from the API
+      const errorMessage = err instanceof Error 
+        ? err.message 
+        : "Failed to cancel the order. Please try again.";
+      
       toast({
         title: "Error",
-        description: "Failed to cancel the order. Please try again.",
+        description: errorMessage,
         variant: "destructive", 
       });
     } finally {
